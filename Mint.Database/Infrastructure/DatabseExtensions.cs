@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Infrastructure.Accounts;
+using Mint.Database.Infrastructure.Transactions;
 using Mint.Database.Infrastructure.Users;
 
 namespace Mint.Database.Infrastructure;
@@ -21,5 +22,7 @@ public static class DatabseExtensions
         services.RegisterUserRepositories();
         services.RegisterAccountMappers();
         services.RegisterAccountRepositories();
+        services.RegisterTransactionMappers();
+        services.RegisterTransactionRepositories();
     }
 }

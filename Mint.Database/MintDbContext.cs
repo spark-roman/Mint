@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mint.Database.Entities.Accounts;
+using Mint.Database.Entities.Transactions;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database;
@@ -19,6 +20,11 @@ public class MintDbContext : DbContext
     /// Accounts
     /// </summary>
     public DbSet<AccountEntity> Accounts { get; set; }
+
+    /// <summary>
+    /// Transactions
+    /// </summary>
+    public DbSet<TransactionEntity> Transactions { get; set; }
 
     /// <summary>
     /// Constructor with connection param
