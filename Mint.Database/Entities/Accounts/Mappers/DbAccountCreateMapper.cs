@@ -16,7 +16,8 @@ public class DbAccountCreateMapper : IDbEntityMapper<AccountCreateDto, AccountEn
             UserId = entity.UserId,
             Balance = entity.Balance,
             CreatedAt = entity.CreatedAt,
-            LastTransactionDate = null
+            LastTransactionDate = null,
+            Status = entity.Status
         };
     }
 }

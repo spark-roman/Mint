@@ -40,4 +40,12 @@ public interface IAccountRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>true if account found and updated, otherwise false</returns>
     Task<bool> UpdateBalanceAsync(AccountUpdateBalanceDto dto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Delete account by ID (soft delete - sets status to Deleted)
+    /// </summary>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>true if account found and deleted, otherwise false</returns>
+    Task<bool> DeleteAccountAsync(long accountId, CancellationToken cancellationToken);
 }

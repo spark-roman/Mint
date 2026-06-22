@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Common.Contracts.Accounts;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Entities.Accounts;
@@ -14,12 +15,14 @@ public class AccountEntity
     /// </summary>
     [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    [Column("id")]
     public long Id { get; set; }
 
     /// <summary>
     /// User ID that owns the account
     /// </summary>
     [Required]
+    [Column("user_id")]
     public long UserId { get; set; }
 
     /// <summary>
@@ -31,15 +34,24 @@ public class AccountEntity
     /// <summary>
     /// Current balance
     /// </summary>
+    [Column("balance")]
     public decimal Balance { get; set; }
 
     /// <summary>
     /// Creation date
     /// </summary>
+    [Column("created_at")]
     public DateTimeOffset CreatedAt { get; set; }
 
     /// <summary>
     /// Last transaction date
     /// </summary>
+    [Column("last_transaction_date")]
     public DateTimeOffset? LastTransactionDate { get; set; }
+
+    /// <summary>
+    /// Account status
+    /// </summary>
+    [Column("status")]
+    public AccountStatus Status { get; set; }
 }

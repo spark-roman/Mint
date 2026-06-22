@@ -1,3 +1,4 @@
+using Mint.Common.Contracts.Accounts;
 using Mint.Database.Entities.Accounts.Dto;
 using Mint.Database.Entities.Accounts.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
@@ -87,6 +88,7 @@ public class AccountRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(1, result.Id);
         Assert.Equal(1, result.UserId);
         Assert.Equal(1500.50m, result.Balance);
+        Assert.Equal(AccountStatus.Active, result.Status);
     }
 
     /// <summary>
@@ -224,5 +226,44 @@ public class AccountRepositoryTests : IClassFixture<RepositoryFixture>
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(async () =>
             await repository.CreateAccountAsync(null!, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Verifies that deleting an existing account returns true and sets status to Deleted.
+    /// </summary>
+    [Fact]
+    public async Task DeleteAccountAsync_ExistingAccount_DeletesAccount_ReturnsTrue()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        // Act
+        var result = await repository.DeleteAccountAsync(1, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+
+        // Verify the deletion
+        var deletedAccount = await repository.GetAccountByIdAsync(1, CancellationToken.None);
+        Assert.NotNull(deletedAccount);
+        Assert.Equal(AccountStatus.Deleted, deletedAccount.Status);
+    }
+
+    /// <summary>
+    /// Verifies that deleting a non-existent account returns false.
+    /// </summary>
+    [Fact]
+    public async Task DeleteAccountAsync_NonExistentAccount_ReturnsFalse()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        // Act
+        var result = await repository.DeleteAccountAsync(999999, CancellationToken.None);
+
+        // Assert
+        Assert.False(result);
     }
 }

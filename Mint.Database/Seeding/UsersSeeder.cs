@@ -1,3 +1,4 @@
+using Mint.Common.Contracts.Accounts;
 using Mint.Database.Entities.Accounts;
 using Mint.Database.Entities.Users;
 
@@ -58,7 +59,8 @@ public static class UsersSeeder
                 UserId = 1,
                 Balance = 1500.50m,
                 CreatedAt = new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero),
-                LastTransactionDate = new DateTimeOffset(2024, 6, 20, 14, 45, 0, TimeSpan.Zero)
+                LastTransactionDate = new DateTimeOffset(2024, 6, 20, 14, 45, 0, TimeSpan.Zero),
+                Status = AccountStatus.Active
             },
             new AccountEntity
             {
@@ -66,7 +68,8 @@ public static class UsersSeeder
                 UserId = 2,
                 Balance = 3200.00m,
                 CreatedAt = new DateTimeOffset(2024, 2, 10, 9, 0, 0, TimeSpan.Zero),
-                LastTransactionDate = new DateTimeOffset(2024, 7, 5, 16, 30, 0, TimeSpan.Zero)
+                LastTransactionDate = new DateTimeOffset(2024, 7, 5, 16, 30, 0, TimeSpan.Zero),
+                Status = AccountStatus.Active
             },
             new AccountEntity
             {
@@ -74,7 +77,8 @@ public static class UsersSeeder
                 UserId = 3,
                 Balance = 750.25m,
                 CreatedAt = new DateTimeOffset(2024, 3, 5, 11, 15, 0, TimeSpan.Zero),
-                LastTransactionDate = new DateTimeOffset(2024, 5, 18, 12, 0, 0, TimeSpan.Zero)
+                LastTransactionDate = new DateTimeOffset(2024, 5, 18, 12, 0, 0, TimeSpan.Zero),
+                Status = AccountStatus.Active
             });
     }
 }

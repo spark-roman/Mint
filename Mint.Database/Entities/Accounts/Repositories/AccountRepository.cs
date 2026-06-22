@@ -1,5 +1,6 @@
 using AdvApplication.Auth.Users;
 using Microsoft.EntityFrameworkCore;
+using Mint.Common.Contracts.Accounts;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.Accounts.Dto;
 
@@ -92,6 +93,25 @@ public class AccountRepository(
 
         account.Balance = dto.NewBalance;
         account.LastTransactionDate = dto.LastTransactionDate;
+        await context.SaveChangesAsync(cancellationToken);
+
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> DeleteAccountAsync(long accountId, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var account = await context.Accounts
+            .FirstOrDefaultAsync(a => a.Id == accountId, cancellationToken);
+
+        if (account is null)
+        {
+            return false;
+        }
+
+        account.Status = AccountStatus.Deleted;
         await context.SaveChangesAsync(cancellationToken);
 
         return true;

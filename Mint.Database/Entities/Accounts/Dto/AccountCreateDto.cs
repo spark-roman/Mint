@@ -1,3 +1,5 @@
+using Mint.Common.Contracts.Accounts;
+
 namespace Mint.Database.Entities.Accounts.Dto;
 
 /// <summary>
@@ -29,4 +31,9 @@ public record AccountCreateDto
     /// Creation date
     /// </summary>
     public DateTimeOffset CreatedAt { get; init; }
+
+    /// <summary>
+    /// Account status
+    /// </summary>
+    public AccountStatus Status { get; init; } = AccountStatus.Active;
 }
