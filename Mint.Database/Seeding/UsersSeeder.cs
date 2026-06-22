@@ -1,4 +1,4 @@
-using Mint.Database;
+using Mint.Database.Entities.Accounts;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Seeding;
@@ -49,6 +49,32 @@ public static class UsersSeeder
                 UserName = "charlie.brown",
                 CreatedAt = DateTimeOffset.Now,
                 Status = 1
+            });
+
+        context.Accounts.AddRange(
+            new AccountEntity
+            {
+                Id = 1,
+                UserId = 1,
+                Balance = 1500.50m,
+                CreatedAt = new DateTimeOffset(2024, 1, 15, 10, 30, 0, TimeSpan.Zero),
+                LastTransactionDate = new DateTimeOffset(2024, 6, 20, 14, 45, 0, TimeSpan.Zero)
+            },
+            new AccountEntity
+            {
+                Id = 2,
+                UserId = 2,
+                Balance = 3200.00m,
+                CreatedAt = new DateTimeOffset(2024, 2, 10, 9, 0, 0, TimeSpan.Zero),
+                LastTransactionDate = new DateTimeOffset(2024, 7, 5, 16, 30, 0, TimeSpan.Zero)
+            },
+            new AccountEntity
+            {
+                Id = 3,
+                UserId = 3,
+                Balance = 750.25m,
+                CreatedAt = new DateTimeOffset(2024, 3, 5, 11, 15, 0, TimeSpan.Zero),
+                LastTransactionDate = new DateTimeOffset(2024, 5, 18, 12, 0, 0, TimeSpan.Zero)
             });
     }
 }

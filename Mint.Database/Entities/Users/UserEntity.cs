@@ -11,6 +11,7 @@ public class UserEntity
     /// <summary>
     /// Internal user id
     /// </summary>
+    [Key]
     [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
