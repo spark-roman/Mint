@@ -1,5 +1,3 @@
-using Mint.Common.Contracts.Transactions;
-
 namespace Mint.Database.Entities.Transactions.Dto;
 
 /// <summary>
@@ -16,11 +14,6 @@ public record TransactionCreateDto
     /// Transaction amount
     /// </summary>
     public decimal Amount { get; init; }
-
-    /// <summary>
-    /// Transaction type
-    /// </summary>
-    public TransactionType TransactionType { get; init; }
 
     /// <summary>
     /// Transaction description

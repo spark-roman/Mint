@@ -1,9 +1,10 @@
 using Microsoft.Extensions.DependencyInjection;
-using Mint.Database.Infrastructure.Accounts;
-using Mint.Database.Infrastructure.Transactions;
-using Mint.Database.Infrastructure.Users;
+using Mint.Database.Infrastructure.DI.Accounts;
+using Mint.Database.Infrastructure.DI.Transactions;
+using Mint.Database.Infrastructure.DI.UserInteractive;
+using Mint.Database.Infrastructure.DI.Users;
 
-namespace Mint.Database.Infrastructure;
+namespace Mint.Database.Infrastructure.DI;
 
 /// <summary>
 /// Database extensions
@@ -24,5 +25,9 @@ public static class DatabseExtensions
         services.RegisterAccountRepositories();
         services.RegisterTransactionMappers();
         services.RegisterTransactionRepositories();
+        services.RegisterDuelMappers();
+        services.RegisterDuelRepositories();
+        services.RegisterVoteMappers();
+        services.RegisterVoteRepositories();
     }
 }

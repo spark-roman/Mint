@@ -4,7 +4,7 @@ using Mint.Database.Entities.Users;
 using Mint.Database.Entities.Users.Dto;
 using Mint.Database.Entities.Users.Mappers;
 
-namespace Mint.Database.Infrastructure.Users;
+namespace Mint.Database.Infrastructure.DI.Users;
 
 /// <summary>
 /// Extension methods for user entity

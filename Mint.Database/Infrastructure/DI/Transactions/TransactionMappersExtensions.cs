@@ -4,7 +4,7 @@ using Mint.Database.Entities.Transactions;
 using Mint.Database.Entities.Transactions.Dto;
 using Mint.Database.Entities.Transactions.Mappers;
 
-namespace Mint.Database.Infrastructure.Transactions;
+namespace Mint.Database.Infrastructure.DI.Transactions;
 
 /// <summary>
 /// Extension methods for transaction entity

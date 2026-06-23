@@ -1,4 +1,3 @@
-using Mint.Common.Contracts.Transactions;
 using Mint.Database.Entities.Transactions.Dto;
 using Mint.Database.Entities.Transactions.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
@@ -36,7 +35,6 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         {
             AccountId = 1,
             Amount = 100.00m,
-            TransactionType = TransactionType.Bonus,
             Description = "Test transaction",
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -76,7 +74,6 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         {
             AccountId = 1,
             Amount = 250.50m,
-            TransactionType = TransactionType.Click,
             Description = "Click transaction",
             CreatedAt = DateTimeOffset.UtcNow
         };
@@ -90,7 +87,6 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(transactionId, result.Id);
         Assert.Equal(1, result.AccountId);
         Assert.Equal(250.50m, result.Amount);
-        Assert.Equal(TransactionType.Click, result.TransactionType);
         Assert.Equal("Click transaction", result.Description);
     }
 
@@ -125,7 +121,6 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         {
             AccountId = 1,
             Amount = 100.00m,
-            TransactionType = TransactionType.Bonus,
             Description = "First",
             CreatedAt = DateTimeOffset.UtcNow
         }, CancellationToken.None);
@@ -134,7 +129,6 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         {
             AccountId = 1,
             Amount = -50.00m,
-            TransactionType = TransactionType.Spend,
             Description = "Second",
             CreatedAt = DateTimeOffset.UtcNow
         }, CancellationToken.None);

@@ -1,7 +1,8 @@
+using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database;
-using Mint.Database.Infrastructure;
+using Mint.Database.Infrastructure.DI;
 using Mint.Database.Seeding;
 
 namespace Mint.UnitTests.Database.Fixtures.EntityFramework;
@@ -50,5 +51,19 @@ public class RepositoryFixture
         using var context = dbContextFactory.CreateDbContextAsync().GetAwaiter().GetResult();
         UsersSeeder.Seed(context);
         context.SaveChangesAsync().GetAwaiter().GetResult();
+    }
+
+    /// <summary>
+    /// Clears all duel test data from the database
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    public async Task ResetAsync(CancellationToken cancellationToken = default)
+    {
+        using var scope = ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+
+        using var context = await dbContextFactory.CreateDbContextAsync(cancellationToken);
+        context.Duels.RemoveRange(context.Duels);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }

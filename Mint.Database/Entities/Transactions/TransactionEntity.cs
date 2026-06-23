@@ -37,12 +37,6 @@ public class TransactionEntity
     public decimal Amount { get; set; }
 
     /// <summary>
-    /// Transaction type
-    /// </summary>
-    [Column("transaction_type")]
-    public Common.Contracts.Transactions.TransactionType TransactionType { get; set; }
-
-    /// <summary>
     /// Transaction description
     /// </summary>
     [Column("description")]

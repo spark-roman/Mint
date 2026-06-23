@@ -4,7 +4,7 @@ using Mint.Database.Entities.Accounts;
 using Mint.Database.Entities.Accounts.Dto;
 using Mint.Database.Entities.Accounts.Mappers;
 
-namespace Mint.Database.Infrastructure.Accounts;
+namespace Mint.Database.Infrastructure.DI.Accounts;
 
 /// <summary>
 /// Extension methods for account entity

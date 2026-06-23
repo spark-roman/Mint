@@ -14,6 +14,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mint.Common.Contracts", "Mi
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mint.UnitTests", "Mint.UnitTests\Mint.UnitTests.csproj", "{ED17099E-6BDD-4618-B8AA-CB3F240FF452}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Mint.App.Services", "Mint.App.Services\Mint.App.Services.csproj", "{4F024A34-FDAB-4DD8-A668-6F61A15CB893}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -35,5 +37,9 @@ Global
 		{ED17099E-6BDD-4618-B8AA-CB3F240FF452}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ED17099E-6BDD-4618-B8AA-CB3F240FF452}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ED17099E-6BDD-4618-B8AA-CB3F240FF452}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F024A34-FDAB-4DD8-A668-6F61A15CB893}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F024A34-FDAB-4DD8-A668-6F61A15CB893}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F024A34-FDAB-4DD8-A668-6F61A15CB893}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F024A34-FDAB-4DD8-A668-6F61A15CB893}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

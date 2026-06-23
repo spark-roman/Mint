@@ -1,14 +1,14 @@
-namespace Mint.Database.Entities.Transactions.Dto;
+namespace Mint.Database.Entities.UserInteractive.Votes.Dto;
 
 /// <summary>
-/// DTO for transaction
+/// DTO for vote
 /// </summary>
-public record TransactionDto
+public record VoteDto
 {
     /// <summary>
-    /// Transaction ID
+    /// Duel ID
     /// </summary>
-    public long Id { get; init; }
+    public long DuelId { get; init; }
 
     /// <summary>
     /// Account ID
@@ -16,14 +16,14 @@ public record TransactionDto
     public long AccountId { get; init; }
 
     /// <summary>
-    /// Transaction amount
+    /// Option chosen
     /// </summary>
-    public decimal Amount { get; init; }
+    public required string OptionChosen { get; init; }
 
     /// <summary>
-    /// Transaction description
+    /// Bet amount
     /// </summary>
-    public string? Description { get; init; }
+    public decimal BetAmount { get; init; }
 
     /// <summary>
     /// Creation date

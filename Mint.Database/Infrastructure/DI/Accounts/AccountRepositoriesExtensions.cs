@@ -2,12 +2,12 @@ using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Accounts;
 using Mint.Database.Entities.Accounts.Repositories;
 
-namespace Mint.Database.Infrastructure.Accounts;
+namespace Mint.Database.Infrastructure.DI.Accounts;
 
 /// <summary>
 /// Account repositories extension.
 /// </summary>
-public static class AccountRepositoriesExtension
+public static class AccountRepositoriesExtensionss
 {
     /// <summary>
     /// Register account repositories

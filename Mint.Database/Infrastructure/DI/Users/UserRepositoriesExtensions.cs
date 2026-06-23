@@ -2,12 +2,12 @@ using AdvApplication.Auth.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Users.Repositories;
 
-namespace Mint.Database.Infrastructure.Users;
+namespace Mint.Database.Infrastructure.DI.Users;
 
 /// <summary>
 /// User repositories extension.
 /// </summary>
-public static class UserRepositoriesExtension
+public static class UserRepositoriesExtensions
 {
     /// <summary>
     /// Register user repositories

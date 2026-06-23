@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Transactions.Repositories;
 
-namespace Mint.Database.Infrastructure.Transactions;
+namespace Mint.Database.Infrastructure.DI.Transactions;
 
 /// <summary>
 /// Extension methods for transaction repositories
