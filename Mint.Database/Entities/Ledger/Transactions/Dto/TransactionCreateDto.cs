@@ -1,15 +1,10 @@
-namespace Mint.Database.Entities.Transactions.Dto;
+namespace Mint.Database.Entities.Ledger.Transactions.Dto;
 
 /// <summary>
-/// DTO for transaction
+/// DTO for creating a transaction
 /// </summary>
-public record TransactionDto
+public record TransactionCreateDto
 {
-    /// <summary>
-    /// Transaction ID
-    /// </summary>
-    public long Id { get; init; }
-
     /// <summary>
     /// Account ID
     /// </summary>

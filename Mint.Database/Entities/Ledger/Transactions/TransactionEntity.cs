@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mint.Database.Entities.Accounts;
+using Mint.Database.Entities.Ledger.Accounts;
 
-namespace Mint.Database.Entities.Transactions;
+namespace Mint.Database.Entities.Ledger.Transactions;
 
 /// <summary>
 /// Transaction entity

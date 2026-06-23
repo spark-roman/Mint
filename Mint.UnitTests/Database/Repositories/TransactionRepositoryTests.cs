@@ -1,7 +1,7 @@
-using Mint.Database.Entities.Transactions.Dto;
-using Mint.Database.Entities.Transactions.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.Database.Entities.Ledger.Transactions.Repositories;
+using Mint.Database.Entities.Ledger.Transactions.Dto;
 
 namespace Mint.UnitTests.Database.Repositories;
 

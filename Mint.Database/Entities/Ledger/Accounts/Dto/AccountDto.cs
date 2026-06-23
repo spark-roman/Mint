@@ -1,6 +1,6 @@
 using Mint.Common.Contracts.Accounts;
 
-namespace Mint.Database.Entities.Accounts.Dto;
+namespace Mint.Database.Entities.Ledger.Accounts.Dto;
 
 /// <summary>
 /// DTO for user account

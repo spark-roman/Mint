@@ -1,4 +1,4 @@
-namespace Mint.Database.Entities.Accounts.Dto;
+namespace Mint.Database.Entities.Ledger.Accounts.Dto;
 
 /// <summary>
 /// DTO for updating account balance

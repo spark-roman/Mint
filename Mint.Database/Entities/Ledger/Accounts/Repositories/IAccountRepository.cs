@@ -1,7 +1,6 @@
-using Mint.Database.Entities.Accounts.Dto;
-using Mint.Database.Entities.Accounts.Repositories;
+using Mint.Database.Entities.Ledger.Accounts.Dto;
 
-namespace Mint.Database.Entities.Accounts;
+namespace Mint.Database.Entities.Ledger.Accounts;
 
 /// <summary>
 /// Repository interface for working with user accounts

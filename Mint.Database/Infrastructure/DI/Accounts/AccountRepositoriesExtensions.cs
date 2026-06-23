@@ -1,6 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
-using Mint.Database.Entities.Accounts;
-using Mint.Database.Entities.Accounts.Repositories;
+using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Accounts.Repositories;
 
 namespace Mint.Database.Infrastructure.DI.Accounts;
 

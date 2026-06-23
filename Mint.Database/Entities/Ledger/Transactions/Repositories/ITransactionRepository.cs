@@ -1,6 +1,6 @@
-using Mint.Database.Entities.Transactions.Dto;
+using Mint.Database.Entities.Ledger.Transactions.Dto;
 
-namespace Mint.Database.Entities.Transactions.Repositories;
+namespace Mint.Database.Entities.Ledger.Transactions.Repositories;
 
 /// <summary>
 /// Repository interface for working with transactions

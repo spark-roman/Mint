@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Mint.Database.Entities.Accounts;
-using Mint.Database.Entities.Transactions;
+using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;

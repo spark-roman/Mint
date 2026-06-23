@@ -1,5 +1,5 @@
 using Mint.Common.Contracts.Accounts;
-using Mint.Database.Entities.Accounts;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Seeding;

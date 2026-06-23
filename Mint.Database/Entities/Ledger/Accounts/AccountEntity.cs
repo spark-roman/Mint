@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Common.Contracts.Accounts;
 using Mint.Database.Entities.Users;
 
-namespace Mint.Database.Entities.Accounts;
+namespace Mint.Database.Entities.Ledger.Accounts;
 
 /// <summary>
 /// User account entity

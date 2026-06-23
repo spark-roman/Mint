@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mint.Database.Entities.Accounts;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Duels;
 
 namespace Mint.Database.Entities.UserInteractive.Votes;

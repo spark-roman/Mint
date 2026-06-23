@@ -1,7 +1,7 @@
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.Accounts.Dto;
+using Mint.Database.Entities.Ledger.Accounts.Dto;
 
-namespace Mint.Database.Entities.Accounts.Mappers;
+namespace Mint.Database.Entities.Ledger.Accounts.Mappers;
 
 /// <inheritdoc/>
 public class DbAccountCreateMapper : IDbEntityMapper<AccountCreateDto, AccountEntity>

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Mint.Database.Entities.Transactions.Repositories;
+using Mint.Database.Entities.Ledger.Transactions.Repositories;
 
 namespace Mint.Database.Infrastructure.DI.Transactions;
 

@@ -1,19 +1,18 @@
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.Transactions.Dto;
+using Mint.Database.Entities.Ledger.Transactions.Dto;
 
-namespace Mint.Database.Entities.Transactions.Mappers;
+namespace Mint.Database.Entities.Ledger.Transactions.Mappers;
 
 /// <inheritdoc/>
-public class DbTransactionMapper : IDbEntityMapper<TransactionEntity, TransactionDto>
+public class DbTransactionCreateMapper : IDbEntityMapper<TransactionCreateDto, TransactionEntity>
 {
     /// <inheritdoc/>
-    public TransactionDto Map(TransactionEntity entity)
+    public TransactionEntity Map(TransactionCreateDto entity)
     {
         ArgumentNullException.ThrowIfNull(entity);
 
-        return new TransactionDto
+        return new TransactionEntity
         {
-            Id = entity.Id,
             AccountId = entity.AccountId,
             Amount = entity.Amount,
             Description = entity.Description,

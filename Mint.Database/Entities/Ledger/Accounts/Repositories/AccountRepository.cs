@@ -2,9 +2,9 @@ using AdvApplication.Auth.Users;
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Accounts;
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.Accounts.Dto;
+using Mint.Database.Entities.Ledger.Accounts.Dto;
 
-namespace Mint.Database.Entities.Accounts.Repositories;
+namespace Mint.Database.Entities.Ledger.Accounts.Repositories;
 
 /// <summary>
 /// Repository for accounts

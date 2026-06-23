@@ -1,8 +1,8 @@
 using Mint.Common.Contracts.Mappers;
 using Microsoft.Extensions.DependencyInjection;
-using Mint.Database.Entities.Transactions;
-using Mint.Database.Entities.Transactions.Dto;
-using Mint.Database.Entities.Transactions.Mappers;
+using Mint.Database.Entities.Ledger.Transactions.Dto;
+using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.Ledger.Transactions.Mappers;
 
 namespace Mint.Database.Infrastructure.DI.Transactions;
 

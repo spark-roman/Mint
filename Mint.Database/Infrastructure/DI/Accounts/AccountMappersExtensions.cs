@@ -1,8 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.Accounts;
-using Mint.Database.Entities.Accounts.Dto;
-using Mint.Database.Entities.Accounts.Mappers;
+using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Accounts.Dto;
+using Mint.Database.Entities.Ledger.Accounts.Mappers;
 
 namespace Mint.Database.Infrastructure.DI.Accounts;
 
