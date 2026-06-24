@@ -57,7 +57,12 @@ public class MintDbContext : DbContext
             .HasDatabaseName("IX_users_external_user_id_system_type");
 
         modelBuilder.Entity<VoteEntity>()
-            .HasKey(v => new { v.DuelId, v.AccountId });
+            .HasKey(v => new { v.AccountId, v.DuelId });
+
+        modelBuilder.Entity<VoteEntity>()
+            .HasIndex(v => new { v.DuelId, v.AccountId })
+            .IsUnique()
+            .HasDatabaseName("IX_votes_duel_id_account_id");
 
         modelBuilder.Entity<VoteEntity>()
             .HasOne(v => v.Duel)
@@ -69,6 +74,24 @@ public class MintDbContext : DbContext
             .HasOne(v => v.Account)
             .WithMany()
             .HasForeignKey(v => v.AccountId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<VoteEntity>()
+            .HasOne(v => v.ChosenOption)
+            .WithMany(o => o.Votes)
+            .HasForeignKey(v => v.ChosenOptionId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DuelEntity>()
+            .HasOne(d => d.Category)
+            .WithMany()
+            .HasForeignKey(d => d.CategoryId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DuelOptionEntity>()
+            .HasOne(o => o.Duel)
+            .WithMany(d => d.Options)
+            .HasForeignKey(o => o.DuelId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }

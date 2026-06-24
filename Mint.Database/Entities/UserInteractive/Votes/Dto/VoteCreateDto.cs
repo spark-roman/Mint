@@ -16,9 +16,9 @@ public record VoteCreateDto
     public long AccountId { get; init; }
 
     /// <summary>
-    /// Option chosen ('A' or 'B')
+    /// Chosen option ID
     /// </summary>
-    public required string OptionChosen { get; init; }
+    public long ChosenOptionId { get; init; }
 
     /// <summary>
     /// Bet amount in coins

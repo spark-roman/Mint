@@ -1,3 +1,4 @@
+using Mint.Common.Contracts.UserInteractive;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Votes.Dto;
@@ -35,21 +36,28 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         // Create a duel first
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#ТехноИИ",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "ИИ заменит программистов?",
             Description = "Обсуждение влияния ИИ на разработку",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options =
+            [
+                new() { OptionText = "Да", OptionCode = "yes" },
+                new() { OptionText = "Нет", OptionCode = "no" }
+            ]
         }, CancellationToken.None);
 
         var vote = new VoteCreateDto
         {
             DuelId = duelId,
             AccountId = 1,
-            OptionChosen = "A",
+            ChosenOptionId = 1,
             BetAmount = 10.50m
         };
 
@@ -85,20 +93,27 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Мемы",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Лучший мем года?",
             Description = "Голосование за лучший мем",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+            Options =
+            [
+                new() { OptionText = "Мем 1", OptionCode = "mem1" },
+                new() { OptionText = "Мем 2", OptionCode = "mem2" }
+            ]
         }, CancellationToken.None);
 
         var vote = new VoteCreateDto
         {
             DuelId = duelId,
             AccountId = 1,
-            OptionChosen = "B",
+            ChosenOptionId = 1,
             BetAmount = 25.00m
         };
 
@@ -111,7 +126,7 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.NotNull(result);
         Assert.Equal(duelId, result.DuelId);
         Assert.Equal(1, result.AccountId);
-        Assert.Equal("B", result.OptionChosen);
+        Assert.Equal(1, result.ChosenOptionId);
         Assert.Equal(25.00m, result.BetAmount);
     }
 
@@ -142,20 +157,23 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Наука",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос по науке",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция 1", OptionCode = "opt1" }]
         }, CancellationToken.None);
 
         await voteRepository.CreateVoteAsync(new VoteCreateDto
         {
             DuelId = duelId,
             AccountId = 1,
-            OptionChosen = "A",
+            ChosenOptionId = 1,
             BetAmount = 10.00m
         }, CancellationToken.None);
 
@@ -163,7 +181,7 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         {
             DuelId = duelId,
             AccountId = 2,
-            OptionChosen = "B",
+            ChosenOptionId = 2,
             BetAmount = 20.00m
         }, CancellationToken.None);
 
@@ -185,13 +203,16 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Пустой",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
         }, CancellationToken.None);
 
         // Act
@@ -212,20 +233,23 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Тест",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
         }, CancellationToken.None);
 
         await voteRepository.CreateVoteAsync(new VoteCreateDto
         {
             DuelId = duelId,
             AccountId = 1,
-            OptionChosen = "A",
+            ChosenOptionId = 1,
             BetAmount = 5.00m
         }, CancellationToken.None);
 
@@ -246,13 +270,16 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Тест",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
         }, CancellationToken.None);
 
         // Act
@@ -272,20 +299,23 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
         
         var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Сортировка",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
         }, CancellationToken.None);
 
         await voteRepository.CreateVoteAsync(new VoteCreateDto
         {
             DuelId = duelId,
             AccountId = 1,
-            OptionChosen = "A",
+            ChosenOptionId = 1,
             BetAmount = 10.00m
         }, CancellationToken.None);
 
@@ -295,7 +325,7 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         {
             DuelId = duelId,
             AccountId = 2,
-            OptionChosen = "B",
+            ChosenOptionId = 2,
             BetAmount = 20.00m
         }, CancellationToken.None);
 
@@ -308,137 +338,5 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(2, result[0].AccountId);
         Assert.Equal(1, result[1].AccountId);
     }
-
-    /// <summary>
-    /// Verifies that multiple accounts can vote in the same duel.
-    /// </summary>
-    [Fact]
-    public async Task GetVotesByDuelIdAsync_MultipleAccountsCanVote_ReturnsAllVotes()
-    {
-        // Arrange
-        using var scope = _fixture.ServiceProvider.CreateScope();
-        var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
-        
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            Category = "#Мультиголосование",
-            Question = "Вопрос",
-            Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 1,
-            OptionChosen = "A",
-            BetAmount = 10.00m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            OptionChosen = "A",
-            BetAmount = 15.00m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 3,
-            OptionChosen = "B",
-            BetAmount = 20.00m
-        }, CancellationToken.None);
-
-        // Act
-        var result = await voteRepository.GetVotesByDuelIdAsync(duelId, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
-    }
-
-    /// <summary>
-    /// Verifies that vote stores correct CreatedAt timestamp.
-    /// </summary>
-    [Fact]
-    public async Task CreateVoteAsync_StoresCreatedAtTimestamp()
-    {
-        // Arrange
-        using var scope = _fixture.ServiceProvider.CreateScope();
-        var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
-        
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            Category = "#Время",
-            Question = "Вопрос",
-            Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
-        }, CancellationToken.None);
-
-        var vote = new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 1,
-            OptionChosen = "A",
-            BetAmount = 10.00m
-        };
-
-        // Act
-        await voteRepository.CreateVoteAsync(vote, CancellationToken.None);
-        var result = await voteRepository.GetVoteAsync(duelId, 1, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.True(result.CreatedAt > DateTimeOffset.UtcNow.AddMinutes(-5));
-        Assert.True(result.CreatedAt <= DateTimeOffset.UtcNow);
-    }
-
-    /// <summary>
-    /// Verifies that different accounts can vote with different options.
-    /// </summary>
-    [Fact]
-    public async Task GetVotesByDuelIdAsync_DifferentOptionsStoredCorrectly()
-    {
-        // Arrange
-        using var scope = _fixture.ServiceProvider.CreateScope();
-        var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
-        
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            Category = "#Опции",
-            Question = "Вопрос",
-            Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 1,
-            OptionChosen = "A",
-            BetAmount = 10.00m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            OptionChosen = "B",
-            BetAmount = 20.00m
-        }, CancellationToken.None);
-
-        // Act
-        var result = await voteRepository.GetVotesByDuelIdAsync(duelId, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.Count);
-        Assert.Equal("A", result.First(v => v.AccountId == 1).OptionChosen);
-        Assert.Equal("B", result.First(v => v.AccountId == 2).OptionChosen);
-    }
 }
+

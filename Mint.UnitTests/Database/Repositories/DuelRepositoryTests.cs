@@ -1,3 +1,4 @@
+using Mint.Common.Contracts.UserInteractive;
 using Mint.Database;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
@@ -33,12 +34,20 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
         var duel = new DuelCreateDto
         {
-            Category = "#ТехноИИ",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "ИИ заменит программистов?",
             Description = "Обсуждение влияния ИИ на разработку",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = new[]
+            {
+                new DuelOptionCreateDto { OptionText = "Да", OptionCode = "yes" },
+                new DuelOptionCreateDto { OptionText = "Нет", OptionCode = "no" }
+            }
         };
 
         // Act
@@ -72,12 +81,20 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
         var duel = new DuelCreateDto
         {
-            Category = "#Мемы",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Лучший мем года?",
             Description = "Голосование за лучший мем",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+            Options = new[]
+            {
+                new DuelOptionCreateDto { OptionText = "Мем 1", OptionCode = "mem1" },
+                new DuelOptionCreateDto { OptionText = "Мем 2", OptionCode = "mem2" }
+            }
         };
 
         // Act
@@ -87,10 +104,12 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Equal(duelId, result.Id);
-        Assert.Equal("#Мемы", result.Category);
+        Assert.Equal(1, result.CategoryId);
+        Assert.Equal(DuelType.OpinionMatch, result.DuelType);
         Assert.Equal("Лучший мем года?", result.Question);
         Assert.Equal("Голосование за лучший мем", result.Description);
         Assert.False(result.IsClosed);
+        Assert.Equal(2, result.Options.Count());
     }
 
     /// <summary>
@@ -123,18 +142,22 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#ТехноИИ",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос 1",
             Description = "Описание 1",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция 1", OptionCode = "opt1" }]
         }, CancellationToken.None);
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Наука",
+            CategoryId = 2,
+            DuelType = DuelType.FactPrediction,
             Question = "Вопрос 2",
             Description = "Описание 2",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+            Options = [new() { OptionText = "Опция 2", OptionCode = "opt2" }]
         }, CancellationToken.None);
 
         // Act
@@ -158,18 +181,22 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Актуальный",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Актуальный", OptionCode = "actual" }]
         }, CancellationToken.None);
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Истекший",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+            Options = [new() { OptionText = "Истекший", OptionCode = "expired" }]
         }, CancellationToken.None);
 
         // Act
@@ -178,7 +205,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal("#Актуальный", result[0].Category);
+        Assert.Equal("Вопрос", result[0].Question);
     }
 
     /// <summary>
@@ -194,19 +221,23 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Активный",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Активный", OptionCode = "active" }]
         }, CancellationToken.None);
 
         // Create a closed duel by manually setting it
         var closedDuelId = await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Закрытый",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+            Options = [new() { OptionText = "Закрытый", OptionCode = "closed" }]
         }, CancellationToken.None);
 
         // Manually close the duel via DbContext
@@ -226,7 +257,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Single(result);
-        Assert.Equal("#Активный", result[0].Category);
+        Assert.Equal("Вопрос", result[0].Question);
     }
 
     /// <summary>
@@ -242,18 +273,22 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Первый",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос 1",
             Description = "Описание 1",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Первый", OptionCode = "first" }]
         }, CancellationToken.None);
 
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Второй",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос 2",
             Description = "Описание 2",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Второй", OptionCode = "second" }]
         }, CancellationToken.None);
 
         // Act
@@ -262,8 +297,8 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
-        Assert.Equal("#Второй", result[0].Category);
-        Assert.Equal("#Первый", result[1].Category);
+        Assert.Equal("Вопрос 2", result[0].Question);
+        Assert.Equal("Вопрос 1", result[1].Question);
     }
 
     /// <summary>
@@ -280,10 +315,12 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Create only expired duels
         await repository.CreateDuelAsync(new DuelCreateDto
         {
-            Category = "#Истекший",
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
             Question = "Вопрос",
             Description = "Описание",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1)
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+            Options = [new() { OptionText = "Истекший", OptionCode = "expired" }]
         }, CancellationToken.None);
 
         // Act

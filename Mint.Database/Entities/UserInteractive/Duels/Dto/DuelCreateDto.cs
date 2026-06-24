@@ -1,3 +1,5 @@
+using Mint.Common.Contracts.UserInteractive;
+
 namespace Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 /// <summary>
@@ -6,9 +8,14 @@ namespace Mint.Database.Entities.UserInteractive.Duels.Dto;
 public record DuelCreateDto
 {
     /// <summary>
-    /// Duel category
+    /// Category ID
     /// </summary>
-    public required string Category { get; init; }
+    public required int CategoryId { get; init; }
+
+    /// <summary>
+    /// Duel type
+    /// </summary>
+    public DuelType DuelType { get; init; }
 
     /// <summary>
     /// Duel question
@@ -16,7 +23,7 @@ public record DuelCreateDto
     public required string Question { get; init; }
 
     /// <summary>
-    /// Description of the info event
+    /// Description of the duel
     /// </summary>
     public required string Description { get; init; }
 
@@ -24,4 +31,9 @@ public record DuelCreateDto
     /// Duel expiration date
     /// </summary>
     public DateTimeOffset ExpiresAt { get; init; }
+
+    /// <summary>
+    /// Options for the duel
+    /// </summary>
+    public required IEnumerable<DuelOptionCreateDto> Options { get; init; } = [];
 }

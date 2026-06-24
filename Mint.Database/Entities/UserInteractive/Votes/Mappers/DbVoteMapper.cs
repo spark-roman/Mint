@@ -15,7 +15,7 @@ public class DbVoteMapper : IDbEntityMapper<VoteEntity, VoteDto>
         {
             DuelId = entity.DuelId,
             AccountId = entity.AccountId,
-            OptionChosen = entity.OptionChosen,
+            ChosenOptionId = entity.ChosenOptionId,
             BetAmount = entity.BetAmount,
             CreatedAt = entity.CreatedAt
         };

@@ -1,3 +1,5 @@
+using Mint.Common.Contracts.UserInteractive;
+
 namespace Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 /// <summary>
@@ -11,9 +13,14 @@ public record DuelDto
     public long Id { get; init; }
 
     /// <summary>
-    /// Duel category
+    /// Category ID
     /// </summary>
-    public required string Category { get; init; }
+    public int CategoryId { get; init; }
+
+    /// <summary>
+    /// Duel type
+    /// </summary>
+    public DuelType DuelType { get; init; }
 
     /// <summary>
     /// Duel question
@@ -21,7 +28,7 @@ public record DuelDto
     public required string Question { get; init; }
 
     /// <summary>
-    /// Description of the info event
+    /// Description of the duel
     /// </summary>
     public required string Description { get; init; }
 
@@ -34,4 +41,9 @@ public record DuelDto
     /// Whether the duel is closed
     /// </summary>
     public bool IsClosed { get; init; }
+
+    /// <summary>
+    /// Options for the duel
+    /// </summary>
+    public required IEnumerable<DuelOptionDto> Options { get; init; } = [];
 }

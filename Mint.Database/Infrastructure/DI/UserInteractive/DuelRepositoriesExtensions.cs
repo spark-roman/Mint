@@ -1,4 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
+using Mint.Database.Entities.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.Duels.Mappers;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 
 namespace Mint.Database.Infrastructure.DI.UserInteractive;

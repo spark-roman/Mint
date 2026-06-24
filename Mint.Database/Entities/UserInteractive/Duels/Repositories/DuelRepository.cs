@@ -41,6 +41,7 @@ public class DuelRepository(
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var duel = await context.Duels
+            .Include(d => d.Options)
             .FirstOrDefaultAsync(d => d.Id == duelId, cancellationToken);
 
         return duel is null ? null : _duelMapper.Map(duel);
@@ -54,6 +55,7 @@ public class DuelRepository(
         var now = DateTimeOffset.UtcNow;
 
         var entities = await context.Duels
+            .Include(d => d.Options)
             .Where(d => d.IsClosed == false && d.ExpiresAt > now)
             .OrderByDescending(d => d.Id)
             .ToListAsync(cancellationToken);

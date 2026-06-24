@@ -6,6 +6,20 @@ namespace Mint.Database.Entities.UserInteractive.Duels.Mappers;
 /// <inheritdoc/>
 public class DbDuelMapper : IDbEntityMapper<DuelEntity, DuelDto>
 {
+    /// <summary>
+    /// Mapper for duel options
+    /// </summary>
+    private readonly IDbEntityMapper<DuelOptionEntity, DuelOptionDto> _optionMapper;
+
+    /// <summary>
+    /// Initial constructor
+    /// </summary>
+    /// <param name="optionMapper">Mapper for duel options</param>
+    public DbDuelMapper(IDbEntityMapper<DuelOptionEntity, DuelOptionDto> optionMapper)
+    {
+        _optionMapper = optionMapper ?? throw new ArgumentNullException(nameof(optionMapper));
+    }
+
     /// <inheritdoc/>
     public DuelDto Map(DuelEntity entity)
     {
@@ -14,11 +28,13 @@ public class DbDuelMapper : IDbEntityMapper<DuelEntity, DuelDto>
         return new DuelDto
         {
             Id = entity.Id,
-            Category = entity.Category,
+            CategoryId = entity.CategoryId,
+            DuelType = entity.DuelType,
             Question = entity.Question,
             Description = entity.Description,
             ExpiresAt = entity.ExpiresAt,
-            IsClosed = entity.IsClosed
+            IsClosed = entity.IsClosed,
+            Options = entity.Options.Select(_optionMapper.Map).ToList()
         };
     }
 }

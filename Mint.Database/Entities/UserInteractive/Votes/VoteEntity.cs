@@ -12,19 +12,7 @@ namespace Mint.Database.Entities.UserInteractive.Votes;
 public class VoteEntity
 {
     /// <summary>
-    /// Duel ID
-    /// </summary>
-    [Required]
-    [Column("duel_id")]
-    public long DuelId { get; set; }
-
-    /// <summary>
-    /// Duel entity
-    /// </summary>
-    public DuelEntity Duel { get; set; } = null!;
-
-    /// <summary>
-    /// Account ID
+    /// Account ID (part of composite key)
     /// </summary>
     [Required]
     [Column("account_id")]
@@ -37,16 +25,34 @@ public class VoteEntity
     public AccountEntity Account { get; set; } = null!;
 
     /// <summary>
-    /// Option chosen ('A' or 'B')
+    /// Duel ID (part of composite key)
     /// </summary>
     [Required]
-    [StringLength(1)]
-    [Column("option_chosen")]
-    public required string OptionChosen { get; set; }
+    [Column("duel_id")]
+    public long DuelId { get; set; }
+
+    /// <summary>
+    /// Parent duel
+    /// </summary>
+    public DuelEntity Duel { get; set; } = null!;
+
+    /// <summary>
+    /// Chosen option ID (FK to duel_options)
+    /// </summary>
+    [Required]
+    [Column("chosen_option_id")]
+    public long ChosenOptionId { get; set; }
+
+    /// <summary>
+    /// Chosen option
+    /// </summary>
+    [ForeignKey(nameof(ChosenOptionId))]
+    public DuelOptionEntity ChosenOption { get; set; } = null!;
 
     /// <summary>
     /// Bet amount in coins
     /// </summary>
+    [Required]
     [Column("bet_amount")]
     public decimal BetAmount { get; set; }
 

@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Common.Contracts.UserInteractive;
+using Mint.Database.Entities.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 
 namespace Mint.Database.Entities.UserInteractive.Duels;
@@ -14,17 +16,27 @@ public class DuelEntity
     /// Duel ID
     /// </summary>
     [Key]
-    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     [Column("id")]
     public long Id { get; set; }
 
     /// <summary>
-    /// Duel category (e.g. #ТехноИИ, #Мемы)
+    /// Category ID
     /// </summary>
     [Required]
-    [StringLength(100)]
-    [Column("category")]
-    public required string Category { get; set; }
+    [Column("category_id")]
+    public int CategoryId { get; set; }
+
+    /// <summary>
+    /// Parent category
+    /// </summary>
+    public CategoryEntity Category { get; set; } = null!;
+
+    /// <summary>
+    /// Duel type
+    /// </summary>
+    [Required]
+    [Column("duel_type")]
+    public DuelType DuelType { get; set; }
 
     /// <summary>
     /// Duel question
@@ -35,7 +47,7 @@ public class DuelEntity
     public required string Question { get; set; }
 
     /// <summary>
-    /// Description of the AI-generated info event
+    /// Description of the duel
     /// </summary>
     [Required]
     [StringLength(2000)]
@@ -54,6 +66,11 @@ public class DuelEntity
     /// </summary>
     [Column("is_closed")]
     public bool IsClosed { get; set; } = false;
+
+    /// <summary>
+    /// Available options for this duel
+    /// </summary>
+    public virtual ICollection<DuelOptionEntity> Options { get; init; } = new List<DuelOptionEntity>();
 
     /// <summary>
     /// Votes for this duel

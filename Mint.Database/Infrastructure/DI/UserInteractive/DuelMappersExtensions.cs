@@ -17,6 +17,8 @@ public static class DuelMappersExtensions
     /// <param name="services">Service collection</param>
     public static void RegisterDuelMappers(this IServiceCollection services)
     {
+        services.AddSingleton<IDbEntityMapper<DuelOptionCreateDto, DuelOptionEntity>, DbDuelOptionCreateMapper>();
+        services.AddSingleton<IDbEntityMapper<DuelOptionEntity, DuelOptionDto>, DbDuelOptionMapper>();
         services.AddSingleton<IDbEntityMapper<DuelCreateDto, DuelEntity>, DbDuelCreateMapper>();
         services.AddSingleton<IDbEntityMapper<DuelEntity, DuelDto>, DbDuelMapper>();
     }
