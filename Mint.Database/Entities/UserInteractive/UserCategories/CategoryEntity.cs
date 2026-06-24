@@ -1,7 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Database.Entities.System;
 
-namespace Mint.Database.Entities.UserCategories;
+namespace Mint.Database.Entities.UserInteractive.UserCategories;
 
 /// <summary>
 /// User category entity
@@ -15,6 +16,17 @@ public class CategoryEntity
     [Key]
     [Column("id")]
     public int Id { get; set; }
+
+    /// <summary>
+    /// AI Prompt ID
+    /// </summary>
+    [Column("ai_prompt_id")]
+    public int? AiPromptId { get; set; }
+
+    /// <summary>
+    /// Parent AI prompt
+    /// </summary>
+    public AiPromptEntity? AiPrompt { get; set; }
 
     /// <summary>
     /// Category name

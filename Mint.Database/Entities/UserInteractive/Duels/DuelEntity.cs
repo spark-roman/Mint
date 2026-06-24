@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Common.Contracts.UserInteractive;
-using Mint.Database.Entities.UserCategories;
+using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 
 namespace Mint.Database.Entities.UserInteractive.Duels;

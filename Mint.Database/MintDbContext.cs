@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
@@ -36,6 +37,11 @@ public class MintDbContext : DbContext
     /// Votes
     /// </summary>
     public DbSet<VoteEntity> Votes { get; set; }
+
+    /// <summary>
+    /// AI prompts and settings
+    /// </summary>
+    public DbSet<AiPromptEntity> AiPrompts { get; set; }
 
     /// <summary>
     /// Constructor with connection param
@@ -92,6 +98,12 @@ public class MintDbContext : DbContext
             .HasOne(o => o.Duel)
             .WithMany(d => d.Options)
             .HasForeignKey(o => o.DuelId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<AiPromptEntity>()
+            .HasMany(p => p.Categories)
+            .WithOne(c => c.AiPrompt)
+            .HasForeignKey(c => c.AiPromptId)
             .OnDelete(DeleteBehavior.Cascade);
     }
 }
