@@ -1,9 +1,9 @@
-using Mint.Common.Contracts.Accounts;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Ledger.Accounts.Dto;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Accounts.Repositories;
+using Mint.Common.Contracts.Ledger.Accounts;
 
 namespace Mint.UnitTests.Database.Repositories;
 

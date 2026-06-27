@@ -19,6 +19,14 @@ public interface IAiPromptRepository
     /// Get current AI prompt settings with active categories
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>AI prompt DTO or null if not found</returns>
-    Task<AiPromptDto?> GetAsync(CancellationToken cancellationToken);
+    /// <returns>List of AI prompt DTOs</returns>
+    Task<List<AiPromptDto>> GetPromptsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get AI prompt settings by Id
+    /// </summary>
+    /// <param name="promptId">Prompt Id</param>
+    /// <param name="cancellationToken">CancellationToken</param>
+    /// <returns>AI prompt DTO</returns>
+    Task<AiPromptDto?> GetPromptAsync(long promptId, CancellationToken cancellationToken);
 }

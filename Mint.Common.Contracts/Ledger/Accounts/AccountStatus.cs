@@ -1,4 +1,4 @@
-namespace Mint.Common.Contracts.Accounts;
+namespace Mint.Common.Contracts.Ledger.Accounts;
 
 /// <summary>
 /// Account status

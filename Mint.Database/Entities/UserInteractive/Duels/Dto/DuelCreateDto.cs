@@ -35,5 +35,5 @@ public record DuelCreateDto
     /// <summary>
     /// Options for the duel
     /// </summary>
-    public required IEnumerable<DuelOptionCreateDto> Options { get; init; } = [];
+    public required ICollection<DuelOptionCreateDto> Options { get; init; } = [];
 }

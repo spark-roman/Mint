@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Database.Infrastructure.Data.Bonuses;
+using Mint.Database.Infrastructure.Data.Promts;
 
 namespace Mint.Database.Infrastructure.Data;
 
@@ -17,5 +18,6 @@ public static class InitDataExtensions
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
         modelBuilder.InitBonusData();
+        modelBuilder.InitPromtsData();
     }
 }

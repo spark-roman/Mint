@@ -34,7 +34,8 @@ public class AiPromptRepository(
 
         if (existingPrompt is not null)
         {
-            existingPrompt.SystemCoreText = entity.SystemCoreText;
+            existingPrompt.SystemPromptTemplate = entity.SystemPromptTemplate;
+            existingPrompt.UserPromptTemplate = entity.UserPromptTemplate;
             existingPrompt.Temperature = entity.Temperature;
             existingPrompt.MaxDuelsPerRun = entity.MaxDuelsPerRun;
             existingPrompt.UpdatedAt = entity.UpdatedAt;
@@ -50,14 +51,28 @@ public class AiPromptRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<AiPromptDto?> GetAsync(CancellationToken cancellationToken)
+    public async Task<AiPromptDto?> GetPromptAsync(long promptId, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var prompt = await context.AiPrompts
+        var prompt = context.AiPrompts
             .Include(p => p.Categories.Where(c => c.IsActiveForAI))
-            .FirstOrDefaultAsync(cancellationToken);
+            .Select(_aiPromptMapper.Map)
+            .FirstOrDefault();
 
-        return prompt is null ? null : _aiPromptMapper.Map(prompt);
+        return prompt;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<AiPromptDto>> GetPromptsAsync(CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var prompts = context.AiPrompts
+            .Include(p => p.Categories.Where(c => c.IsActiveForAI))
+            .Select(_aiPromptMapper.Map)
+            .ToList();
+
+        return prompts;
     }
 }

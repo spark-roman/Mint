@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using Mint.Common.Contracts.Accounts;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Entities.Ledger.Accounts;

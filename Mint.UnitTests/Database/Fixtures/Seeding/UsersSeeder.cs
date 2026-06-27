@@ -1,4 +1,4 @@
-using Mint.Common.Contracts.Accounts;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Users;
 

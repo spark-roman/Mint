@@ -13,9 +13,14 @@ public record AiPromptDto
     public int Id { get; init; }
 
     /// <summary>
-    /// Core security rules, response format, and limitations
+    /// System prompt template for AI generation
     /// </summary>
-    public required string SystemCoreText { get; init; }
+    public required string SystemPromptTemplate { get; init; }
+
+    /// <summary>
+    /// User prompt template for AI generation
+    /// </summary>
+    public required string UserPromptTemplate { get; init; }
 
     /// <summary>
     /// Temperature parameter for API (creativity: from 0.0 to 1.0)

@@ -36,7 +36,8 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
         var prompt = new AiPromptCreateDto
         {
-            SystemCoreText = "You are a helpful assistant",
+            UserPromptTemplate = "User prompt template",
+            SystemPromptTemplate = "System prompt template",
             Temperature = 0.7f,
             MaxDuelsPerRun = 5
         };
@@ -67,14 +68,15 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that retrieving a prompt returns the correct data.
     /// </summary>
     [Fact]
-    public async Task GetAsync_ExistingPrompt_ReturnsPrompt()
+    public async Task GetPromptsAsync_ExistingPrompt_ReturnsPrompt()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
         var prompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Core prompt text",
+            UserPromptTemplate = "User prompt template",
+            SystemPromptTemplate = "Core prompt text",
             Temperature = 0.8f,
             MaxDuelsPerRun = 10
         };
@@ -82,20 +84,21 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         await repository.CreateOrUpdateAsync(prompt, CancellationToken.None);
 
         // Act
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Core prompt text", result.SystemCoreText);
-        Assert.Equal(0.8f, result.Temperature);
-        Assert.Equal(10, result.MaxDuelsPerRun);
+        Assert.Single(result);
+        Assert.Equal("Core prompt text", result.First().SystemPromptTemplate);
+        Assert.Equal(0.8f, result.First().Temperature);
+        Assert.Equal(10, result.First().MaxDuelsPerRun);
     }
 
     /// <summary>
-    /// Verifies that retrieving a prompt when none exist returns null.
+    /// Verifies that retrieving a prompt when none exist returns empty list.
     /// </summary>
     [Fact]
-    public async Task GetAsync_NoPrompt_ReturnsNull()
+    public async Task GetPromptsAsync_NoPrompt_ReturnsEmptyList()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -109,10 +112,10 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         await context.SaveChangesAsync(CancellationToken.None);
 
         // Act
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
-        Assert.Null(result);
+        Assert.Empty(result);
     }
 
     /// <summary>
@@ -127,7 +130,8 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         
         var initialPrompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Initial text",
+            SystemPromptTemplate = "Initial text",
+            UserPromptTemplate = "Initial user prompt",
             Temperature = 0.5f,
             MaxDuelsPerRun = 3
         };
@@ -136,20 +140,22 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
 
         var updatedPrompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Updated text",
+            SystemPromptTemplate = "Updated text",
+            UserPromptTemplate = "Updated user prompt",
             Temperature = 0.9f,
             MaxDuelsPerRun = 15
         };
 
         // Act
         await repository.CreateOrUpdateAsync(updatedPrompt, CancellationToken.None);
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal("Updated text", result.SystemCoreText);
-        Assert.Equal(0.9f, result.Temperature);
-        Assert.Equal(15, result.MaxDuelsPerRun);
+        Assert.Single(result);
+        Assert.Equal("Updated text", result.First().SystemPromptTemplate);
+        Assert.Equal(0.9f, result.First().Temperature);
+        Assert.Equal(15, result.First().MaxDuelsPerRun);
     }
 
     /// <summary>
@@ -163,24 +169,26 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
         var prompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Test prompt"
+            SystemPromptTemplate = "Test prompt",
+            UserPromptTemplate = "Test user prompt"
         };
 
         // Act
         await repository.CreateOrUpdateAsync(prompt, CancellationToken.None);
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(0.6f, result.Temperature);
-        Assert.Equal(3, result.MaxDuelsPerRun);
+        Assert.Single(result);
+        Assert.Equal(0.6f, result.First().Temperature);
+        Assert.Equal(3, result.First().MaxDuelsPerRun);
     }
 
     /// <summary>
     /// Verifies that retrieving a prompt returns active categories.
     /// </summary>
     [Fact]
-    public async Task GetAsync_WithCategories_ReturnsActiveCategories()
+    public async Task GetPromptsAsync_WithCategories_ReturnsActiveCategories()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -189,7 +197,8 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         
         var prompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Test prompt",
+            SystemPromptTemplate = "Test prompt",
+            UserPromptTemplate = "Test user prompt",
             Temperature = 0.7f,
             MaxDuelsPerRun = 5
         };
@@ -217,19 +226,20 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         }
 
         // Act
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Single(result.Categories);
-        Assert.Equal("Crypto", result.Categories.First().Name);
+        Assert.Single(result);
+        Assert.Single(result.First().Categories);
+        Assert.Equal("Crypto", result.First().Categories.First().Name);
     }
 
     /// <summary>
     /// Verifies that retrieving a prompt returns empty categories when none exist.
     /// </summary>
     [Fact]
-    public async Task GetAsync_WithoutCategories_ReturnsEmptyCategories()
+    public async Task GetPromptsAsync_WithoutCategories_ReturnsEmptyCategories()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -243,7 +253,8 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         
         var prompt = new AiPromptCreateDto
         {
-            SystemCoreText = "Test prompt",
+            SystemPromptTemplate = "Test prompt",
+            UserPromptTemplate = "Test user prompt",
             Temperature = 0.7f,
             MaxDuelsPerRun = 5
         };
@@ -251,10 +262,11 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         await repository.CreateOrUpdateAsync(prompt, CancellationToken.None);
 
         // Act
-        var result = await repository.GetAsync(CancellationToken.None);
+        var result = await repository.GetPromptsAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Empty(result.Categories);
+        Assert.Single(result);
+        Assert.Empty(result.First().Categories);
     }
 }

@@ -15,7 +15,8 @@ public class DbAiPromptCreateMapper : IDbEntityMapper<AiPromptCreateDto, AiPromp
 
         return new AiPromptEntity
         {
-            SystemCoreText = entity.SystemCoreText,
+            SystemPromptTemplate = entity.SystemPromptTemplate,
+            UserPromptTemplate = entity.UserPromptTemplate,
             Temperature = entity.Temperature,
             MaxDuelsPerRun = entity.MaxDuelsPerRun,
             UpdatedAt = DateTimeOffset.UtcNow

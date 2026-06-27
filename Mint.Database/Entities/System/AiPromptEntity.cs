@@ -21,8 +21,15 @@ public class AiPromptEntity
     /// Core security rules, response format, and limitations (Core Prompt)
     /// </summary>
     [Required]
-    [Column("system_core_text")]
-    public string SystemCoreText { get; set; } = string.Empty;
+    [Column("system_prompt_template")]
+    public string SystemPromptTemplate { get; set; } = string.Empty;
+
+    /// <summary>
+    /// User prompt template for AI generation
+    /// </summary>
+    [Required]
+    [Column("user_prompt_template")]
+    public string UserPromptTemplate { get; set; } = string.Empty;
 
     /// <summary>
     /// Temperature parameter for API (creativity: from 0.0 to 1.0)

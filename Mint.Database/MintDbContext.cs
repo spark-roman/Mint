@@ -3,6 +3,7 @@ using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
 
@@ -42,6 +43,11 @@ public class MintDbContext : DbContext
     /// AI prompts and settings
     /// </summary>
     public DbSet<AiPromptEntity> AiPrompts { get; set; }
+
+    /// <summary>
+    /// User categories
+    /// </summary>
+    public DbSet<CategoryEntity> UserCategories { get; set; }
 
     /// <summary>
     /// Constructor with connection param

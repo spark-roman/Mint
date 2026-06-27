@@ -1,4 +1,4 @@
-using Mint.Common.Contracts.Accounts;
+using Mint.Common.Contracts.Ledger.Accounts;
 
 namespace Mint.Database.Entities.Ledger.Accounts.Dto;
 
