@@ -8,6 +8,7 @@ namespace Mint.Database.Entities.Ledger.Accounts;
 /// <summary>
 /// User account entity
 /// </summary>
+[Table("accounts")]
 public class AccountEntity
 {
     /// <summary>

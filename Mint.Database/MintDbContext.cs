@@ -6,6 +6,7 @@ using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
+using Mint.Database.Infrastructure.Data.Promts;
 
 namespace Mint.Database;
 
@@ -56,6 +57,7 @@ public class MintDbContext : DbContext
     /// <returns></returns>
     public MintDbContext(DbContextOptions<MintDbContext> options) : base(options)
     {
+        
     }
 
     /// <inheritdoc/>
@@ -111,5 +113,7 @@ public class MintDbContext : DbContext
             .WithOne(c => c.AiPrompt)
             .HasForeignKey(c => c.AiPromptId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.InitPromtsData();
     }
 }

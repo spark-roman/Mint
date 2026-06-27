@@ -7,6 +7,7 @@ namespace Mint.Database.Entities.Ledger.Transactions;
 /// <summary>
 /// Transaction entity
 /// </summary>
+[Table("transactions")]
 public class TransactionEntity
 {
     /// <summary>

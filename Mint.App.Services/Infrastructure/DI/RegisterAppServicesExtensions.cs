@@ -21,6 +21,7 @@ public static class RegisterAppServicesExtensions
             Token = "test-token"
         });
 
+        services.AddScoped<HttpClient>();
         services.RegisterDuelGenerationServices();
         services.RegisterDuelMappers();
     }

@@ -11,6 +11,7 @@ public class PromptInitializer
     [
         new AiPromptEntity
         {
+            Id = 1,
             SystemPromptTemplate = @"
                 Ты — профессиональный шеф-редактор и ИИ-генератор контента для развлекательного Telegram-бота «Дуэли мнений». 
 
