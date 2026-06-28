@@ -21,7 +21,7 @@ public static class DuelGenerationExtensions
     /// <param name="services">Service collection</param>
     public static void RegisterDuelGenerationServices(this IServiceCollection services)
     {
-        services.AddSingleton<TimeProvider>(TimeProvider.System);
+        services.AddSingleton(TimeProvider.System);
         services.AddSingleton<IPromptsGenerator, PromptsGenerator>();
         services.AddSingleton<IDuelGenerationService, DuelGenerationService>();
         services.AddSingleton<IDuelGenerationValidator, DuelGenerationValidator>();

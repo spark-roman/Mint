@@ -1,4 +1,5 @@
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
 
 namespace Mint.Database.Entities.Ledger.Transactions.Mappers;
@@ -17,7 +18,8 @@ public class DbTransactionMapper : IDbEntityMapper<TransactionEntity, Transactio
             AccountId = entity.AccountId,
             Amount = entity.Amount,
             Description = entity.Description,
-            CreatedAt = entity.CreatedAt
+            CreatedAt = entity.CreatedAt,
+            BounusType = (BonusType)entity.BonusTypeId
         };
     }
 }

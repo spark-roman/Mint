@@ -15,6 +15,7 @@ public class DbTransactionCreateMapper : IDbEntityMapper<TransactionCreateDto, T
         {
             AccountId = entity.AccountId,
             Amount = entity.Amount,
+            BounusTypeId = (int)entity.BounusType,
             Description = entity.Description,
             CreatedAt = entity.CreatedAt
         };

@@ -26,7 +26,7 @@ public class DbUserStatsCreateMapper : IDbEntityMapper<UserStatsCreateDto, UserS
 
         return new UserStatsEntity
         {
-            UserId = entity.UserId,
+            UserId = entity.InternalUserId,
             RankPoints = entity.RankPoints,
             TotalWins = entity.TotalWins,
             TotalLosses = entity.TotalLosses,

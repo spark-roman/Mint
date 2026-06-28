@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using Mint.Database.Entities.UserInteractive.Stats;
 
 namespace Mint.Database.Entities.UserInteractive.Stats.Initializers;
 

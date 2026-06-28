@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System;
+using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 
 namespace Mint.App.Services.Infrastructure.DI;
@@ -24,5 +25,7 @@ public static class RegisterAppServicesExtensions
         services.AddScoped<HttpClient>();
         services.RegisterDuelGenerationServices();
         services.RegisterDuelMappers();
+
+        services.RegisterUserProfileHandlers();
     }
 }

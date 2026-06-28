@@ -50,6 +50,19 @@ public class UserStatsEntity
 
     /// <summary>
     /// Last update timestamp
+    /// Number of successfully referred friends who completed the conditions
+    /// </summary>
+    [Column("referral_count")]
+    public int ReferralCount { get; set; } = 0;
+
+    /// <summary>
+    /// Amount of coins earned through the referral program
+    /// </summary>
+    [Column("referral_earnings")]
+    public decimal ReferralEarnings { get; set; } = 0;
+
+    /// <summary>
+    /// Last update timestamp
     /// </summary>
     [Column("updated_at")]
     public DateTimeOffset UpdatedAt { get; set; }

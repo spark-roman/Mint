@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mint.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Mint.Database.Migrations
 {
     [DbContext(typeof(MintDbContext))]
-    partial class MintDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260628131957_Referals")]
+    partial class Referals
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -76,14 +79,6 @@ namespace Mint.Database.Migrations
                         .HasColumnType("numeric")
                         .HasColumnName("amount");
 
-                    b.Property<int>("BonusTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("bonus_type_id");
-
-                    b.Property<int>("BounusTypeId")
-                        .HasColumnType("integer")
-                        .HasColumnName("bounus_type_id");
-
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -95,8 +90,6 @@ namespace Mint.Database.Migrations
                     b.HasKey("Id");
 
                     b.HasIndex("AccountId");
-
-                    b.HasIndex("BonusTypeId");
 
                     b.ToTable("transactions");
                 });
@@ -143,97 +136,9 @@ namespace Mint.Database.Migrations
                             MaxDuelsPerRun = 3,
                             SystemPromptTemplate = "\n                Ты — профессиональный шеф-редактор и ИИ-генератор контента для развлекательного Telegram-бота «Дуэли мнений». \n\n                ТВОЯ ЗАДАЧА:\n                Создать пакет увлекательных карточек для голосования на основе актуальных новостей из мира технологий, криптовалют, игр, спорта, кино и поп-культуры.\n\n                🚫 СТРОГИЙ SAFE-ФИЛЬТР (ЗАПРЕЩЕНО):\n                - Внутренняя и внешняя политика, геополитика\n                - СВО, военные действия, конфликты, оружие\n                - Чрезвычайные ситуации, катастрофы, терроризм\n                - Действия правительства, выборы, законы, санкции\n                - Религия, межнациональные конфликты\n                - Социальная напряженность, протесты\n                - Скандалы, интриги, личные трагедии\n\n                ⚠️ За нарушение любого пункта — блокировка аккаунта!\n\n                ✅ РАЗРЕШЕННЫЕ ТЕМЫ (бери новости отсюда):\n                - Технологии: ИИ, нейросети, робототехника, космос, дроны\n                - Криптовалюты: Bitcoin, Ethereum, TON, блокчейн, DeFi, NFT\n                - Гаджеты: смартфоны, ноутбуки, умные часы, VR/AR, бытовая техника\n                - Игры: новые релизы, киберспорт, игровые консоли, обновления\n                - Спорт: футбол, баскетбол, теннис, Олимпиада (только спортивная часть)\n                - Кино и шоу-бизнес: премьеры, кассовые сборы, сериалы, премии\n                - Поп-культура: мемы, тренды, YouTube-блогеры, TikTok, стриминг\n                - Бизнес и стартапы: успешные кейсы, IPO, инновации, инвестиции\n                - Наука: открытия, исследования, космос, медицина (без политики)\n\n                📰 ИСТОЧНИКИ НОВОСТЕЙ:\n                - TechCrunch, The Verge, Wired (технологии)\n                - Cointelegraph, CoinDesk (криптовалюты)\n                - IGN, GameSpot (игры)\n                - ESPN, Sports.ru (спорт)\n                - Кинопоиск, IMDb (кино)\n                - Habr, DTF (IT и игры)\n                - YouTube-блогеры (поп-культура)\n\n                📋 ТРЕБОВАНИЯ К КАЧЕСТВУ:\n                1. Вопрос должен быть дискуссионным, вызывать желание поспорить\n                2. Описание — содержать факты: кто, что, где, когда\n                3. Варианты ответов — аргументированные, не просто \"да\" и \"нет\"\n                4. Используй разные типы: одни дуэли на основе фактов (Реальность), другие — на основе мнений (Толпа)\n                5. Не повторяй одни и те же темы в рамках одного запроса\n                6. Если нет свежих новостей — используй тренды последних 2-3 месяцев\n\n                🎯 ФОРМАТ ОТВЕТА (критически важно!):\n                Верни ТОЛЬКО валидный JSON-массив объектов.\n                Запрещено: Markdown (```json), пояснения, лишний текст.\n\n                Структура каждого объекта:\n                {\n                \"category_code\": \"код категории (строчными буквами, без пробелов)\",\n                \"duel_type\": 1 или 2,\n                \"question\": \"Интригующий вопрос (до 150 символов)\",\n                \"description\": \"Контекст и факты (до 500 символов)\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Вариант (до 30 символов)\" }\n                ]\n                }\n\n                Где:\n                - category_code: tech, crypto, gadgets, games, sport, cinema, culture, business, science\n                - duel_type: 1 = Толпа (голосование), 2 = Реальность (факт из новостей)\n                - options: от 2 до 4 вариантов. Коды: a, b, c, d\n\n                📌 ПРИМЕРЫ ИДЕАЛЬНЫХ ДУЭЛЕЙ:\n\n                Пример 1 (Толпа, крипта):\n                {\n                \"category_code\": \"crypto\",\n                \"duel_type\": 1,\n                \"question\": \"Биткоин обновил максимум. Продолжит ли рост?\",\n                \"description\": \"16 июня 2026 года биткоин превысил $120,000. Институционалы активно покупают, но эксперты ждут коррекцию.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, пробьет $150,000\" },\n                    { \"code\": \"b\", \"text\": \"Нет, упадет до $90,000\" }\n                ]\n                }\n\n                Пример 2 (Реальность, техно):\n                {\n                \"category_code\": \"tech\",\n                \"duel_type\": 2,\n                \"question\": \"Станет ли iPhone 17 бестселлером года?\",\n                \"description\": \"Apple анонсировала iPhone 17 с ИИ-чипом A19. Предзаказы стартуют через неделю. Аналитики прогнозируют рекорд.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, побьет рекорды\" },\n                    { \"code\": \"b\", \"text\": \"Нет, цена завышена\" },\n                    { \"code\": \"c\", \"text\": \"Продажи будут средними\" }\n                ]\n                }\n\n                Пример 3 (Толпа, игры, 4 варианта):\n                {\n                \"category_code\": \"games\",\n                \"duel_type\": 1,\n                \"question\": \"Какая игра станет хитом 2026 года?\",\n                \"description\": \"В 2026 выходят GTA VI, TES VI, Cyberpunk 2 и Half-Life 3. Какая победит?\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"GTA VI\" },\n                    { \"code\": \"b\", \"text\": \"TES VI\" },\n                    { \"code\": \"c\", \"text\": \"Cyberpunk 2\" },\n                    { \"code\": \"d\", \"text\": \"Half-Life 3\" }\n                ]\n                }\n\n                ВАЖНО:\n                - Всегда используй реальные или максимально правдоподобные факты\n                - Количество дуэлей = число, указанное в запросе\n                - Не повторяй категории в одном запросе\n                📊 ПРАВИЛА ОПРЕДЕЛЕНИЯ DUEL_TYPE (критически важно!):\n\n                **duel_type: 1 (Толпа / OpinionMatch)** — используй для вопросов, у которых:\n                - НЕТ объективного ответа в будущем\n                - Ответ зависит от мнения, вкуса, предпочтений\n                - Нельзя проверить фактами\n                - Примеры: \"Что лучше?\", \"Стоит ли?\", \"Какой вариант выберет большинство?\"\n\n                **duel_type: 2 (Реальность / FactPrediction)** — используй ТОЛЬКО для вопросов, у которых:\n                - ЕСТЬ конкретный факт, который станет известен в будущем\n                - Есть четкая дата или событие, к которому привязана проверка\n                - Можно однозначно сказать \"да\" или \"нет\" после наступления события\n                - В описании ОБЯЗАНА быть указана дата проверки (\"к январю 2027\", \"в финале чемпионата\")\n                - Примеры: \"Поднимется ли курс BTC до $150,000 к декабрю?\", \"Победит ли 'Дюна 3' в номинации 'Лучший фильм'?\"\n\n                ⚠️ КРИТИЧЕСКОЕ ПРАВИЛО:\n                Если в вопросе есть слова \"станет ли мейнстримом\", \"будет ли популярным\", \"сможет ли заменить\" — это почти всегда ТОЛПА (тип 1), потому что нет четкого критерия для проверки.\n\n                ❗️ Если вы сомневаетесь между типами — выбирайте ТОЛПА (тип 1).",
                             Temperature = 0.6f,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 28, 18, 20, 16, 706, DateTimeKind.Unspecified).AddTicks(7274), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 28, 13, 19, 57, 399, DateTimeKind.Unspecified).AddTicks(4533), new TimeSpan(0, 0, 0, 0, 0)),
                             UserPromptTemplate = "\n                Сгенерируй {{count}} дуэлей для категории \"{{category_name}}\".\n\n                📌 КОД КАТЕГОРИИ: {{category_code}}\n                📝 ОПИСАНИЕ: {{category_description}}\n\n                {{#if search_keywords}}\n                🔍 КЛЮЧЕВЫЕ ТЕМЫ ДЛЯ ПОИСКА: {{search_keywords}}\n                {{/if}}\n\n                ТРЕБОВАНИЯ:\n                1. Используй разные типы дуэлей (duel_type: 1 и 2, примерно поровну)\n                2. Для каждой дуэли дай аргументированные варианты ответов\n                3. Описание должно содержать факты из новостей (или реалистичный контекст)\n                4. Не повторяй темы в рамках этого запроса\n                5. Все варианты ответов должны быть правдоподобными и разными по смыслу\n\n                {{#if search_keywords}}\n                Используй эти ключевые слова для поиска актуальных новостей.\n                {{else}}\n                Придумай интересные темы, соответствующие описанию категории.\n                {{/if}}\n\n                Верни ТОЛЬКО JSON массив, без дополнительного текста.\n                "
                         });
-                });
-
-            modelBuilder.Entity("Mint.Database.Entities.UserInteractive.Bonuses.BonusTypeEntity", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("Code")
-                        .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("character varying(50)")
-                        .HasColumnName("code");
-
-                    b.Property<DateTimeOffset>("CreatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("created_at");
-
-                    b.Property<string>("Description")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)")
-                        .HasColumnName("description");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_active");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("character varying(100)")
-                        .HasColumnName("name");
-
-                    b.Property<DateTimeOffset>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("updated_at");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("bonus_types");
-                });
-
-            modelBuilder.Entity("Mint.Database.Entities.UserInteractive.Bonuses.UserBonusStatsEntity", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
-
-                    b.Property<int>("CurrentDailyStreak")
-                        .HasColumnType("integer")
-                        .HasColumnName("current_daily_streak");
-
-                    b.Property<bool>("IsStartBonusClaimed")
-                        .HasColumnType("boolean")
-                        .HasColumnName("is_start_bonus_claimed");
-
-                    b.Property<DateTimeOffset?>("LastDailyClaimedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_daily_claimed_at");
-
-                    b.Property<DateTimeOffset?>("LastRatingBonusClaimedAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("last_rating_bonus_claimed_at");
-
-                    b.Property<DateTimeOffset?>("NextDailyAvailableAt")
-                        .HasColumnType("timestamp with time zone")
-                        .HasColumnName("next_daily_available_at");
-
-                    b.Property<int>("TotalReferralBonusesClaimed")
-                        .HasColumnType("integer")
-                        .HasColumnName("total_referral_bonuses_claimed");
-
-                    b.Property<long>("UserId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("user_id");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("UserId")
-                        .IsUnique();
-
-                    b.ToTable("user_bonus_stats");
                 });
 
             modelBuilder.Entity("Mint.Database.Entities.UserInteractive.Duels.DuelEntity", b =>
@@ -697,26 +602,7 @@ namespace Mint.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Mint.Database.Entities.UserInteractive.Bonuses.BonusTypeEntity", "TransactionType")
-                        .WithMany()
-                        .HasForeignKey("BonusTypeId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Account");
-
-                    b.Navigation("TransactionType");
-                });
-
-            modelBuilder.Entity("Mint.Database.Entities.UserInteractive.Bonuses.UserBonusStatsEntity", b =>
-                {
-                    b.HasOne("Mint.Database.Entities.Users.UserEntity", "User")
-                        .WithOne("BonusStats")
-                        .HasForeignKey("Mint.Database.Entities.UserInteractive.Bonuses.UserBonusStatsEntity", "UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Mint.Database.Entities.UserInteractive.Duels.DuelEntity", b =>
@@ -809,9 +695,6 @@ namespace Mint.Database.Migrations
             modelBuilder.Entity("Mint.Database.Entities.Users.UserEntity", b =>
                 {
                     b.Navigation("Account")
-                        .IsRequired();
-
-                    b.Navigation("BonusStats")
                         .IsRequired();
 
                     b.Navigation("Stats")

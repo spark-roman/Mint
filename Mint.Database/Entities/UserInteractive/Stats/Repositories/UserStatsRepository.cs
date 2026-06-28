@@ -31,6 +31,17 @@ public class UserStatsRepository(
         ArgumentNullException.ThrowIfNull(dto);
 
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        var userEntity = await context.Users.FirstOrDefaultAsync(u => u.ExternalUserId == dto.ExternalUserId, cancellationToken);
+
+        if (userEntity is null)
+        {
+            throw new InvalidOperationException("User not found");
+        }
+        else
+        {
+            dto.InternalUserId = userEntity.Id;
+        }
+
         var entity = _statsCreateMapper.Map(dto);
 
         await context.UserStats.AddAsync(entity, cancellationToken);
@@ -44,8 +55,11 @@ public class UserStatsRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var stats = await context.UserStats
-            .FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        var stats = context.Users
+            .Where(u => u.ExternalUserId == userId)
+            .Include(u => u.Stats)
+            .Select(u => u.Stats)
+            .FirstOrDefault();
 
         return stats is null ? null : _statsMapper.Map(stats);
     }
@@ -57,12 +71,17 @@ public class UserStatsRepository(
 
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var stats = await context.UserStats
-            .FirstOrDefaultAsync(s => s.UserId == userId, cancellationToken);
+        var stats = context.Users
+            .Where(u => u.ExternalUserId == userId)
+            .Include(u => u.Stats)
+            .Select(u => u.Stats)
+            .FirstOrDefault();
 
         if (stats is null)
+        {
             return false;
-
+        }
+            
         var updatedEntity = _statsUpdateMapper.Map(dto);
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;

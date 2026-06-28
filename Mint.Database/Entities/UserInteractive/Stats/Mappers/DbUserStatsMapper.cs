@@ -20,6 +20,8 @@ public class DbUserStatsMapper : IDbEntityMapper<UserStatsEntity, UserStatsDto>
             RankPoints = entity.RankPoints,
             TotalWins = entity.TotalWins,
             TotalLosses = entity.TotalLosses,
+            ReferralCount = entity.ReferralCount,
+            ReferralEarnings = entity.ReferralEarnings,
             UpdatedAt = entity.UpdatedAt
         };
     }

@@ -31,6 +31,16 @@ public record UserStatsDto
     public int TotalLosses { get; init; }
 
     /// <summary>
+    /// Number of successfully referred friends who completed the conditions
+    /// </summary>
+    public int ReferralCount { get; init; }
+
+    /// <summary>
+    /// Amount of coins earned through the referral program
+    /// </summary>
+    public decimal ReferralEarnings { get; init; }
+
+    /// <summary>
     /// Last update timestamp
     /// </summary>
     public DateTimeOffset UpdatedAt { get; init; }
@@ -55,4 +65,15 @@ public record UserStatsUpdateDto
     /// Total losses
     /// </summary>
     public int TotalLosses { get; init; }
+
+    /// <summary>
+    /// Number of successfully referred friends who completed the conditions
+    /// </summary>
+    public int ReferralCount { get; init; }
+
+    /// <summary>
+    /// Amount of coins earned through the referral program
+    /// </summary>
+    public decimal ReferralEarnings { get; init; }
 }
+

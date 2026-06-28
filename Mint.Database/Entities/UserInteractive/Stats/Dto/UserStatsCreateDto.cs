@@ -6,9 +6,14 @@ namespace Mint.Database.Entities.UserInteractive.Stats.Dto;
 public record UserStatsCreateDto
 {
     /// <summary>
-    /// User ID
+    /// User id
     /// </summary>
-    public required long UserId { get; init; }
+    public required long ExternalUserId { get; init; }
+
+    /// <summary>
+    /// Internal user id
+    /// </summary>
+    public long InternalUserId { get; set; }
 
     /// <summary>
     /// Rank points
