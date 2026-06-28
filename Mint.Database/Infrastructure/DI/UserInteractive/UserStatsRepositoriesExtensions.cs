@@ -15,5 +15,6 @@ public static class UserStatsRepositoriesExtensions
     public static void RegisterUserStatsRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserStatsRepository, UserStatsRepository>();
+        services.AddScoped<IRankConfigRepository, RankConfigRepository>();
     }
 }

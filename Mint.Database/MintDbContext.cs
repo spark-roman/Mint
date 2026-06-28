@@ -8,6 +8,7 @@ using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
 using Mint.Database.Infrastructure.Data.Promts;
+using Mint.Database.Infrastructure.Data.Ranks;
 
 namespace Mint.Database;
 
@@ -55,6 +56,11 @@ public class MintDbContext : DbContext
     /// User stats
     /// </summary>
     public DbSet<UserStatsEntity> UserStats { get; set; }
+
+    /// <summary>
+    /// Rank configurations
+    /// </summary>
+    public DbSet<RankConfigEntity> RankConfigs { get; set; }
 
     /// <summary>
     /// Constructor with connection param
@@ -126,6 +132,12 @@ public class MintDbContext : DbContext
             .HasForeignKey<UserStatsEntity>(us => us.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<RankConfigEntity>()
+            .HasIndex(r => r.Code)
+            .IsUnique()
+            .HasDatabaseName("IX_ranks_config_code");
+
+        modelBuilder.InitRankConfigData();
         modelBuilder.InitPromtsData();
     }
 }

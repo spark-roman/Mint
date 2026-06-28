@@ -20,5 +20,6 @@ public static class UserStatsMappersExtensions
         services.AddSingleton<IDbEntityMapper<UserStatsCreateDto, UserStatsEntity>, DbUserStatsCreateMapper>();
         services.AddSingleton<IDbEntityMapper<UserStatsUpdateDto, UserStatsEntity>, DbUserStatsUpdateMapper>();
         services.AddSingleton<IDbEntityMapper<UserStatsEntity, UserStatsDto>, DbUserStatsMapper>();
+        services.AddSingleton<IDbEntityMapper<RankConfigEntity, RankConfigDto>, DbRankConfigMapper>();
     }
 }
