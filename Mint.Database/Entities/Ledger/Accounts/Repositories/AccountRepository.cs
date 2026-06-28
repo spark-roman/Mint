@@ -116,4 +116,17 @@ public class AccountRepository(
 
         return true;
     }
+
+    /// <inheritdoc/>
+    public async Task<decimal> GetUserBalanceAsync(long externalUserId, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var balnce = context.Users
+            .Include(u => u.Account)
+            .Select(u => u.Account.Balance)
+            .FirstOrDefault();
+
+        return balnce;
+    }
 }

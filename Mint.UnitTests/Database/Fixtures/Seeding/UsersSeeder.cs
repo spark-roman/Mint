@@ -1,5 +1,6 @@
 using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Stats.Initializers;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Seeding;
@@ -80,5 +81,7 @@ public static class UsersSeeder
                 LastTransactionDate = new DateTimeOffset(2024, 5, 18, 12, 0, 0, TimeSpan.Zero),
                 Status = AccountStatus.Active
             });
+
+        context.RankConfigs.AddRange(new RankConfigInitializer().Get());
     }
 }

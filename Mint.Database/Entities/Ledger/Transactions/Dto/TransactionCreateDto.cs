@@ -1,3 +1,5 @@
+using Mint.Common.Contracts.UserInteractive.Bonuses;
+
 namespace Mint.Database.Entities.Ledger.Transactions.Dto;
 
 /// <summary>
@@ -19,6 +21,11 @@ public record TransactionCreateDto
     /// Transaction description
     /// </summary>
     public string? Description { get; init; }
+
+    /// <summary>
+    /// Type of bonus
+    /// </summary>
+    public BonusType BounusType { get; init; }
 
     /// <summary>
     /// Creation date

@@ -2,11 +2,14 @@ using Microsoft.EntityFrameworkCore;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.System;
+using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
 using Mint.Database.Infrastructure.Data.Promts;
+using Mint.Database.Infrastructure.Data.Ranks;
 
 namespace Mint.Database;
 
@@ -49,6 +52,26 @@ public class MintDbContext : DbContext
     /// User categories
     /// </summary>
     public DbSet<CategoryEntity> UserCategories { get; set; }
+
+    /// <summary>
+    /// User stats
+    /// </summary>
+    public DbSet<UserStatsEntity> UserStats { get; set; }
+
+    /// <summary>
+    /// User bonus stats
+    /// </summary>
+    public DbSet<UserBonusStatsEntity> UserBonusStats { get; set; }
+
+    /// <summary>
+    /// Rank configurations
+    /// </summary>
+    public DbSet<RankConfigEntity> RankConfigs { get; set; }
+
+    /// <summary>
+    /// Bonus types
+    /// </summary>
+    public DbSet<BonusTypeEntity> BonusTypes { get; set; }
 
     /// <summary>
     /// Constructor with connection param
@@ -114,6 +137,29 @@ public class MintDbContext : DbContext
             .HasForeignKey(c => c.AiPromptId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<UserStatsEntity>()
+            .HasOne(us => us.User)
+            .WithOne(u => u.Stats)
+            .HasForeignKey<UserStatsEntity>(us => us.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserBonusStatsEntity>()
+            .HasOne(ubs => ubs.User)
+            .WithOne(u => u.BonusStats)
+            .HasForeignKey<UserBonusStatsEntity>(ubs => ubs.UserId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RankConfigEntity>()
+            .HasIndex(r => r.Code)
+            .IsUnique()
+            .HasDatabaseName("IX_ranks_config_code");
+
+        modelBuilder.Entity<TransactionEntity>()
+            .HasOne(t => t.TransactionType)
+            .WithMany()
+            .HasForeignKey(t => t.BonusTypeId);
+
+        modelBuilder.InitRankConfigData();
         modelBuilder.InitPromtsData();
     }
 }

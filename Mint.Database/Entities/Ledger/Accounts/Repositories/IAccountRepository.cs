@@ -26,7 +26,7 @@ public interface IAccountRepository
     /// <summary>
     /// Get user account by external user ID and system type
     /// </summary>
-    /// <param name="externalUserId">External user ID (e.g., Telegram ID)</param>
+    /// <param name="externalUserId">External user id (e.g., Telegram ID)</param>
     /// <param name="systemType">Auth system type</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of accounts</returns>
@@ -47,4 +47,12 @@ public interface IAccountRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>true if account found and deleted, otherwise false</returns>
     Task<bool> DeleteAccountAsync(long accountId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get user balance
+    /// </summary>
+    /// <param name="externalUserId">External user id (e.g., Telegram ID)</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns></returns>
+    Task<decimal> GetUserBalanceAsync(long externalUserId, CancellationToken cancellationToken);
 }

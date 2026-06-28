@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Bonuses;
 
 namespace Mint.Database.Entities.Ledger.Transactions;
 
@@ -19,7 +20,7 @@ public class TransactionEntity
     public long Id { get; set; }
 
     /// <summary>
-    /// Account ID that owns the transaction
+    /// Account id that owns the transaction
     /// </summary>
     [Required]
     [Column("account_id")]
@@ -32,6 +33,18 @@ public class TransactionEntity
     public virtual AccountEntity Account { get; set; } = null!;
 
     /// <summary>
+    /// Type of bonus id
+    /// </summary>
+    [Required]
+    [Column("bonus_type_id")]
+    public int BonusTypeId { get; set; }
+
+    /// <summary>
+    /// Bonus type entity
+    /// </summary>
+    public BonusTypeEntity TransactionType { get; set; } = null!;
+
+    /// <summary>
     /// Transaction amount (+ income, - expense)
     /// </summary>
     [Column("amount")]
@@ -42,6 +55,12 @@ public class TransactionEntity
     /// </summary>
     [Column("description")]
     public string? Description { get; set; }
+
+    /// <summary>
+    /// Bonus type id
+    /// </summary>
+    [Column("bounus_type_id")]
+    public int BounusTypeId { get; set; }
 
     /// <summary>
     /// Creation date
