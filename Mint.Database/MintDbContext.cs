@@ -3,6 +3,7 @@ using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
@@ -49,6 +50,11 @@ public class MintDbContext : DbContext
     /// User categories
     /// </summary>
     public DbSet<CategoryEntity> UserCategories { get; set; }
+
+    /// <summary>
+    /// User stats
+    /// </summary>
+    public DbSet<UserStatsEntity> UserStats { get; set; }
 
     /// <summary>
     /// Constructor with connection param
@@ -112,6 +118,12 @@ public class MintDbContext : DbContext
             .HasMany(p => p.Categories)
             .WithOne(c => c.AiPrompt)
             .HasForeignKey(c => c.AiPromptId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserStatsEntity>()
+            .HasOne(us => us.User)
+            .WithOne(u => u.Stats)
+            .HasForeignKey<UserStatsEntity>(us => us.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.InitPromtsData();

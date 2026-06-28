@@ -28,6 +28,8 @@ public static class DatabseExtensions
         services.RegisterTransactionRepositories();
         services.RegisterDuelMappers();
         services.RegisterDuelRepositories();
+        services.RegisterUserStatsMappers();
+        services.RegisterUserStatsRepositories();
         services.RegisterVoteMappers();
         services.RegisterVoteRepositories();
         services.RegisterAiPromptMappers();

@@ -64,6 +64,7 @@ public class RepositoryFixture
 
         using var context = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         context.Duels.RemoveRange(context.Duels);
+        context.UserStats.RemoveRange(context.UserStats);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

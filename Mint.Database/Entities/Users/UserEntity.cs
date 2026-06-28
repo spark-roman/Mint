@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Database.Entities.UserInteractive.Stats;
 
 namespace Mint.Database.Entities.Users;
 
@@ -68,4 +69,9 @@ public class UserEntity
     /// </summary>
     [Column("status")]
     public byte Status { get; set; }
+
+    /// <summary>
+    /// User stats
+    /// </summary>
+    public virtual UserStatsEntity Stats { get; set; } = null!;
 }
