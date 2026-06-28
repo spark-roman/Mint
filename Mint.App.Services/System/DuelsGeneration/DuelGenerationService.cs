@@ -2,8 +2,8 @@ using System.Collections.ObjectModel;
 using System.Text;
 using System.Text.Json;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Prompts;
-using Mint.App.Services.System.DuelsGeneration.Validators;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.System.Dto;
 using Mint.Database.Entities.System.Repositories;
@@ -19,9 +19,9 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
 
     private readonly IPromptsGenerator _promptsGenerator;
 
-    private readonly IDuelGenerationValidator _duelGenerationValidator;
-
     private readonly IDtoMapper<DuelGenerationDto, DuelCreateDto> _duelMapper;
+
+    private readonly IAIResponseProcessor _aiResponseProcessor;
 
     private readonly JsonSerializerOptions _jsonSerializerOptions = new()
     {
@@ -37,22 +37,22 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
     /// </summary>
     /// <param name="aiPromptRepository">Prompt repository</param>
     /// <param name="promptsGenerator">Prompt generator</param>
-    /// <param name="duelGenerationValidator">Duel validation</param>
     /// <param name="duelMapper">Duel mapper</param>
+    /// <param name="aiResponseProcessor">AI response processor</param>
     /// <param name="settings">DeepSeek settings</param>
     /// <param name="httpClient">HTTP client for API calls</param>
     public DuelGenerationService(
         IAiPromptRepository aiPromptRepository,
         IPromptsGenerator promptsGenerator,
-        IDuelGenerationValidator duelGenerationValidator,
         IDtoMapper<DuelGenerationDto, DuelCreateDto> duelMapper,
+        IAIResponseProcessor aiResponseProcessor,
         DeepSeekSettings settings,
         HttpClient httpClient)
     {
         _aiPromptRepository = aiPromptRepository ?? throw new ArgumentNullException(nameof(aiPromptRepository));
         _promptsGenerator = promptsGenerator ?? throw new ArgumentNullException(nameof(promptsGenerator));
-        _duelGenerationValidator = duelGenerationValidator ?? throw new ArgumentNullException(nameof(duelGenerationValidator));
         _duelMapper = duelMapper ?? throw new ArgumentNullException(nameof(duelMapper));
+        _aiResponseProcessor = aiResponseProcessor ?? throw new ArgumentNullException(nameof(aiResponseProcessor));
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
         _settings = settings ?? throw new ArgumentNullException(nameof(settings));
     }
@@ -139,26 +139,17 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
             throw new InvalidOperationException($"DeepSeek API error: {error}");
         }
 
-        var responseJson = await response.Content.ReadAsStringAsync();
-        var result = JsonSerializer.Deserialize<DeepSeekResponse>(responseJson);
+        var responseContent = await response.Content.ReadAsStringAsync();
+        var result = JsonSerializer.Deserialize<DeepSeekResponse>(responseContent);
         
         if (result?.Choices == null || result.Choices.Count == 0)
-            throw new InvalidOperationException("No choices returned from DeepSeek");
-
-        var responseContent = result.Choices.First().Message.Content;
-        
-        var duelsData = JsonSerializer.Deserialize<Collection<DuelGenerationDto>>(responseContent);
-
-        var validationResult = _duelGenerationValidator.Validate(duelsData);
-        
-        if (!validationResult.IsValid)
         {
-            throw new InvalidOperationException($"Duels generation validation failed: {validationResult.Message}");
+            throw new InvalidOperationException("No choices returned from DeepSeek");
         }
-
-        var duelsCreateDtos = duelsData!.Select(d => _duelMapper.Map(d, category.Id, 7));
-
-        return [..duelsCreateDtos];
+        
+        var responseInnerContent = result.Choices.First().Message.Content;
+        
+        return await _aiResponseProcessor.Process(responseInnerContent, category.Id, 7);
     }
 
     private bool _disposed;

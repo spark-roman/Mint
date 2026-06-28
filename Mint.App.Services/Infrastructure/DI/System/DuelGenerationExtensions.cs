@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.Mappers;
+using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Prompts;
 using Mint.App.Services.System.DuelsGeneration.Validators;
 using Mint.Common.Contracts.Mappers;
@@ -20,9 +21,11 @@ public static class DuelGenerationExtensions
     /// <param name="services">Service collection</param>
     public static void RegisterDuelGenerationServices(this IServiceCollection services)
     {
+        services.AddSingleton<TimeProvider>(TimeProvider.System);
         services.AddSingleton<IPromptsGenerator, PromptsGenerator>();
         services.AddSingleton<IDuelGenerationService, DuelGenerationService>();
         services.AddSingleton<IDuelGenerationValidator, DuelGenerationValidator>();
+        services.AddSingleton<IAIResponseProcessor, DeepseekResponseProcessor>();
     }
 
     /// <summary>
