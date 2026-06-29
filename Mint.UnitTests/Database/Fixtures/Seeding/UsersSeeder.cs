@@ -1,4 +1,5 @@
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Stats.Initializers;
 using Mint.Database.Entities.Users;
@@ -83,5 +84,6 @@ public static class UsersSeeder
             });
 
         context.RankConfigs.AddRange(new RankConfigInitializer().Get());
+        context.StepTypes.AddRange(new StepTypeInitializer().Get());
     }
 }

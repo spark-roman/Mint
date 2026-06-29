@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Mint.App.Services.UserInteractive.Profiles;
+using Mint.App.Services.UserInteractive.Profiles.Handlers;
 
 namespace Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
 
