@@ -4,6 +4,7 @@ using Mint.Database.Infrastructure.DI.Transactions;
 using Mint.Database.Infrastructure.DI.UserInteractive;
 using Mint.Database.Infrastructure.DI.Users;
 using Mint.Database.Infrastructure.DI.System;
+using Mint.Database.Infrastructure.DI.Bot;
 
 namespace Mint.Database.Infrastructure.DI;
 
@@ -36,5 +37,7 @@ public static class DatabseExtensions
         services.RegisterVoteRepositories();
         services.RegisterAiPromptMappers();
         services.RegisterAiPromptRepositories();
+        services.RegisterBotMappers();
+        services.RegisterBotRepositories();
     }
 }

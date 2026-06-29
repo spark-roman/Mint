@@ -26,6 +26,11 @@ public class UserSessionEntity
     public long UserId { get; set; }
 
     /// <summary>
+    /// User
+    /// </summary>
+    public virtual UserEntity User { get; set; } = null!;
+
+    /// <summary>
     /// Scenario ID (foreign key)
     /// </summary>
     [Required]

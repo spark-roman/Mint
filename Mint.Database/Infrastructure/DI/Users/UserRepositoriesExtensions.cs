@@ -1,6 +1,7 @@
 using AdvApplication.Auth.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Users.Repositories;
+using Mint.Database.Entities.Users.Sessions.Repositories;
 
 namespace Mint.Database.Infrastructure.DI.Users;
 
@@ -16,5 +17,6 @@ public static class UserRepositoriesExtensions
     public static void RegisterUserRepositories(this IServiceCollection services)
     {
         services.AddScoped<IUserRepository, UserRepository>();
+        services.AddScoped<IUserSessionRepository, UserSessionRepository>();
     }
 }

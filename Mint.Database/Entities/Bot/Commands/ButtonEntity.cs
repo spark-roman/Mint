@@ -21,8 +21,8 @@ public class ButtonEntity
     /// Step ID (foreign key)
     /// </summary>
     [Required]
-    [Column("step_id")]
-    public long StepId { get; set; }
+    [Column("parent_step_id")]
+    public long ParentStepId { get; set; }
 
     /// <summary>
     /// Parent step

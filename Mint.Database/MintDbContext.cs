@@ -187,8 +187,26 @@ public class MintDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.BonusTypeId);
 
+        modelBuilder.Entity<ButtonEntity>()
+            .HasOne(b => b.NextStep)
+            .WithMany()
+            .HasForeignKey(b => b.NextStepId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        modelBuilder.Entity<UserSessionEntity>()
+            .HasOne(us => us.Scenario)
+            .WithMany()
+            .HasForeignKey(us => us.ScenarioId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<UserSessionEntity>()
+            .HasOne(us => us.CurrentStep)
+            .WithMany()
+            .HasForeignKey(us => us.CurrentStepId)
+            .OnDelete(DeleteBehavior.Cascade);
+
         modelBuilder.InitRankConfigData();
-        modelBuilder.InitStepTypeData();
+        modelBuilder.InitBotData();
         modelBuilder.InitPromtsData();
     }
 }

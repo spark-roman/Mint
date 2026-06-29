@@ -3,6 +3,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Stats;
+using Mint.Database.Entities.Users.Sessions;
 
 namespace Mint.Database.Entities.Users;
 
@@ -86,4 +87,9 @@ public class UserEntity
     /// User account
     /// </summary>
     public virtual AccountEntity Account { get; set; } = null!;
+
+    /// <summary>
+    /// User sessions
+    /// </summary>
+    public virtual ICollection<UserSessionEntity> Sessions { get; init; } = [];
 }

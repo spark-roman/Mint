@@ -13,10 +13,13 @@ public static class InitStepTypeExtensions
     /// Initialize step type data in the database.
     /// </summary>
     /// <param name="modelBuilder">Model builder.</param>
-    public static void InitStepTypeData(this ModelBuilder modelBuilder)
+    public static void InitBotData(this ModelBuilder modelBuilder)
     {
         ArgumentNullException.ThrowIfNull(modelBuilder);
 
-        modelBuilder.Entity<StepTypeEntity>().HasData(new StepTypeInitializer().Get());
+        modelBuilder.Entity<StepTypeEntity>().HasData(new BotInitializer().GetStepTypes());
+        modelBuilder.Entity<ScenarioEntity>().HasData(new BotInitializer().GetScenarios());
+        modelBuilder.Entity<StepEntity>().HasData(new BotInitializer().GetSteps());
+        modelBuilder.Entity<ButtonEntity>().HasData(new BotInitializer().GetButtons());
     }
 }
