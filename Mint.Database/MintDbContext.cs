@@ -9,6 +9,7 @@ using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
+using Mint.Database.Entities.Users.Sessions;
 using Mint.Database.Infrastructure.Data.Bot;
 using Mint.Database.Infrastructure.Data.Promts;
 using Mint.Database.Infrastructure.Data.Ranks;
