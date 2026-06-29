@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Database.Entities.Bot.Commands;
 
 namespace Mint.Database.Entities.Users.Sessions;
 
