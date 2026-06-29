@@ -1,4 +1,3 @@
-using System.Threading;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database;
@@ -67,6 +66,7 @@ public class RepositoryFixture
         context.UserStats.RemoveRange(context.UserStats);
         context.UserBonusStats.RemoveRange(context.UserBonusStats);
         context.RankConfigs.RemoveRange(context.RankConfigs);
+        context.StepTypes.RemoveRange(context.StepTypes);
         await context.SaveChangesAsync(cancellationToken);
     }
 }

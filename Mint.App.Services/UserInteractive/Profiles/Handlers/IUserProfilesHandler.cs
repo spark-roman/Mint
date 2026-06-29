@@ -1,7 +1,7 @@
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.App.Services.UserInteractive.Users.Dto;
 
-namespace Mint.App.Services.UserInteractive.Profiles;
+namespace Mint.App.Services.UserInteractive.Profiles.Handlers;
 
 /// <summary>
 /// Handles user profile operations.

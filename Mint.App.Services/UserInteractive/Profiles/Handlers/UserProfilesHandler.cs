@@ -5,7 +5,7 @@ using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 
-namespace Mint.App.Services.UserInteractive.Profiles;
+namespace Mint.App.Services.UserInteractive.Profiles.Handlers;
 
 /// <inheritdoc/>
 public class UserProfilesHandler(
