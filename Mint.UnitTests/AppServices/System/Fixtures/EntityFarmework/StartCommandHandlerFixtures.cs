@@ -1,19 +1,13 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
-using Mint.Common.Contracts.Users;
 using Mint.Database;
-using Mint.Database.Entities.Bot.Commands.Dto;
-using Mint.Database.Entities.Users.Dto;
-using Mint.Database.Entities.Users.Sessions.Dto;
 using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 using Telegram.Bot.Types;
 using Moq;
-using Mint.App.Services.Infrastructure.DI.System;
+using Mint.App.Services.Infrastructure.DI.System.Bot;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 
