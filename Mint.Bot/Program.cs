@@ -27,9 +27,6 @@ builder.Services.AddLogging();
 
 var app = builder.Build();
 
-var logger = app.Services.GetRequiredService<ILogger<Program>>();
-logger.LogInformation("Connection string: {ConnectionString}", connectionString);
-
 await app.ApplyMigrations();
 
 var port = Environment.GetEnvironmentVariable("PORT");
