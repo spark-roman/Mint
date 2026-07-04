@@ -8,7 +8,7 @@ public record ExternalUserDto
     /// <summary>
     /// Unique identifier for this user or bot.
     /// </summary>
-    public long Id { get; init; }
+    public long ExternalUserId { get; init; }
 
     /// <summary>
     /// If this user is a bot.

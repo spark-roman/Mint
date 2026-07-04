@@ -29,6 +29,7 @@ public class PromptsGeneratorTests
 
     private static CategoryDto CreateCategory(
         string name,
+        string code,
         string? description = null,
         string? searchKeywords = null)
     {
@@ -37,7 +38,8 @@ public class PromptsGeneratorTests
             Id = 1,
             Name = name,
             Description = description,
-            SearchKeywords = searchKeywords
+            SearchKeywords = searchKeywords,
+            Code = code
         };
     }
 
@@ -98,7 +100,7 @@ public class PromptsGeneratorTests
     public void GetUserPrompt_NullPrompt_ThrowsArgumentNullException()
     {
         // Arrange
-        var category = CreateCategory("tech");
+        var category = CreateCategory("tech", "tech");
 
         // Act & Assert
         Assert.Throws<ArgumentNullException>(() => _generator.GetUserPrompt(null!, category, 3));
@@ -125,7 +127,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Generate {{count}} duels.");
-        var category = CreateCategory("tech");
+        var category = CreateCategory("tech", "tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 5);
@@ -142,7 +144,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Generate {{count}} duel.");
-        var category = CreateCategory("tech");
+        var category = CreateCategory("tech", "tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 1);
@@ -159,7 +161,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Category: {{category_name}}");
-        var category = CreateCategory("Neural Networks & AI");
+        var category = CreateCategory("Neural Networks & AI", "tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -176,7 +178,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Desc: {{category_description}}");
-        var category = CreateCategory("tech", "Description for tech");
+        var category = CreateCategory("tech", "tech", "Description for tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -193,7 +195,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Desc: {{category_description}}");
-        var category = CreateCategory("tech", description: null);
+        var category = CreateCategory("tech", "tech", description: null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -210,7 +212,7 @@ public class PromptsGeneratorTests
     {
         // Arrange
         var prompt = CreatePrompt("", "Keywords: {{search_keywords}}");
-        var category = CreateCategory("tech", null, "AI, crypto");
+        var category = CreateCategory("tech", "tech", null, "AI, crypto");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -231,6 +233,7 @@ public class PromptsGeneratorTests
             "Count: {{count}}, Name: {{category_name}}, Desc: {{category_description}}, Keywords: {{search_keywords}}");
         var category = CreateCategory(
             "Tech",
+            "tech",
             "Technology desc",
             "AI, crypto");
 
@@ -257,7 +260,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Start\n{{#if search_keywords}}Keywords: {{search_keywords}}{{/if}}\nEnd";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, "AI, crypto");
+        var category = CreateCategory("tech", "tech", null, "AI, crypto");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -275,7 +278,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Start\n{{#if search_keywords}}Keywords: {{search_keywords}}\n{{/if}}\nEnd";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, null);
+        var category = CreateCategory("tech", "tech", null, null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -295,7 +298,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Start\n{{#if description}}{{category_description}}{{/if}}\nEnd";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", "Some description", null);
+        var category = CreateCategory("tech", "tech", "Some description", null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -313,7 +316,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Start\n{{#if description}}Description here{{/if}}\nEnd";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, null);
+        var category = CreateCategory("tech", "tech", null, null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -333,7 +336,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "{{#if search_keywords}}KW: {{search_keywords}}{{/if}}\n{{#if description}}DESC: {{category_description}}{{/if}}";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", "Tech desc", "AI");
+        var category = CreateCategory("tech", "tech", "Tech desc", "AI");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -353,7 +356,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "{{#if search_keywords}}KW: {{search_keywords}}{{/if}}\n{{#if description}}DESC: {{category_description}}{{/if}}";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, null);
+        var category = CreateCategory("tech", "tech", null, null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -377,7 +380,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Line 1\n\n\n\nLine 2";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech");
+        var category = CreateCategory("tech", "tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -395,7 +398,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "Line 1\n\nLine 2";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech");
+        var category = CreateCategory("tech", "tech");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -418,7 +421,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "{{#if search_keywords}}KW: {{search_keywords}}{{/if}}{{else}}Other{{/if}}";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, null);
+        var category = CreateCategory("tech", "tech", null, null);
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);
@@ -439,7 +442,7 @@ public class PromptsGeneratorTests
         // Arrange
         var template = "{{#if search_keywords}}Use: {{search_keywords}}{{else}}Fallback{{/if}}";
         var prompt = CreatePrompt("", template);
-        var category = CreateCategory("tech", null, "AI");
+        var category = CreateCategory("tech", "tech", null, "AI");
 
         // Act
         var result = _generator.GetUserPrompt(prompt, category, 3);

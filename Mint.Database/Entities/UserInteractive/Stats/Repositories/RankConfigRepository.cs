@@ -64,4 +64,16 @@ public class RankConfigRepository(
 
         return rankConfig is null ? null : _rankConfigMapper.Map(rankConfig);
     }
+
+    /// <inheritdoc/>
+    public async Task<RankConfigDto?> GetHighestRankAsync(int points, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var rankConfig = await context.RankConfigs
+            .OrderByDescending(r => r.MinPoints)
+            .FirstOrDefaultAsync(r => r.MinPoints <= points, cancellationToken);
+
+        return rankConfig is null ? null : _rankConfigMapper.Map(rankConfig);
+    }
 }

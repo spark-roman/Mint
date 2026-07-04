@@ -15,7 +15,8 @@ public class DbTransactionMapper : IDbEntityMapper<TransactionEntity, Transactio
         return new TransactionDto
         {
             Id = entity.Id,
-            AccountId = entity.AccountId,
+            DebetAccountId = entity.DebetAccountId,
+            CreditAccountId = entity.CreditAccountId,
             Amount = entity.Amount,
             Description = entity.Description,
             CreatedAt = entity.CreatedAt,

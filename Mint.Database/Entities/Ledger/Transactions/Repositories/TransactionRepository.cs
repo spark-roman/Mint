@@ -1,3 +1,4 @@
+using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
@@ -30,6 +31,15 @@ public class TransactionRepository(
         var entity = _transactionCreateMapper.Map(transaction);
 
         await context.Transactions.AddAsync(entity, cancellationToken);
+        var creditAccount = await context.Accounts.FirstOrDefaultAsync(a => a.Id == entity.CreditAccountId, cancellationToken);
+
+        if (creditAccount is null)
+        {
+            throw new InvalidOperationException($"Account not found{entity.CreditAccountId}");
+        }
+
+        creditAccount.Balance += entity.Amount;
+
         await context.SaveChangesAsync(cancellationToken);
 
         return entity.Id;
@@ -52,7 +62,7 @@ public class TransactionRepository(
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var entities = await context.Transactions
-            .Where(t => t.AccountId == accountId)
+            .Where(t => t.CreditAccountId == accountId || t.DebetAccountId == accountId)
             .ToListAsync(cancellationToken);
 
         return entities.Select(_transactionMapper.Map).ToList();

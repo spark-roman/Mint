@@ -18,17 +18,17 @@ public record UserCreateDto
     /// <summary>
     /// First name
     /// </summary>
-    public string FirstName { get; init; } = string.Empty;
+    public string? FirstName { get; init; } = string.Empty;
 
     /// <summary>
     /// Last name
     /// </summary>
-    public string LastName { get; init; } = string.Empty;
+    public string? LastName { get; init; } = string.Empty;
 
     /// <summary>
     /// User name
     /// </summary>
-    public string UserName { get; init; } = string.Empty;
+    public string? UserName { get; init; } = string.Empty;
 
     /// <summary>
     /// Last auth date

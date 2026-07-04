@@ -4,7 +4,7 @@ using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
 
-namespace AdvBot.Bot.Handlers;
+namespace Mint.App.Services.System.Bot.Handlers;
 
 /// <inheritdoc/>
 public class UpdateHandler(ILogger<UpdateHandler> logger) : IUpdateHandler

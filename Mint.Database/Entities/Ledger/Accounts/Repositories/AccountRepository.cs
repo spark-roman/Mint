@@ -70,7 +70,7 @@ public class AccountRepository(
 
         var entities = await context.Accounts
             .Include(a => a.User)
-            .Where(a => a.User.ExternalUserId == externalUserId && a.User.SystemType == systemType)
+            .Where(a => a.User.ExternalUserId == externalUserId && a.User.SystemType == systemType && a.Status == AccountStatus.Active)
             .ToListAsync(cancellationToken);
 
         return entities.Select(_accountMapper.Map).ToList();

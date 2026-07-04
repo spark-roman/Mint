@@ -31,4 +31,12 @@ public interface IUserStatsRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if stats were updated</returns>
     Task<bool> UpdateStatsAsync(long userId, UserStatsUpdateDto dto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get top stats
+    /// </summary>
+    /// <param name="top">Top number of stats to return</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of top stats</returns>
+    Task<List<UserStatsDto>> GetTopStatsByUserIdAsync(int top, CancellationToken cancellationToken);
 }

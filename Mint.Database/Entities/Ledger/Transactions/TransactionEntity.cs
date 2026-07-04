@@ -20,17 +20,30 @@ public class TransactionEntity
     public long Id { get; set; }
 
     /// <summary>
-    /// Account id that owns the transaction
+    /// Debet account id
     /// </summary>
     [Required]
-    [Column("account_id")]
-    public long AccountId { get; set; }
+    [Column("debet_account_id")]
+    public long DebetAccountId { get; init; }
 
     /// <summary>
-    /// Account entity
+    /// Debet account entity
     /// </summary>
-    [ForeignKey(nameof(AccountId))]
-    public virtual AccountEntity Account { get; set; } = null!;
+    [ForeignKey(nameof(DebetAccountId))]
+    public virtual AccountEntity DebetAccount { get; set; } = null!;
+
+    /// <summary>
+    /// Credit account id
+    /// </summary>
+    [Required]
+    [Column("creadit_account_id")]
+    public long CreditAccountId { get; init; }
+
+    /// <summary>
+    /// Debet account entity
+    /// </summary>
+    [ForeignKey(nameof(CreditAccountId))]
+    public virtual AccountEntity CreditAccount { get; set; } = null!;
 
     /// <summary>
     /// Type of bonus id

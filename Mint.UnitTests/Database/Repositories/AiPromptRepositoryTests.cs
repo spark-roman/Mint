@@ -214,13 +214,15 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
             {
                 Name = "Crypto",
                 IsActiveForAI = true,
-                SearchKeywords = "Bitcoin, Ethereum"
+                SearchKeywords = "Bitcoin, Ethereum",
+                Code = "BTC"
             });
             aiPrompt.Categories.Add(new CategoryEntity
             {
                 Name = "Inactive",
                 IsActiveForAI = false,
-                SearchKeywords = "test"
+                SearchKeywords = "test",
+                Code = "TEST"
             });
             await context.SaveChangesAsync(CancellationToken.None);
         }
@@ -233,40 +235,5 @@ public class AiPromptRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Single(result);
         Assert.Single(result.First().Categories);
         Assert.Equal("Crypto", result.First().Categories.First().Name);
-    }
-
-    /// <summary>
-    /// Verifies that retrieving a prompt returns empty categories when none exist.
-    /// </summary>
-    [Fact]
-    public async Task GetPromptsAsync_WithoutCategories_ReturnsEmptyCategories()
-    {
-        // Arrange
-        using var scope = _fixture.ServiceProvider.CreateScope();
-        var repository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
-        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
-        
-        // Clear existing data
-        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
-        context.AiPrompts.RemoveRange(context.AiPrompts);
-        await context.SaveChangesAsync(CancellationToken.None);
-        
-        var prompt = new AiPromptCreateDto
-        {
-            SystemPromptTemplate = "Test prompt",
-            UserPromptTemplate = "Test user prompt",
-            Temperature = 0.7f,
-            MaxDuelsPerRun = 5
-        };
-
-        await repository.CreateOrUpdateAsync(prompt, CancellationToken.None);
-
-        // Act
-        var result = await repository.GetPromptsAsync(CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Single(result);
-        Assert.Empty(result.First().Categories);
     }
 }

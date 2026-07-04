@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System;
+using Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
+using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 
 namespace Mint.App.Services.Infrastructure.DI;
@@ -22,10 +24,13 @@ public static class RegisterAppServicesExtensions
             Token = "test-token"
         });
 
-        services.AddScoped<HttpClient>();
+        services.AddHttpClient<IDuelGenerationService, DuelGenerationService>();
         services.RegisterDuelGenerationServices();
         services.RegisterDuelMappers();
 
+        services.AddStartCommandMappers();
+
         services.RegisterUserProfileHandlers();
+        services.RegisterBonusValidators();
     }
 }
