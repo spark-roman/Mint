@@ -8,6 +8,7 @@ COPY Mint.Bot/Mint.Bot.csproj Mint.Bot/
 COPY Mint.Common.Contracts/Mint.Common.Contracts.csproj Mint.Common.Contracts/
 COPY Mint.UnitTests/Mint.UnitTests.csproj Mint.UnitTests/
 COPY Mint.Test.Console/Mint.Test.Console.csproj Mint.Test.Console/
+COPY Mint.Database/Mint.Database.csproj Mint.Database/
 COPY Directory.Packages.props .
 COPY Mint.sln .
 
