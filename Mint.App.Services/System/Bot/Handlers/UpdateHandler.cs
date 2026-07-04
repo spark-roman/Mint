@@ -46,7 +46,9 @@ public class UpdateHandler(
             return;
         }
 
-        if (!string.IsNullOrEmpty(update.CallbackQuery!.Id))
+        var updateCommand = _userMapper.Map(update);
+
+        if (!string.IsNullOrEmpty(updateCommand.CallbackId))
         {
             try
             {
@@ -61,7 +63,6 @@ public class UpdateHandler(
 #pragma warning disable CA1031 // Do not catch general exception types
         try
         {
-            var updateCommand = _userMapper.Map(update);
             var scope = _serviceScopeFactory.CreateScope();
             var commandHandlerFactory = scope.ServiceProvider.GetRequiredService<ICommandHandlerFactory>();
 
