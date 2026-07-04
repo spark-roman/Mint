@@ -21,6 +21,11 @@ public record CategoryDto
     public string? Description { get; init; }
 
     /// <summary>
+    /// Category code
+    /// </summary>
+    public required string Code { get; init; }
+
+    /// <summary>
     /// Whether AI will search news for this category
     /// </summary>
     public bool IsActiveForAI { get; init; }

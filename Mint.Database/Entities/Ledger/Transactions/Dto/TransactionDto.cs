@@ -8,14 +8,19 @@ namespace Mint.Database.Entities.Ledger.Transactions.Dto;
 public record TransactionDto
 {
     /// <summary>
-    /// Transaction ID
+    /// Transaction id
     /// </summary>
     public long Id { get; init; }
 
     /// <summary>
-    /// Account ID
+    /// Debet account id
     /// </summary>
-    public long AccountId { get; init; }
+    public long DebetAccountId { get; init; }
+
+    /// <summary>
+    /// Debet account id
+    /// </summary>
+    public long CreditAccountId { get; init; }
 
     /// <summary>
     /// Transaction amount

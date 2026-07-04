@@ -16,6 +16,11 @@ public record UserStatsDto
     public long UserId { get; init; }
 
     /// <summary>
+    /// User external id
+    /// </summary>
+    public long ExternalUserId { get; set; }
+
+    /// <summary>
     /// Rank points
     /// </summary>
     public int RankPoints { get; init; }

@@ -22,6 +22,291 @@ namespace Mint.Database.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.ButtonEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("action");
+
+                    b.Property<string>("Caption")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("caption");
+
+                    b.Property<long?>("NextStepId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("next_step_id");
+
+                    b.Property<short>("OrderNum")
+                        .HasColumnType("smallint")
+                        .HasColumnName("order_num");
+
+                    b.Property<long>("ParentStepId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("parent_step_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("NextStepId");
+
+                    b.HasIndex("ParentStepId");
+
+                    b.ToTable("buttons");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            Action = "duels",
+                            Caption = "📊 Дуэли дня",
+                            OrderNum = (short)1,
+                            ParentStepId = 1L
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            Action = "profile",
+                            Caption = "👤 Мой профиль",
+                            OrderNum = (short)2,
+                            ParentStepId = 1L
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            Action = "referral",
+                            Caption = "👥 Пригласить",
+                            OrderNum = (short)3,
+                            ParentStepId = 1L
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            Action = "claim_bonus",
+                            Caption = "🎁 Забрать бонус",
+                            OrderNum = (short)1,
+                            ParentStepId = 2L
+                        },
+                        new
+                        {
+                            Id = 5L,
+                            Action = "leaderboard",
+                            Caption = "📈 Таблица лидеров",
+                            OrderNum = (short)2,
+                            ParentStepId = 2L
+                        },
+                        new
+                        {
+                            Id = 6L,
+                            Action = "main_menu",
+                            Caption = "⬅️ Назад в меню",
+                            OrderNum = (short)3,
+                            ParentStepId = 2L
+                        },
+                        new
+                        {
+                            Id = 7L,
+                            Action = "share_referral",
+                            Caption = "✉️ Переслать другу",
+                            OrderNum = (short)1,
+                            ParentStepId = 4L
+                        });
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.ScenarioEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_active");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("scenarios");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsActive = true,
+                            Name = "start"
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsActive = true,
+                            Name = "profile"
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsActive = true,
+                            Name = "duels"
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            CreatedAt = new DateTimeOffset(new DateTime(1, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 0, 0, 0, 0)),
+                            IsActive = true,
+                            Name = "referral"
+                        });
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.StepEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Data")
+                        .HasColumnType("text")
+                        .HasColumnName("data");
+
+                    b.Property<bool>("IsFinal")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_final");
+
+                    b.Property<string>("Message")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("message");
+
+                    b.Property<short>("OrderNum")
+                        .HasColumnType("smallint")
+                        .HasColumnName("order_num");
+
+                    b.Property<long>("ScenarioId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("scenario_id");
+
+                    b.Property<short>("StepTypeId")
+                        .HasColumnType("smallint")
+                        .HasColumnName("step_type_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ScenarioId");
+
+                    b.HasIndex("StepTypeId");
+
+                    b.ToTable("steps");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1L,
+                            IsFinal = false,
+                            Message = "🎉 Добро пожаловать в Mint!\n\nВаш игровой профиль создан!\n💰 Стартовый баланс: 1000 🪙\n🏆 Ранг: 🌱 Новичок\n\nИспользуйте кнопки ниже для навигации.",
+                            OrderNum = (short)1,
+                            ScenarioId = 1L,
+                            StepTypeId = (short)3
+                        },
+                        new
+                        {
+                            Id = 2L,
+                            IsFinal = false,
+                            Message = "👤 **Ваш игровой профиль**\n━━━━━━━━━━━━━━━━━━━━━━━\n🆔 ID: `{{user_id}}`\n🏆 Ранг: {{rank_emoji}} **{{rank_name}}**\n💰 Баланс: {{balance}} 🪙\n\n📊 **Статистика прогнозов**\n├ Всего: {{total_duels}}\n├ ✅ Успешно: {{wins}}\n├ ❌ Неудачно: {{losses}}\n└ 🎯 Точность: {{winrate}}%\n\n👥 **Рефералы**\n├ Приглашено: {{referral_count}}\n└ Заработано: {{referral_earnings}} 🪙\n\n🎁 **Ежедневный бонус**\n├ Статус: {{bonus_status}}\n├ Дней подряд: {{streak_days}} 🔥\n└ Всего получено: {{total_bonus}} 🪙\n\n📅 В игре с: {{member_since}}",
+                            OrderNum = (short)1,
+                            ScenarioId = 2L,
+                            StepTypeId = (short)4
+                        },
+                        new
+                        {
+                            Id = 3L,
+                            IsFinal = false,
+                            Message = "📊 **Выберите категорию споров:**",
+                            OrderNum = (short)1,
+                            ScenarioId = 3L,
+                            StepTypeId = (short)3
+                        },
+                        new
+                        {
+                            Id = 4L,
+                            IsFinal = false,
+                            Message = "👥 **РЕФЕРАЛЬНАЯ ПРОГРАММА**\n\nПригласи друга и получи **500 монет**, когда он сделает свои первые 3 ставки в любых дуэлях!\n\n🎁 Твоя ссылка:\n`https://t.me/opinion_bot?start={{referral_code}}`\n\n👥 Приглашено друзей: {{referral_count}}\n💰 Заработано монет: {{referral_earnings}} 🪙",
+                            OrderNum = (short)1,
+                            ScenarioId = 4L,
+                            StepTypeId = (short)4
+                        });
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.StepTypeEntity", b =>
+                {
+                    b.Property<short>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("smallint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<short>("Id"));
+
+                    b.Property<string>("Description")
+                        .HasColumnType("text")
+                        .HasColumnName("description");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("name");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("step_types");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = (short)1,
+                            Description = "Expects a text input from the user",
+                            Name = "text"
+                        },
+                        new
+                        {
+                            Id = (short)2,
+                            Description = "Expects a numeric input (bet amount)",
+                            Name = "number"
+                        },
+                        new
+                        {
+                            Id = (short)3,
+                            Description = "Selection from suggested options (buttons)",
+                            Name = "choice"
+                        },
+                        new
+                        {
+                            Id = (short)4,
+                            Description = "Information message without input",
+                            Name = "info"
+                        });
+                });
+
             modelBuilder.Entity("Mint.Database.Entities.Ledger.Accounts.AccountEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -68,10 +353,6 @@ namespace Mint.Database.Migrations
 
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
 
-                    b.Property<long>("AccountId")
-                        .HasColumnType("bigint")
-                        .HasColumnName("account_id");
-
                     b.Property<decimal>("Amount")
                         .HasColumnType("numeric")
                         .HasColumnName("amount");
@@ -88,15 +369,25 @@ namespace Mint.Database.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<long>("CreditAccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("creadit_account_id");
+
+                    b.Property<long>("DebetAccountId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("debet_account_id");
+
                     b.Property<string>("Description")
                         .HasColumnType("text")
                         .HasColumnName("description");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AccountId");
-
                     b.HasIndex("BonusTypeId");
+
+                    b.HasIndex("CreditAccountId");
+
+                    b.HasIndex("DebetAccountId");
 
                     b.ToTable("transactions");
                 });
@@ -143,7 +434,7 @@ namespace Mint.Database.Migrations
                             MaxDuelsPerRun = 3,
                             SystemPromptTemplate = "\n                Ты — профессиональный шеф-редактор и ИИ-генератор контента для развлекательного Telegram-бота «Дуэли мнений». \n\n                ТВОЯ ЗАДАЧА:\n                Создать пакет увлекательных карточек для голосования на основе актуальных новостей из мира технологий, криптовалют, игр, спорта, кино и поп-культуры.\n\n                🚫 СТРОГИЙ SAFE-ФИЛЬТР (ЗАПРЕЩЕНО):\n                - Внутренняя и внешняя политика, геополитика\n                - СВО, военные действия, конфликты, оружие\n                - Чрезвычайные ситуации, катастрофы, терроризм\n                - Действия правительства, выборы, законы, санкции\n                - Религия, межнациональные конфликты\n                - Социальная напряженность, протесты\n                - Скандалы, интриги, личные трагедии\n\n                ⚠️ За нарушение любого пункта — блокировка аккаунта!\n\n                ✅ РАЗРЕШЕННЫЕ ТЕМЫ (бери новости отсюда):\n                - Технологии: ИИ, нейросети, робототехника, космос, дроны\n                - Криптовалюты: Bitcoin, Ethereum, TON, блокчейн, DeFi, NFT\n                - Гаджеты: смартфоны, ноутбуки, умные часы, VR/AR, бытовая техника\n                - Игры: новые релизы, киберспорт, игровые консоли, обновления\n                - Спорт: футбол, баскетбол, теннис, Олимпиада (только спортивная часть)\n                - Кино и шоу-бизнес: премьеры, кассовые сборы, сериалы, премии\n                - Поп-культура: мемы, тренды, YouTube-блогеры, TikTok, стриминг\n                - Бизнес и стартапы: успешные кейсы, IPO, инновации, инвестиции\n                - Наука: открытия, исследования, космос, медицина (без политики)\n\n                📰 ИСТОЧНИКИ НОВОСТЕЙ:\n                - TechCrunch, The Verge, Wired (технологии)\n                - Cointelegraph, CoinDesk (криптовалюты)\n                - IGN, GameSpot (игры)\n                - ESPN, Sports.ru (спорт)\n                - Кинопоиск, IMDb (кино)\n                - Habr, DTF (IT и игры)\n                - YouTube-блогеры (поп-культура)\n\n                📋 ТРЕБОВАНИЯ К КАЧЕСТВУ:\n                1. Вопрос должен быть дискуссионным, вызывать желание поспорить\n                2. Описание — содержать факты: кто, что, где, когда\n                3. Варианты ответов — аргументированные, не просто \"да\" и \"нет\"\n                4. Используй разные типы: одни дуэли на основе фактов (Реальность), другие — на основе мнений (Толпа)\n                5. Не повторяй одни и те же темы в рамках одного запроса\n                6. Если нет свежих новостей — используй тренды последних 2-3 месяцев\n\n                🎯 ФОРМАТ ОТВЕТА (критически важно!):\n                Верни ТОЛЬКО валидный JSON-массив объектов.\n                Запрещено: Markdown (```json), пояснения, лишний текст.\n\n                Структура каждого объекта:\n                {\n                \"category_code\": \"код категории (строчными буквами, без пробелов)\",\n                \"duel_type\": 1 или 2,\n                \"question\": \"Интригующий вопрос (до 150 символов)\",\n                \"description\": \"Контекст и факты (до 500 символов)\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Вариант (до 30 символов)\" }\n                ]\n                }\n\n                Где:\n                - category_code: tech, crypto, gadgets, games, sport, cinema, culture, business, science\n                - duel_type: 1 = Толпа (голосование), 2 = Реальность (факт из новостей)\n                - options: от 2 до 4 вариантов. Коды: a, b, c, d\n\n                📌 ПРИМЕРЫ ИДЕАЛЬНЫХ ДУЭЛЕЙ:\n\n                Пример 1 (Толпа, крипта):\n                {\n                \"category_code\": \"crypto\",\n                \"duel_type\": 1,\n                \"question\": \"Биткоин обновил максимум. Продолжит ли рост?\",\n                \"description\": \"16 июня 2026 года биткоин превысил $120,000. Институционалы активно покупают, но эксперты ждут коррекцию.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, пробьет $150,000\" },\n                    { \"code\": \"b\", \"text\": \"Нет, упадет до $90,000\" }\n                ]\n                }\n\n                Пример 2 (Реальность, техно):\n                {\n                \"category_code\": \"tech\",\n                \"duel_type\": 2,\n                \"question\": \"Станет ли iPhone 17 бестселлером года?\",\n                \"description\": \"Apple анонсировала iPhone 17 с ИИ-чипом A19. Предзаказы стартуют через неделю. Аналитики прогнозируют рекорд.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, побьет рекорды\" },\n                    { \"code\": \"b\", \"text\": \"Нет, цена завышена\" },\n                    { \"code\": \"c\", \"text\": \"Продажи будут средними\" }\n                ]\n                }\n\n                Пример 3 (Толпа, игры, 4 варианта):\n                {\n                \"category_code\": \"games\",\n                \"duel_type\": 1,\n                \"question\": \"Какая игра станет хитом 2026 года?\",\n                \"description\": \"В 2026 выходят GTA VI, TES VI, Cyberpunk 2 и Half-Life 3. Какая победит?\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"GTA VI\" },\n                    { \"code\": \"b\", \"text\": \"TES VI\" },\n                    { \"code\": \"c\", \"text\": \"Cyberpunk 2\" },\n                    { \"code\": \"d\", \"text\": \"Half-Life 3\" }\n                ]\n                }\n\n                ВАЖНО:\n                - Всегда используй реальные или максимально правдоподобные факты\n                - Количество дуэлей = число, указанное в запросе\n                - Не повторяй категории в одном запросе\n                📊 ПРАВИЛА ОПРЕДЕЛЕНИЯ DUEL_TYPE (критически важно!):\n\n                **duel_type: 1 (Толпа / OpinionMatch)** — используй для вопросов, у которых:\n                - НЕТ объективного ответа в будущем\n                - Ответ зависит от мнения, вкуса, предпочтений\n                - Нельзя проверить фактами\n                - Примеры: \"Что лучше?\", \"Стоит ли?\", \"Какой вариант выберет большинство?\"\n\n                **duel_type: 2 (Реальность / FactPrediction)** — используй ТОЛЬКО для вопросов, у которых:\n                - ЕСТЬ конкретный факт, который станет известен в будущем\n                - Есть четкая дата или событие, к которому привязана проверка\n                - Можно однозначно сказать \"да\" или \"нет\" после наступления события\n                - В описании ОБЯЗАНА быть указана дата проверки (\"к январю 2027\", \"в финале чемпионата\")\n                - Примеры: \"Поднимется ли курс BTC до $150,000 к декабрю?\", \"Победит ли 'Дюна 3' в номинации 'Лучший фильм'?\"\n\n                ⚠️ КРИТИЧЕСКОЕ ПРАВИЛО:\n                Если в вопросе есть слова \"станет ли мейнстримом\", \"будет ли популярным\", \"сможет ли заменить\" — это почти всегда ТОЛПА (тип 1), потому что нет четкого критерия для проверки.\n\n                ❗️ Если вы сомневаетесь между типами — выбирайте ТОЛПА (тип 1).",
                             Temperature = 0.6f,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 6, 28, 18, 20, 16, 706, DateTimeKind.Unspecified).AddTicks(7274), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 4, 10, 24, 45, 830, DateTimeKind.Unspecified).AddTicks(9116), new TimeSpan(0, 0, 0, 0, 0)),
                             UserPromptTemplate = "\n                Сгенерируй {{count}} дуэлей для категории \"{{category_name}}\".\n\n                📌 КОД КАТЕГОРИИ: {{category_code}}\n                📝 ОПИСАНИЕ: {{category_description}}\n\n                {{#if search_keywords}}\n                🔍 КЛЮЧЕВЫЕ ТЕМЫ ДЛЯ ПОИСКА: {{search_keywords}}\n                {{/if}}\n\n                ТРЕБОВАНИЯ:\n                1. Используй разные типы дуэлей (duel_type: 1 и 2, примерно поровну)\n                2. Для каждой дуэли дай аргументированные варианты ответов\n                3. Описание должно содержать факты из новостей (или реалистичный контекст)\n                4. Не повторяй темы в рамках этого запроса\n                5. Все варианты ответов должны быть правдоподобными и разными по смыслу\n\n                {{#if search_keywords}}\n                Используй эти ключевые слова для поиска актуальных новостей.\n                {{else}}\n                Придумай интересные темы, соответствующие описанию категории.\n                {{/if}}\n\n                Верни ТОЛЬКО JSON массив, без дополнительного текста.\n                "
                         });
                 });
@@ -452,6 +743,10 @@ namespace Mint.Database.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("ai_prompt_id");
 
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasColumnType("text");
+
                     b.Property<string>("Description")
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
@@ -483,6 +778,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 1,
                             AiPromptId = 1,
+                            Code = "ai",
                             Description = "Прорывы в сфере искусственного интеллекта, генерации контента и автоматизации.",
                             IsActiveForAI = true,
                             Name = "Нейросети & ИИ",
@@ -492,6 +788,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 2,
                             AiPromptId = 1,
+                            Code = "hardware",
                             Description = "Анонсы и тесты смартфонов, ноутбуков, процессоров и носимой электроники.",
                             IsActiveForAI = true,
                             Name = "Железо & Гаджеты",
@@ -501,6 +798,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 3,
                             AiPromptId = 1,
+                            Code = "crypto",
                             Description = "Динамика блокчейн-индустрии, курсы монет и экосистема TON.",
                             IsActiveForAI = true,
                             Name = "Крипта & Web3",
@@ -510,6 +808,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 4,
                             AiPromptId = 1,
+                            Code = "games",
                             Description = "Релизы на ПК и консолях, индустрия развлечений и тренды игровых платформ.",
                             IsActiveForAI = true,
                             Name = "Видеоигры & Стрим",
@@ -519,6 +818,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 5,
                             AiPromptId = 1,
+                            Code = "sports",
                             Description = "Турниры, трансферы, скандалы и результаты в соревновательном гейминге.",
                             IsActiveForAI = true,
                             Name = "Киберспорт",
@@ -528,6 +828,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 6,
                             AiPromptId = 1,
+                            Code = "movies",
                             Description = "Новинки кинопроката, стриминговые платформы, отзывы и кассовые сборы.",
                             IsActiveForAI = true,
                             Name = "Кино & Сериалы",
@@ -537,6 +838,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 7,
                             AiPromptId = 1,
+                            Code = "memes",
                             Description = "Вирусные тренды, локальные мемы, события в социальных сетях и блогосфере.",
                             IsActiveForAI = true,
                             Name = "Мемы & Рунет",
@@ -546,6 +848,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 8,
                             AiPromptId = 1,
+                            Code = "cars",
                             Description = "Мировые автомобильные премьеры, технологии и развитие электротранспорта.",
                             IsActiveForAI = true,
                             Name = "Авто & Электрокары",
@@ -555,6 +858,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 9,
                             AiPromptId = 1,
+                            Code = "science",
                             Description = "Понятные и интересные открытия, космические миссии и новые технологии.",
                             IsActiveForAI = true,
                             Name = "Наука & Космос",
@@ -564,6 +868,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 10,
                             AiPromptId = 1,
+                            Code = "soccer",
                             Description = "Главные события мирового футбола, боевых искусств и больших спортивных лиг.",
                             IsActiveForAI = true,
                             Name = "Космос футбола & Спорт",
@@ -573,6 +878,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 11,
                             AiPromptId = 1,
+                            Code = "fashion",
                             Description = "Тренды уличной моды, дропы кроссовок, громкие музыкальные альбомы и клипы.",
                             IsActiveForAI = true,
                             Name = "Фэшн & Поп-музыка",
@@ -582,6 +888,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 12,
                             AiPromptId = 1,
+                            Code = "finance",
                             Description = "Потребительские тренды, новые фичи банков, e-commerce и стартапы.",
                             IsActiveForAI = true,
                             Name = "Финтех & Маркетплейсы",
@@ -622,6 +929,56 @@ namespace Mint.Database.Migrations
                     b.ToTable("votes");
                 });
 
+            modelBuilder.Entity("Mint.Database.Entities.Users.Sessions.UserSessionEntity", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<long>("CurrentStepId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("current_step_id");
+
+                    b.Property<string>("Data")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("data");
+
+                    b.Property<long?>("ScenarioEntityId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("ScenarioId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("scenario_id");
+
+                    b.Property<DateTimeOffset>("StartedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("started_at");
+
+                    b.Property<long>("UserId")
+                        .HasColumnType("bigint")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("CurrentStepId");
+
+                    b.HasIndex("ScenarioEntityId");
+
+                    b.HasIndex("ScenarioId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("user_sessions");
+                });
+
             modelBuilder.Entity("Mint.Database.Entities.Users.UserEntity", b =>
                 {
                     b.Property<long>("Id")
@@ -640,7 +997,6 @@ namespace Mint.Database.Migrations
                         .HasColumnName("external_user_id");
 
                     b.Property<string>("FirstName")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("first_name");
@@ -650,7 +1006,6 @@ namespace Mint.Database.Migrations
                         .HasColumnName("last_auth_date");
 
                     b.Property<string>("LastName")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("last_name");
@@ -664,7 +1019,6 @@ namespace Mint.Database.Migrations
                         .HasColumnName("system_type");
 
                     b.Property<string>("UserName")
-                        .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("character varying(500)")
                         .HasColumnName("user_name");
@@ -676,6 +1030,43 @@ namespace Mint.Database.Migrations
                         .HasDatabaseName("IX_users_external_user_id_system_type");
 
                     b.ToTable("users");
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.ButtonEntity", b =>
+                {
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.StepEntity", "NextStep")
+                        .WithMany()
+                        .HasForeignKey("NextStepId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.StepEntity", "ParentStep")
+                        .WithMany("Buttons")
+                        .HasForeignKey("ParentStepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("NextStep");
+
+                    b.Navigation("ParentStep");
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.StepEntity", b =>
+                {
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.ScenarioEntity", "Scenario")
+                        .WithMany("Steps")
+                        .HasForeignKey("ScenarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.StepTypeEntity", "StepType")
+                        .WithMany("Steps")
+                        .HasForeignKey("StepTypeId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Scenario");
+
+                    b.Navigation("StepType");
                 });
 
             modelBuilder.Entity("Mint.Database.Entities.Ledger.Accounts.AccountEntity", b =>
@@ -691,19 +1082,27 @@ namespace Mint.Database.Migrations
 
             modelBuilder.Entity("Mint.Database.Entities.Ledger.Transactions.TransactionEntity", b =>
                 {
-                    b.HasOne("Mint.Database.Entities.Ledger.Accounts.AccountEntity", "Account")
-                        .WithMany()
-                        .HasForeignKey("AccountId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.HasOne("Mint.Database.Entities.UserInteractive.Bonuses.BonusTypeEntity", "TransactionType")
                         .WithMany()
                         .HasForeignKey("BonusTypeId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Account");
+                    b.HasOne("Mint.Database.Entities.Ledger.Accounts.AccountEntity", "CreditAccount")
+                        .WithMany()
+                        .HasForeignKey("CreditAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mint.Database.Entities.Ledger.Accounts.AccountEntity", "DebetAccount")
+                        .WithMany()
+                        .HasForeignKey("DebetAccountId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CreditAccount");
+
+                    b.Navigation("DebetAccount");
 
                     b.Navigation("TransactionType");
                 });
@@ -789,6 +1188,54 @@ namespace Mint.Database.Migrations
                     b.Navigation("Duel");
                 });
 
+            modelBuilder.Entity("Mint.Database.Entities.Users.Sessions.UserSessionEntity", b =>
+                {
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.StepEntity", "CurrentStep")
+                        .WithMany()
+                        .HasForeignKey("CurrentStepId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.ScenarioEntity", null)
+                        .WithMany("UserSessions")
+                        .HasForeignKey("ScenarioEntityId");
+
+                    b.HasOne("Mint.Database.Entities.Bot.Commands.ScenarioEntity", "Scenario")
+                        .WithMany()
+                        .HasForeignKey("ScenarioId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Mint.Database.Entities.Users.UserEntity", "User")
+                        .WithMany("Sessions")
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("CurrentStep");
+
+                    b.Navigation("Scenario");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.ScenarioEntity", b =>
+                {
+                    b.Navigation("Steps");
+
+                    b.Navigation("UserSessions");
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.StepEntity", b =>
+                {
+                    b.Navigation("Buttons");
+                });
+
+            modelBuilder.Entity("Mint.Database.Entities.Bot.Commands.StepTypeEntity", b =>
+                {
+                    b.Navigation("Steps");
+                });
+
             modelBuilder.Entity("Mint.Database.Entities.System.AiPromptEntity", b =>
                 {
                     b.Navigation("Categories");
@@ -813,6 +1260,8 @@ namespace Mint.Database.Migrations
 
                     b.Navigation("BonusStats")
                         .IsRequired();
+
+                    b.Navigation("Sessions");
 
                     b.Navigation("Stats")
                         .IsRequired();

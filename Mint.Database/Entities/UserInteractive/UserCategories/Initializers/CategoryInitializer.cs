@@ -16,7 +16,8 @@ public class CategoryInitializer
             Name = "Нейросети & ИИ",
             Description = "Прорывы в сфере искусственного интеллекта, генерации контента и автоматизации.",
             IsActiveForAI = true,
-            SearchKeywords = "DeepSeek, ChatGPT, Midjourney, Claude, Sora AI, генерация видео, ИИ-ассистенты, LLM модели, ИИ в программировании, плагины, автоматизация рутины"
+            SearchKeywords = "DeepSeek, ChatGPT, Midjourney, Claude, Sora AI, генерация видео, ИИ-ассистенты, LLM модели, ИИ в программировании, плагины, автоматизация рутины",
+            Code = "ai"
         },
         new CategoryEntity
         {
@@ -25,7 +26,8 @@ public class CategoryInitializer
             Name = "Железо & Гаджеты",
             Description = "Анонсы и тесты смартфонов, ноутбуков, процессоров и носимой электроники.",
             IsActiveForAI = true,
-            SearchKeywords = "Apple iPhone, Samsung Galaxy, процессоры Nvidia, видеокарты AMD, умные часы, VR/AR гарнитуры, портативные консоли, роутеры, утечки дизайнов, краш-тесты"
+            SearchKeywords = "Apple iPhone, Samsung Galaxy, процессоры Nvidia, видеокарты AMD, умные часы, VR/AR гарнитуры, портативные консоли, роутеры, утечки дизайнов, краш-тесты",
+            Code = "hardware"
         },
         new CategoryEntity
         {
@@ -34,7 +36,8 @@ public class CategoryInitializer
             Name = "Крипта & Web3",
             Description = "Динамика блокчейн-индустрии, курсы монет и экосистема TON.",
             IsActiveForAI = true,
-            SearchKeywords = "Курс Bitcoin, экосистема TON, Telegram Wallet, Ethereum, новые аирдропы, мемкоины, стейкинг, криптобиржи, DeFi, аппаратные кошельки, майнинг в РФ"
+            SearchKeywords = "Курс Bitcoin, экосистема TON, Telegram Wallet, Ethereum, новые аирдропы, мемкоины, стейкинг, криптобиржи, DeFi, аппаратные кошельки, майнинг в РФ",
+            Code = "crypto"
         },
         new CategoryEntity
         {
@@ -43,7 +46,8 @@ public class CategoryInitializer
             Name = "Видеоигры & Стрим",
             Description = "Релизы на ПК и консолях, индустрия развлечений и тренды игровых платформ.",
             IsActiveForAI = true,
-            SearchKeywords = "Steam тренды, PlayStation 5, Xbox, патчи и обновления, GTA 6 слухи, Epic Games Store, популярные стримеры, Twitch, новые трейлеры, инди-игры"
+            SearchKeywords = "Steam тренды, PlayStation 5, Xbox, патчи и обновления, GTA 6 слухи, Epic Games Store, популярные стримеры, Twitch, новые трейлеры, инди-игры",
+            Code = "games"
         },
         new CategoryEntity
         {
@@ -52,7 +56,8 @@ public class CategoryInitializer
             Name = "Киберспорт",
             Description = "Турниры, трансферы, скандалы и результаты в соревновательном гейминге.",
             IsActiveForAI = true,
-            SearchKeywords = "The International, PGL Major, Dota 2 трансферы, Counter-Strike 2 матчи, призовые фонды, киберспортивные команды, аналитика матчей, Valorant, League of Legends"
+            SearchKeywords = "The International, PGL Major, Dota 2 трансферы, Counter-Strike 2 матчи, призовые фонды, киберспортивные команды, аналитика матчей, Valorant, League of Legends",
+            Code = "sports"
         },
         new CategoryEntity
         {
@@ -61,7 +66,8 @@ public class CategoryInitializer
             Name = "Кино & Сериалы",
             Description = "Новинки кинопроката, стриминговые платформы, отзывы и кассовые сборы.",
             IsActiveForAI = true,
-            SearchKeywords = "Премьеры кино, новые сериалы, Кинопоиск рейтинг, трейлеры Netflix, HBO, кассовые сборы, актеры, теории фанатов, сиквелы, аниме новинки"
+            SearchKeywords = "Премьеры кино, новые сериалы, Кинопоиск рейтинг, трейлеры Netflix, HBO, кассовые сборы, актеры, теории фанатов, сиквелы, аниме новинки",
+            Code = "movies"
         },
         new CategoryEntity
         {
@@ -70,7 +76,8 @@ public class CategoryInitializer
             Name = "Мемы & Рунет",
             Description = "Вирусные тренды, локальные мемы, события в социальных сетях и блогосфере.",
             IsActiveForAI = true,
-            SearchKeywords = "Вирусные видео, тренды YouTube, новые шоу, VK Видео, популярные блогеры рунета, интернет-мемы, челленджи, Telegram-тренды, обсуждения в сообществах"
+            SearchKeywords = "Вирусные видео, тренды YouTube, новые шоу, VK Видео, популярные блогеры рунета, интернет-мемы, челленджи, Telegram-тренды, обсуждения в сообществах",
+            Code = "memes"
         },
         new CategoryEntity
         {
@@ -79,7 +86,8 @@ public class CategoryInitializer
             Name = "Авто & Электрокары",
             Description = "Мировые автомобильные премьеры, технологии и развитие электротранспорта.",
             IsActiveForAI = true,
-            SearchKeywords = "Электромобили, Zeekr, Xiaomi SU7, Tesla новости, китайские автобренды, спорткары, концепт-кары, автопилот, тюнинг, гибридные двигатели, тест-драйвы"
+            SearchKeywords = "Электромобили, Zeekr, Xiaomi SU7, Tesla новости, китайские автобренды, спорткары, концепт-кары, автопилот, тюнинг, гибридные двигатели, тест-драйвы",
+            Code = "cars"
         },
         new CategoryEntity
         {
@@ -88,7 +96,8 @@ public class CategoryInitializer
             Name = "Наука & Космос",
             Description = "Понятные и интересные открытия, космические миссии и новые технологии.",
             IsActiveForAI = true,
-            SearchKeywords = "Запуски SpaceX, телескоп Джеймс Уэбб, Марсианские миссии, квантовые компьютеры, археологические находки, генная инженерия, термоядерный синтез, физика"
+            SearchKeywords = "Запуски SpaceX, телескоп Джеймс Уэбб, Марсианские миссии, квантовые компьютеры, археологические находки, генная инженерия, термоядерный синтез, физика",
+            Code = "science"
         },
         new CategoryEntity
         {
@@ -97,7 +106,8 @@ public class CategoryInitializer
             Name = "Космос футбола & Спорт",
             Description = "Главные события мирового футбола, боевых искусств и больших спортивных лиг.",
             IsActiveForAI = true,
-            SearchKeywords = "Лига Чемпионов, результаты матчей, футбольные трансферы, UFC бои, Формула-1, НХЛ, НБА, громкие рекорды, спортивные скандалы, медиафутбол"
+            SearchKeywords = "Лига Чемпионов, результаты матчей, футбольные трансферы, UFC бои, Формула-1, НХЛ, НБА, громкие рекорды, спортивные скандалы, медиафутбол",
+            Code = "soccer"
         },
         new CategoryEntity
         {
@@ -106,7 +116,8 @@ public class CategoryInitializer
             Name = "Фэшн & Поп-музыка",
             Description = "Тренды уличной моды, дропы кроссовок, громкие музыкальные альбомы и клипы.",
             IsActiveForAI = true,
-            SearchKeywords = "Дропы кроссовок, коллаборации брендов, музыкальные чарты, новые клипы, тренды одежды, рэп-релизы, поп-звезды, музыкальные стриминги, стритвир"
+            SearchKeywords = "Дропы кроссовок, коллаборации брендов, музыкальные чарты, новые клипы, тренды одежды, рэп-релизы, поп-звезды, музыкальные стриминги, стритвир",
+            Code = "fashion"
         },
         new CategoryEntity
         {
@@ -115,7 +126,8 @@ public class CategoryInitializer
             Name = "Финтех & Маркетплейсы",
             Description = "Потребительские тренды, новые фичи банков, e-commerce и стартапы.",
             IsActiveForAI = true,
-            SearchKeywords = "Обновления Т-Банка, фичи Сбера, тренды Wildberries, Ozon, Мегамаркет, акции ИТ-компаний, новые стартапы, краудфандинг, сервисы доставки, СБП"
+            SearchKeywords = "Обновления Т-Банка, фичи Сбера, тренды Wildberries, Ozon, Мегамаркет, акции ИТ-компаний, новые стартапы, краудфандинг, сервисы доставки, СБП",
+            Code = "finance"
         }
     ];
 

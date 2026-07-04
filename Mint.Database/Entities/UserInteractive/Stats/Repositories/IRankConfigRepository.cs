@@ -36,4 +36,12 @@ public interface IRankConfigRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Highest rank config DTO or null if not found</returns>
     Task<RankConfigDto?> GetHighestRankAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get the highest rank config for given points
+    /// </summary>
+    /// <param name="points">User rank points</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns></returns>
+    Task<RankConfigDto?> GetHighestRankAsync(int points, CancellationToken cancellationToken);
 }

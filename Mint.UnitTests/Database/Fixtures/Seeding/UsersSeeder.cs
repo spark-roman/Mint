@@ -3,6 +3,7 @@ using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Stats.Initializers;
+using Mint.Database.Entities.UserInteractive.UserCategories.Initializers;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Seeding;
@@ -85,6 +86,7 @@ public static class UsersSeeder
             });
 
         context.RankConfigs.AddRange(new RankConfigInitializer().Get());
+        context.UserCategories.AddRange(new CategoryInitializer().Get());
         
         context.StepTypes.AddRange(new BotInitializer().GetStepTypes());
         context.Scenarios.AddRange(new BotInitializer().GetScenarios());

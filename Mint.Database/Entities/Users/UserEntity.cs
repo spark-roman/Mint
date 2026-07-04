@@ -39,21 +39,21 @@ public class UserEntity
     /// </summary>
     [StringLength(500)]
     [Column("first_name")]
-    public required string FirstName { get; set; } = string.Empty;
+    public required string? FirstName { get; set; } = string.Empty;
 
     /// <summary>
     /// Last name
     /// </summary>
     [StringLength(500)]
     [Column("last_name")]
-    public required string LastName { get; set; } = string.Empty;
+    public required string? LastName { get; set; } = string.Empty;
 
     /// <summary>
     /// User name
     /// </summary>
     [StringLength(500)]
     [Column("user_name")]
-    public required string UserName { get; set; } = string.Empty;
+    public required string? UserName { get; set; } = string.Empty;
 
     /// <summary>
     /// User creation date

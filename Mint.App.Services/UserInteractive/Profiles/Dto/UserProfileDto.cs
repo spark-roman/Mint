@@ -10,7 +10,7 @@ public record UserProfileDto
     /// <summary>
     /// Username of the user.
     /// </summary>
-    public string? Username { get; init; }
+    public string? UserName { get; init; }
 
     /// <summary>
     /// Rank of the user.
@@ -51,4 +51,46 @@ public record UserProfileDto
     /// Date when the user can make a new bonus.
     /// </summary>
     public DateTimeOffset? NextDailyAvailableAt { get; set; }
+
+        /// <summary>Telegram user identifier.</summary>
+    public long ExternalUserId { get; set; }
+
+    /// <summary>First name.</summary>
+    public string? FirstName { get; set; }
+
+    /// <summary>Last name.</summary>
+    public string? LastName { get; set; }
+
+    /// <summary>Rank name.</summary>
+    public string RankName { get; set; } = "Новичок";
+
+    /// <summary>Rank emoji.</summary>
+    public string RankEmoji { get; set; } = "🌱";
+
+    /// <summary>Rank points.</summary>
+    public int RankPoints { get; set; }
+
+    /// <summary>Total duels participated.</summary>
+    public int TotalDuels { get; set; }
+
+    /// <summary>Wins count.</summary>
+    public int Wins { get; set; }
+
+    /// <summary>Losses count.</summary>
+    public int Losses { get; set; }
+
+    /// <summary>Winrate percentage.</summary>
+    public double Winrate { get; set; }
+
+    /// <summary>Can claim bonus now.</summary>
+    public bool CanClaimDailyBonus { get; set; }
+
+    /// <summary>Time until next bonus.</summary>
+    public TimeSpan? TimeUntilBonus { get; set; }
+
+    /// <summary>Streak days.</summary>
+    public int StreakDays { get; set; }
+
+    /// <summary>Created at.</summary>
+    public DateTimeOffset CreatedAt { get; set; }
 }

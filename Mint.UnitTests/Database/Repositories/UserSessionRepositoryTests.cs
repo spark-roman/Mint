@@ -23,7 +23,10 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
     }
 
     private readonly long _externalUserId1 = 1001;
+    
     private readonly long _externalUserId2 = 1002;
+
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
 
     /// <summary>
     /// Verifies that creating a new session returns a valid session with generated ID.
@@ -36,7 +39,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        var result = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{\"key\": \"value\"}");
+        var result = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{\"key\": \"value\"}", _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -60,7 +63,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Act & Assert
         await Assert.ThrowsAsync<ArgumentNullException>(async () =>
-            await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, null!));
+            await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, null!, _cancellationToken));
     }
 
     /// <summary>
@@ -74,8 +77,8 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{\"initial\": \"data\"}");
-        var result = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 2, "{\"updated\": \"data\"}");
+        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{\"initial\": \"data\"}", _cancellationToken);
+        var result = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 2, "{\"updated\": \"data\"}", _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -95,8 +98,8 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        var result1 = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
-        var result2 = await repository.CreateOrUpdateSessionAsync(_externalUserId2, 2, 2, "{}");
+        var result1 = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
+        var result2 = await repository.CreateOrUpdateSessionAsync(_externalUserId2, 2, 2, "{}", _cancellationToken);
 
         // Assert
         Assert.NotEqual(result1.Id, result2.Id);
@@ -114,10 +117,10 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        var result = await repository.GetActiveSessionAsync(_externalUserId1);
+        var result = await repository.GetActiveSessionAsync(_externalUserId1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -137,7 +140,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        var result = await repository.GetActiveSessionAsync(999);
+        var result = await repository.GetActiveSessionAsync(999, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -153,10 +156,10 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        var result = await repository.GetSessionByUserIdAndScenarioAsync(_externalUserId1, 1);
+        var result = await repository.GetSessionByUserIdAndScenarioAsync(_externalUserId1, 1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -175,7 +178,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        var result = await repository.GetSessionByUserIdAndScenarioAsync(999, 999);
+        var result = await repository.GetSessionByUserIdAndScenarioAsync(999, 999, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -191,10 +194,10 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        var result = await repository.UpdateCurrentStepAsync(created.Id, 3);
+        var result = await repository.UpdateCurrentStepAsync(created.Id, 3, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -213,7 +216,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await repository.UpdateCurrentStepAsync(999, 1));
+            await repository.UpdateCurrentStepAsync(999, 1, _cancellationToken));
     }
 
     /// <summary>
@@ -226,10 +229,10 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        var result = await repository.UpdateSessionDataAsync(created.Id, "{\"newData\": \"newValue\"}");
+        var result = await repository.UpdateSessionDataAsync(created.Id, "{\"newData\": \"newValue\"}", _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -248,7 +251,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Act & Assert
         await Assert.ThrowsAsync<InvalidOperationException>(async () =>
-            await repository.UpdateSessionDataAsync(999, "{}"));
+            await repository.UpdateSessionDataAsync(999, "{}", _cancellationToken));
     }
 
     /// <summary>
@@ -261,11 +264,11 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        await repository.CompleteSessionAsync(created.Id);
-        var result = await repository.GetActiveSessionAsync(_externalUserId1);
+        await repository.CompleteSessionAsync(created.Id, _cancellationToken);
+        var result = await repository.GetActiveSessionAsync(_externalUserId1, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -282,7 +285,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        await repository.CompleteSessionAsync(999);
+        await repository.CompleteSessionAsync(999, _cancellationToken);
 
         // Assert - no exception means success
         Assert.True(true);
@@ -298,11 +301,11 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
-        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}");
+        var created = await repository.CreateOrUpdateSessionAsync(_externalUserId1, 1, 1, "{}", _cancellationToken);
 
         // Act
-        await repository.DeleteSessionAsync(created.Id);
-        var result = await repository.GetActiveSessionAsync(1);
+        await repository.DeleteSessionAsync(created.Id, _cancellationToken);
+        var result = await repository.GetActiveSessionAsync(1, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -319,7 +322,7 @@ public class UserSessionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         // Act
-        await repository.DeleteSessionAsync(999);
+        await repository.DeleteSessionAsync(999, _cancellationToken);
 
         // Assert - no exception means success
         Assert.True(true);

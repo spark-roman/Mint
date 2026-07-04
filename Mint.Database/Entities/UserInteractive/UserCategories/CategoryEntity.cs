@@ -56,4 +56,9 @@ public class CategoryEntity
     [StringLength(2000)]
     [Column("search_keywords")]
     public string? SearchKeywords { get; set; }
+
+    /// <summary>
+    /// Unique identifier of the category
+    /// </summary>
+    public required string Code { get; set; }
 }

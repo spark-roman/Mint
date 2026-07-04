@@ -33,7 +33,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
         var transaction = new TransactionCreateDto
         {
-            AccountId = 1,
+            CreditAccountId = 1,
+            DebetAccountId = 1,
             Amount = 100.00m,
             Description = "Test transaction",
             CreatedAt = DateTimeOffset.UtcNow
@@ -72,7 +73,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
         var transaction = new TransactionCreateDto
         {
-            AccountId = 1,
+            CreditAccountId = 1,
+            DebetAccountId = 1,
             Amount = 250.50m,
             Description = "Click transaction",
             CreatedAt = DateTimeOffset.UtcNow
@@ -85,7 +87,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Equal(transactionId, result.Id);
-        Assert.Equal(1, result.AccountId);
+        Assert.Equal(1, result.DebetAccountId);
         Assert.Equal(250.50m, result.Amount);
         Assert.Equal("Click transaction", result.Description);
     }
@@ -119,7 +121,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
-            AccountId = 1,
+            CreditAccountId = 1,
+            DebetAccountId = 1,
             Amount = 100.00m,
             Description = "First",
             CreatedAt = DateTimeOffset.UtcNow
@@ -127,7 +130,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
-            AccountId = 1,
+            CreditAccountId = 1,
+            DebetAccountId = 1,
             Amount = -50.00m,
             Description = "Second",
             CreatedAt = DateTimeOffset.UtcNow

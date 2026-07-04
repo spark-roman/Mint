@@ -39,5 +39,7 @@ public static class DatabseExtensions
         services.RegisterAiPromptRepositories();
         services.RegisterBotMappers();
         services.RegisterBotRepositories();
+        services.RegisterCategoryMappers();
+        services.RegisterCategoryRepositories();
     }
 }

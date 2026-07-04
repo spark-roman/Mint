@@ -65,6 +65,27 @@ public class UserStatsRepository(
     }
 
     /// <inheritdoc/>
+    public async Task<List<UserStatsDto>> GetTopStatsByUserIdAsync(int top, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var stats = context.Users
+            .AsNoTracking()
+            .Include(u => u.Stats)
+            .Select(u => new { Stats = _statsMapper.Map(u.Stats), u.ExternalUserId })
+            .OrderBy(u => u.Stats.RankPoints)
+            .Take(top)
+            .ToList();
+
+        foreach (var stat in stats)
+        {
+            stat.Stats.ExternalUserId = stat.ExternalUserId;
+        }
+
+        return stats.Select(s => s.Stats).ToList();
+    }
+
+    /// <inheritdoc/>
     public async Task<bool> UpdateStatsAsync(long userId, UserStatsUpdateDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);

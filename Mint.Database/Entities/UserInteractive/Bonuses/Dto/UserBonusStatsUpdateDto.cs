@@ -13,7 +13,7 @@ public record UserBonusStatsUpdateDto
     /// <summary>
     /// Internal user id
     /// </summary>
-    public required long InternalUserId { get; set; }
+    public long InternalUserId { get; set; }
 
     /// <summary>
     /// Whether the start bonus has been claimed

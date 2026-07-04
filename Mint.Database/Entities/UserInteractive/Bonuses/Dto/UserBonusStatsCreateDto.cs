@@ -13,12 +13,17 @@ public record UserBonusStatsCreateDto
     /// <summary>
     /// Internal user id
     /// </summary>
-    public required long InternalUserId { get; set; }
+    public long InternalUserId { get; set; }
 
     /// <summary>
     /// Whether the start bonus has been claimed
     /// </summary>
     public bool IsStartBonusClaimed { get; init; }
+
+    /// <summary>
+    /// Time when the start bonus was claimed
+    /// </summary>
+    public DateTimeOffset? StartBonusClaimedAt { get; init; }
 
     /// <summary>
     /// Current day of continuous daily bonus streak

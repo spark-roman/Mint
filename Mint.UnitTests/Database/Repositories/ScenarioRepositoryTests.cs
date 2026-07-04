@@ -11,6 +11,8 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
 {
     private readonly RepositoryFixture _fixture;
 
+    private readonly CancellationToken _cancellationToken = CancellationToken.None;
+
     /// <summary>
     /// Initial constructor
     /// </summary>
@@ -32,7 +34,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetScenarioByNameAsync("start");
+        var result = await repository.GetScenarioByNameAsync("start", _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -51,7 +53,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetScenarioByNameAsync("NonExistentScenario");
+        var result = await repository.GetScenarioByNameAsync("NonExistentScenario", _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -68,7 +70,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetScenarioByIdAsync(1);
+        var result = await repository.GetScenarioByIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -87,7 +89,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetScenarioByIdAsync(999);
+        var result = await repository.GetScenarioByIdAsync(999, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -104,7 +106,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetAllScenariosAsync();
+        var result = await repository.GetAllScenariosAsync(_cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -122,7 +124,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetStepByIdAsync(1);
+        var result = await repository.GetStepByIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -140,7 +142,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetStepByIdAsync(999);
+        var result = await repository.GetStepByIdAsync(999, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -157,7 +159,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetFirstStepByScenarioIdAsync(1);
+        var result = await repository.GetFirstStepByScenarioIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -176,7 +178,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetStepsByScenarioIdAsync(1);
+        var result = await repository.GetStepsByScenarioIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -195,7 +197,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetButtonsByStepIdAsync(1);
+        var result = await repository.GetButtonsByStepIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -216,7 +218,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetButtonByActionAsync("duels");
+        var result = await repository.GetButtonByActionAsync("duels", _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -235,7 +237,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetButtonByActionAsync("nonexistent");
+        var result = await repository.GetButtonByActionAsync("nonexistent", _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -252,7 +254,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetButtonByIdAsync(1);
+        var result = await repository.GetButtonByIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.NotNull(result);
@@ -271,7 +273,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetButtonByIdAsync(999);
+        var result = await repository.GetButtonByIdAsync(999, _cancellationToken);
 
         // Assert
         Assert.Null(result);
@@ -288,7 +290,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         // Act
-        var result = await repository.GetNextStepByButtonIdAsync(1);
+        var result = await repository.GetNextStepByButtonIdAsync(1, _cancellationToken);
 
         // Assert
         Assert.Null(result);

@@ -5,29 +5,20 @@ using Mint.Database.Entities.Users.Sessions.Dto;
 namespace Mint.Database.Entities.Users.Sessions.Repositories;
 
 /// <inheritdoc cref="IUserSessionRepository"/>
-public sealed class UserSessionRepository : IUserSessionRepository
+/// <summary>
+/// Constructor.
+/// </summary>
+public sealed class UserSessionRepository(
+    IDbContextFactory<MintDbContext> dbContextFactory,
+    IDbEntityMapper<UserSessionEntity, UserSessionDto> sessionMapper) : IUserSessionRepository
 {
-    private readonly IDbContextFactory<MintDbContext> _dbContextFactory;
-    private readonly IDbEntityMapper<UserSessionEntity, UserSessionDto> _sessionMapper;
-    private readonly IDbEntityMapper<UserSessionDto, UserSessionEntity> _sessionCreateMapper;
-
-    /// <summary>
-    /// Constructor.
-    /// </summary>
-    public UserSessionRepository(
-        IDbContextFactory<MintDbContext> dbContextFactory,
-        IDbEntityMapper<UserSessionEntity, UserSessionDto> sessionMapper,
-        IDbEntityMapper<UserSessionDto, UserSessionEntity> sessionCreateMapper)
-    {
-        _dbContextFactory = dbContextFactory;
-        _sessionMapper = sessionMapper;
-        _sessionCreateMapper = sessionCreateMapper;
-    }
+    private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory;
+    private readonly IDbEntityMapper<UserSessionEntity, UserSessionDto> _sessionMapper = sessionMapper;
 
     /// <inheritdoc />
-    public async Task<UserSessionDto?> GetActiveSessionAsync(long externalUserId)
+    public async Task<UserSessionDto?> GetActiveSessionAsync(long externalUserId, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
             .Include(us => us.Scenario)
@@ -36,15 +27,15 @@ public sealed class UserSessionRepository : IUserSessionRepository
             .AsNoTracking()
             .FirstOrDefaultAsync(us => 
                 us.CompletedAt == null &&
-                us.User.ExternalUserId == externalUserId);
+                us.User.ExternalUserId == externalUserId, cancellationToken);
 
         return entity != null ? _sessionMapper.Map(entity) : null;
     }
 
     /// <inheritdoc />
-    public async Task<UserSessionDto?> GetSessionByUserIdAndScenarioAsync(long externalUserId, long scenarioId)
+    public async Task<UserSessionDto?> GetSessionByUserIdAndScenarioAsync(long externalUserId, long scenarioId, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
             .Include(us => us.CurrentStep)
@@ -53,21 +44,20 @@ public sealed class UserSessionRepository : IUserSessionRepository
             .FirstOrDefaultAsync(us => 
                 us.ScenarioId == scenarioId && 
                 us.CompletedAt == null &&
-                us.User.ExternalUserId == externalUserId);
+                us.User.ExternalUserId == externalUserId, cancellationToken);
 
         return entity != null ? _sessionMapper.Map(entity) : null;
     }
 
     /// <inheritdoc />
-    public async Task<UserSessionDto> CreateOrUpdateSessionAsync(long externalUserId, long scenarioId, long stepId, string data = "{}")
+    public async Task<UserSessionDto> CreateOrUpdateSessionAsync(long externalUserId, long scenarioId, long stepId, string data, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(data);
         
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
-        // Находим внутреннего пользователя
         var user = await context.Users
-            .FirstOrDefaultAsync(u => u.ExternalUserId == externalUserId);
+            .FirstOrDefaultAsync(u => u.ExternalUserId == externalUserId, cancellationToken);
         
         if (user == null)
         {
@@ -78,7 +68,7 @@ public sealed class UserSessionRepository : IUserSessionRepository
             .FirstOrDefaultAsync(us => 
                 us.UserId == user.Id && 
                 us.ScenarioId == scenarioId && 
-                us.CompletedAt == null);
+                us.CompletedAt == null, cancellationToken);
 
         UserSessionEntity entity;
 
@@ -90,7 +80,7 @@ public sealed class UserSessionRepository : IUserSessionRepository
             existing.CompletedAt = null;
 
             context.UserSessions.Update(existing);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
             entity = existing;
         }
         else
@@ -104,20 +94,20 @@ public sealed class UserSessionRepository : IUserSessionRepository
                 StartedAt = DateTimeOffset.UtcNow
             };
 
-            await context.UserSessions.AddAsync(entity);
-            await context.SaveChangesAsync();
+            await context.UserSessions.AddAsync(entity, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
         }
 
         return _sessionMapper.Map(entity);
     }
 
     /// <inheritdoc />
-    public async Task<UserSessionDto> UpdateCurrentStepAsync(long sessionId, long stepId)
+    public async Task<UserSessionDto> UpdateCurrentStepAsync(long sessionId, long stepId, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
-            .FirstOrDefaultAsync(us => us.Id == sessionId);
+            .FirstOrDefaultAsync(us => us.Id == sessionId, cancellationToken);
 
         if (entity == null)
         {
@@ -126,18 +116,18 @@ public sealed class UserSessionRepository : IUserSessionRepository
 
         entity.CurrentStepId = stepId;
         context.UserSessions.Update(entity);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return _sessionMapper.Map(entity);
     }
 
     /// <inheritdoc />
-    public async Task<UserSessionDto> UpdateSessionDataAsync(long sessionId, string data)
+    public async Task<UserSessionDto> UpdateSessionDataAsync(long sessionId, string data, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
-            .FirstOrDefaultAsync(us => us.Id == sessionId);
+            .FirstOrDefaultAsync(us => us.Id == sessionId, cancellationToken);
 
         if (entity == null)
         {
@@ -146,39 +136,39 @@ public sealed class UserSessionRepository : IUserSessionRepository
 
         entity.Data = data;
         context.UserSessions.Update(entity);
-        await context.SaveChangesAsync();
+        await context.SaveChangesAsync(cancellationToken);
 
         return _sessionMapper.Map(entity);
     }
 
     /// <inheritdoc />
-    public async Task CompleteSessionAsync(long sessionId)
+    public async Task CompleteSessionAsync(long sessionId, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
-            .FirstOrDefaultAsync(us => us.Id == sessionId);
+            .FirstOrDefaultAsync(us => us.Id == sessionId, cancellationToken);
 
         if (entity != null)
         {
             entity.CompletedAt = DateTimeOffset.UtcNow;
             context.UserSessions.Update(entity);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 
     /// <inheritdoc />
-    public async Task DeleteSessionAsync(long sessionId)
+    public async Task DeleteSessionAsync(long sessionId, CancellationToken cancellationToken)
     {
-        await using var context = await _dbContextFactory.CreateDbContextAsync();
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
-            .FirstOrDefaultAsync(us => us.Id == sessionId);
+            .FirstOrDefaultAsync(us => us.Id == sessionId, cancellationToken);
 
         if (entity != null)
         {
             context.UserSessions.Remove(entity);
-            await context.SaveChangesAsync();
+            await context.SaveChangesAsync(cancellationToken);
         }
     }
 }
