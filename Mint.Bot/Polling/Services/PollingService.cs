@@ -6,27 +6,22 @@ namespace Mint.Bot.Polling.Services;
 /// <summary>
 /// Background service for polling
 /// </summary>
-public class PollingService : BackgroundService
+/// <remarks>
+/// Constructor
+/// </remarks>
+/// <param name="botClient">Telegram bot client</param>
+/// <param name="updateHandler">Bot command handler</param>
+/// <param name="logger">Logger</param>
+public class PollingService(
+    ITelegramBotClient botClient,
+    IUpdateHandler updateHandler,
+    ILogger<PollingService> logger) : BackgroundService
 {
-    private readonly ITelegramBotClient _botClient;
-    private readonly IUpdateHandler _updateHandler;
-    private readonly ILogger<PollingService> _logger;
+    private readonly ITelegramBotClient _botClient = botClient ?? throw new ArgumentNullException(nameof(botClient));
 
-    /// <summary>
-    /// Constructor
-    /// </summary>
-    /// <param name="botClient">Telegram bot client</param>
-    /// <param name="updateHandler">Bot command handler</param>
-    /// <param name="logger">Logger</param>
-    public PollingService(
-        ITelegramBotClient botClient,
-        IUpdateHandler updateHandler,
-        ILogger<PollingService> logger)
-    {
-        _botClient = botClient;
-        _updateHandler = updateHandler;
-        _logger = logger;
-    }
+    private readonly IUpdateHandler _updateHandler = updateHandler ?? throw new ArgumentNullException(nameof(updateHandler));
+    
+    private readonly ILogger<PollingService> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc/>
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)

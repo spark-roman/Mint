@@ -1,11 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands.Mappers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.Users.Dto;
 using Telegram.Bot.Types;
 
-namespace Mint.App.Services.Infrastructure.DI.System;
+namespace Mint.App.Services.Infrastructure.DI.System.Bot;
 
 /// <summary>
 /// DI extension methods for start command
@@ -19,6 +20,7 @@ public static class StartCommandsExtensions
     public static void AddStartCommandMappers(this IServiceCollection services)
     {
         services.AddSingleton<IDtoMapper<User, UserCreateDto>, TgUserCreateMapper>();
-        services.AddScoped<IDtoMapper<User, ExternalUserDto>, TgUserMapper>();
+        services.AddSingleton<IDtoMapper<User, ExternalUserDto>, TgUserMapper>();
+        services.AddSingleton<IDtoMapper<Update, UpdateCommandDto>, TgCommandMapper>();
     }
 }
