@@ -23,10 +23,14 @@ builder.Services.AddDbContextFactory<MintDbContext>(options => options.UseNpgsql
 builder.Services.RegisterAppServices();
 builder.Services.RegisterDatabaseServices();
 builder.RegisterTgBotServices();
+builder.Services.AddLogging();
 
 var app = builder.Build();
 
 await app.ApplyMigrations();
+
+var logger = app.Services.GetRequiredService<ILogger<Program>>();
+logger.LogInformation("Connection string: {ConnectionString}", connectionString);
 
 var port = Environment.GetEnvironmentVariable("PORT");
 await app.RunAsync($"http://*:{port}");
