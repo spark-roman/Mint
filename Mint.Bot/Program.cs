@@ -19,7 +19,8 @@ builder.Configuration.AddEnvironmentVariables();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
     ?? throw new InvalidOperationException("Empty connection string");
 
-builder.Services.AddDbContextFactory<MintDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContextFactory<MintDbContext>(options => 
+    options.UseNpgsql(connectionString, options => options.CommandTimeout(600)));
 builder.Services.RegisterAppServices();
 builder.Services.RegisterDatabaseServices();
 builder.RegisterTgBotServices();
