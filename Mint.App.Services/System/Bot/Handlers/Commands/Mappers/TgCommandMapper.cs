@@ -11,7 +11,6 @@ public class TgCommandMapper : IDtoMapper<Update, UpdateCommandDto>
     public UpdateCommandDto Map(Update dto, params object[] args)
     {
         ArgumentNullException.ThrowIfNull(dto);
-        ArgumentNullException.ThrowIfNull(dto.Message);
 
         var updateCommand = dto.CallbackQuery is not null
             ? new UpdateCommandDto
@@ -20,18 +19,17 @@ public class TgCommandMapper : IDtoMapper<Update, UpdateCommandDto>
                 CallbackData = dto.CallbackQuery.Data,
                 CallbackId = dto.CallbackQuery.Id,
                 ChatId = dto.CallbackQuery.Message!.Chat.Id,
-                User = dto.Message.From
+                User = dto.CallbackQuery.From
             }
-            :
-            new UpdateCommandDto
+            : new UpdateCommandDto
             {
-                CommandText = dto.Message.Text,
+                CommandText = dto.Message!.Text,
                 CallbackData = string.Empty,
                 CallbackId = string.Empty,
                 ChatId = dto.Message.Chat.Id,
                 User = dto.Message.From
             };
-        
+            
         return updateCommand;
     }
 }
