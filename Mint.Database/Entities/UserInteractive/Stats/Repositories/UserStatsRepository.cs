@@ -72,17 +72,17 @@ public class UserStatsRepository(
         var stats = context.Users
             .AsNoTracking()
             .Include(u => u.Stats)
-            .Select(u => new { Stats = _statsMapper.Map(u.Stats), u.ExternalUserId })
+            .Select(u => new { Stats = u.Stats, u.ExternalUserId })
             .OrderBy(u => u.Stats.RankPoints)
             .Take(top)
             .ToList();
 
-        foreach (var stat in stats)
+        return stats.Select(s =>
         {
-            stat.Stats.ExternalUserId = stat.ExternalUserId;
-        }
-
-        return stats.Select(s => s.Stats).ToList();
+            var dto = _statsMapper.Map(s.Stats);
+            dto.ExternalUserId = s.ExternalUserId;
+            return dto;
+        }).ToList();
     }
 
     /// <inheritdoc/>

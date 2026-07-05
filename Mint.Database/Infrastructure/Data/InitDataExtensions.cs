@@ -1,6 +1,9 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Mint.Database.Infrastructure.Data.Bonuses;
+using Mint.Database.Infrastructure.Data.Bot;
 using Mint.Database.Infrastructure.Data.Promts;
+using Mint.Database.Infrastructure.Data.Ranks;
 
 namespace Mint.Database.Infrastructure.Data;
 
@@ -19,5 +22,7 @@ public static class InitDataExtensions
 
         modelBuilder.InitBonusData();
         modelBuilder.InitPromtsData();
+        modelBuilder.InitRankConfigData();
+        modelBuilder.InitBotData();
     }
 }

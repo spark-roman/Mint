@@ -10,9 +10,7 @@ using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
 using Mint.Database.Entities.Users.Sessions;
-using Mint.Database.Infrastructure.Data.Bot;
-using Mint.Database.Infrastructure.Data.Promts;
-using Mint.Database.Infrastructure.Data.Ranks;
+using Mint.Database.Infrastructure.Data;
 
 namespace Mint.Database;
 
@@ -205,8 +203,6 @@ public class MintDbContext : DbContext
             .HasForeignKey(us => us.CurrentStepId)
             .OnDelete(DeleteBehavior.Cascade);
 
-        modelBuilder.InitRankConfigData();
-        modelBuilder.InitBotData();
-        modelBuilder.InitPromtsData();
+        modelBuilder.InitData();
     }
 }

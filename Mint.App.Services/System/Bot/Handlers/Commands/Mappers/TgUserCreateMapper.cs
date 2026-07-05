@@ -6,8 +6,10 @@ using Telegram.Bot.Types;
 namespace Mint.App.Services.System.Bot.Handlers.Commands.Mappers;
 
 /// <inheritdoc/>
-public class TgUserCreateMapper : IDtoMapper<User, UserCreateDto>
+public class TgUserCreateMapper(TimeProvider timeProvider) : IDtoMapper<User, UserCreateDto>
 {
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <inheritdoc/>
     public UserCreateDto Map(User dto, params object[] args)
     {
@@ -20,6 +22,7 @@ public class TgUserCreateMapper : IDtoMapper<User, UserCreateDto>
             FirstName = dto.FirstName,
             LastName = dto.LastName,
             UserName = dto.Username,
+            CreatedAt = _timeProvider.GetUtcNow(),
         };
     }
 }
