@@ -384,4 +384,49 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.NotNull(result);
         Assert.Empty(result);
     }
+
+    /// <summary>
+    /// Verifies that creating a transaction updates the LastTransactionDate on both debit and credit accounts.
+    /// </summary>
+    [Fact]
+    public async Task CreateTransactionAsync_TransactionCreated_UpdatesLastTransactionDateOnBothAccounts()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+        var accountRepository = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        var debitAccount = await accountRepository.GetAccountByIdAsync(1, CancellationToken.None);
+        var creditAccount = await accountRepository.GetAccountByIdAsync(2, CancellationToken.None);
+        Assert.NotNull(debitAccount);
+        Assert.NotNull(creditAccount);
+
+        var previousDebitDate = debitAccount.LastTransactionDate;
+        var previousCreditDate = creditAccount.LastTransactionDate;
+
+        var transaction = new TransactionCreateDto
+        {
+            CreditAccountId = 2,
+            DebetAccountId = 1,
+            Amount = 100.00m,
+            Description = "Update LastTransactionDate test",
+            BonusType = BonusType.Start,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act
+        await repository.CreateTransactionAsync(transaction, CancellationToken.None);
+
+        // Assert
+        var updatedDebitAccount = await accountRepository.GetAccountByIdAsync(1, CancellationToken.None);
+        var updatedCreditAccount = await accountRepository.GetAccountByIdAsync(2, CancellationToken.None);
+
+        Assert.NotNull(updatedDebitAccount);
+        Assert.NotNull(updatedCreditAccount);
+
+        Assert.True(updatedDebitAccount.LastTransactionDate > previousDebitDate,
+            "Debit account LastTransactionDate should be updated");
+        Assert.True(updatedCreditAccount.LastTransactionDate > previousCreditDate,
+            "Credit account LastTransactionDate should be updated");
+    }
 }
