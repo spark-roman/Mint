@@ -19,9 +19,10 @@ public interface IUserBonusStatsRepository
     /// Get user bonus stats by user id
     /// </summary>
     /// <param name="externalUserId">External user id</param>
+    /// <param name="systemType">System type</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>User bonus stats DTO or null if not found</returns>
-    Task<UserBonusStatsDto?> GetStatsByUserIdAsync(long externalUserId, CancellationToken cancellationToken);
+    Task<UserBonusStatsDto?> GetStatsByUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Update user bonus stats

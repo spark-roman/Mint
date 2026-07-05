@@ -50,43 +50,6 @@ public class UserProfilesHandler(
     private readonly ITransactionRepository _transactionRepository = transactionRepository
         ?? throw new ArgumentNullException(nameof(transactionRepository));
 
-    /// <inheritdoc/>
-    public async Task<UserProfileDto?> GetUserProfileAsync(ExternalUserDto userDto, CancellationToken cancellationToken)
-    {
-        ArgumentNullException.ThrowIfNull(userDto);
-
-        var userName = userDto.FirstName ?? userDto.Username ?? string.Empty;
-        var ranks = await _rankConfigRepository.GetRankConfigsAsync(cancellationToken);
-        var userStats = await _statsRepository.GetStatsByUserIdAsync(userDto.ExternalUserId, cancellationToken);
-        var balance = await _accountRepository.GetUserBalanceAsync(userDto.ExternalUserId, cancellationToken);
-        var bonusStats = await _bonusStatsRepository.GetStatsByUserIdAsync(userDto.ExternalUserId, cancellationToken);
-
-        userStats ??= new UserStatsDto();
-
-        var profile = new UserProfileDto
-        {
-            UserName = userName,
-            Rank = ComputeRank(ranks, userStats),
-            Balance = balance,
-            TotalWins = userStats.TotalWins,
-            TotalLosses = userStats.TotalLosses,
-            ReferralCount = userStats.ReferralCount,
-            ReferralEarnings = userStats.ReferralEarnings,
-            NextDailyAvailableAt = bonusStats is null ? default : bonusStats.NextDailyAvailableAt
-        };
-
-        return profile;
-    }
-
-    private static string ComputeRank(List<RankConfigDto> ranks, UserStatsDto userStats)
-    {
-        return ranks
-            .Where(r => r.MinPoints <= userStats.RankPoints)
-            .OrderByDescending(r => r.MinPoints)
-            .Select(r => $"{r.Emoji} {r.Name}")
-            .First();
-    }
-
         /// <inheritdoc />
     public async Task<UserDto> InitializeUserAsync(UserCreateDto userCreateDto, CancellationToken cancellationToken)
     {
@@ -112,7 +75,7 @@ public class UserProfilesHandler(
             ? existingAccount.Id
             : await _accountRepository.CreateAccountAsync(accountCreateDto, cancellationToken);
         
-        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(userCreateDto.ExternalUserId, cancellationToken);
+        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(userCreateDto.ExternalUserId, userCreateDto.SystemType, cancellationToken);
 
         if (await _bonusValidator.CanApplyStartBonus(bonusStat, cancellationToken))
         {
@@ -160,8 +123,8 @@ public class UserProfilesHandler(
         }
 
         var account = await _accountRepository.GetAccountByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
-        var userStat = await _statsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
-        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
+        var userStat = await _statsRepository.GetStatsByUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
+        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
 
         var rank = await _rankConfigRepository.GetHighestRankAsync(userStat?.RankPoints ?? 0, cancellationToken);
 
@@ -207,7 +170,7 @@ public class UserProfilesHandler(
             return false;
         }
 
-        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
+        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
         if (bonusStat == null)
         {
             return false;

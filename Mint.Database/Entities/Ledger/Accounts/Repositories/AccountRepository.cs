@@ -68,9 +68,10 @@ public class AccountRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var account = await context.Accounts
-            .Include(a => a.User)
-            .Where(a => a.User.ExternalUserId == externalUserId && a.User.SystemType == systemType && a.Status == AccountStatus.Active)
+        var account = await context.Users
+            .Where(u => u.ExternalUserId == externalUserId && u.SystemType == systemType)
+            .Include(u => u.Account)
+            .Select(u => u.Account)
             .FirstOrDefaultAsync(cancellationToken);
 
         return account is null ? null : _accountMapper.Map(account);

@@ -11,14 +11,6 @@ namespace Mint.App.Services.UserInteractive.Profiles.Handlers;
 public interface IUserProfilesHandler
 {
     /// <summary>
-    /// Gets a user's profile.
-    /// </summary>
-    /// <param name="userDto">External user dto.</param>
-    /// <param name="cancellationToken"></param>
-    /// <returns>Returns user profile</returns>
-    Task<UserProfileDto?> GetUserProfileAsync(ExternalUserDto userDto, CancellationToken cancellationToken);
-
-    /// <summary>
     /// Initializes a new user (creates account, stats, bonus records).
     /// </summary>
     /// <param name="userCreateDto">Dto for creating a new user.</param>

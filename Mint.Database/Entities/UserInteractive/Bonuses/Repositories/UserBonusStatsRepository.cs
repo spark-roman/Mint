@@ -52,12 +52,12 @@ public class UserBonusStatsRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<UserBonusStatsDto?> GetStatsByUserIdAsync(long externalUserId, CancellationToken cancellationToken)
+    public async Task<UserBonusStatsDto?> GetStatsByUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var stats = context.Users
-            .Where(u => u.ExternalUserId == externalUserId)
+            .Where(u => u.ExternalUserId == externalUserId && u.SystemType == systemType)
             .Include(u => u.BonusStats)
             .Select(u => u.BonusStats)
             .FirstOrDefault();
