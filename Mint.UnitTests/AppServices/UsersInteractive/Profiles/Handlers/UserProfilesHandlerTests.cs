@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Users;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Users.Dto;
 using Mint.UnitTests.AppServices.UsersInteractive.Fixtures;
 
@@ -228,6 +229,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
         var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         var newUser = new UserCreateDto
         {
@@ -248,10 +250,16 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal("New", result.FirstName);
         Assert.Equal("User", result.LastName);
         Assert.Equal("new_user", result.UserName);
+
+        // Verify account was created with start bonus
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(
+            50000, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
+        Assert.Equal(100.00m, account.Balance); // 0 initial + 100 start bonus
     }
 
     /// <summary>
-    /// Verifies that InitializeUserAsync updates existing user fields and returns user.
+    /// Verifies that InitializeUserAsync updates existing user fields without creating a new account.
     /// </summary>
     [Fact]
     public async Task InitializeUserAsync_ExistingUser_UpdatesFieldsAndReturnsUser()
@@ -260,10 +268,16 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
         var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         var existingUser = await userRepository.GetUserAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(existingUser);
         var originalLastAuthDate = existingUser.LastAuthDate;
+
+        var existingAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(existingAccount);
+        var originalBalance = existingAccount.Balance; // 1500.50
 
         var updateDto = new UserCreateDto
         {
@@ -297,6 +311,12 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         {
             Assert.True(updatedUser.LastAuthDate.Value > originalLastAuthDate.Value);
         }
+
+        // Verify account was reused (not created) and balance increased by start bonus
+        var updatedAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(updatedAccount);
+        Assert.Equal(originalBalance + 100.00m, updatedAccount.Balance); // 1500.50 + 100 = 1600.50
     }
 
     /// <summary>

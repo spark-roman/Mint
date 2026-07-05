@@ -103,8 +103,15 @@ public class UserProfilesHandler(
             Status = AccountStatus.Active
         };
 
-        var creditAccountId = await _accountRepository.CreateAccountAsync(accountCreateDto, cancellationToken);
+        var existingAccount = await _accountRepository.GetAccountByExternalUserIdAsync(
+            accountCreateDto.ExternalUserId,
+            accountCreateDto.SystemType,
+            cancellationToken);
 
+        long creditAccountId = existingAccount is not null
+            ? existingAccount.Id
+            : await _accountRepository.CreateAccountAsync(accountCreateDto, cancellationToken);
+        
         var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(userCreateDto.ExternalUserId, cancellationToken);
 
         if (await _bonusValidator.CanApplyStartBonus(bonusStat, cancellationToken))
@@ -152,7 +159,7 @@ public class UserProfilesHandler(
             throw new InvalidOperationException($"User with ExternalUserId {externalUserId} not found");
         }
 
-        var accounts = await _accountRepository.GetAccountsByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
+        var account = await _accountRepository.GetAccountByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
         var userStat = await _statsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
         var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
 
@@ -174,7 +181,7 @@ public class UserProfilesHandler(
             UserName = user.UserName,
             FirstName = user.FirstName,
             LastName = user.LastName,
-            Balance = accounts?.FirstOrDefault()?.Balance ?? 0,
+            Balance = account?.Balance ?? 0,
             RankName = rank?.Name ?? "Новичок",
             RankEmoji = rank?.Emoji ?? "🌱",
             RankPoints = userStat?.RankPoints ?? 0,
@@ -213,8 +220,8 @@ public class UserProfilesHandler(
             return false;
         }
 
-        var accounts = await _accountRepository.GetAccountsByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
-        if (accounts == null || accounts.Count == 0)
+        var account = await _accountRepository.GetAccountByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
+        if (account == null)
         {
             return false;
         }
@@ -222,7 +229,7 @@ public class UserProfilesHandler(
         var transaction = new TransactionCreateDto
         {
             DebetAccountId = 1,
-            CreditAccountId = accounts.First().Id,
+            CreditAccountId = account.Id,
             Amount = 100,
             Description = "Daily bonus",
             BounusType = BonusType.Daily,
@@ -248,7 +255,7 @@ public class UserProfilesHandler(
             transaction = new TransactionCreateDto
             {
                 DebetAccountId = 1,
-                CreditAccountId = accounts.First().Id,
+                CreditAccountId = account.Id,
                 Amount = 1000,
                 Description = "Streak bonus",
                 BounusType = BonusType.Streak,
