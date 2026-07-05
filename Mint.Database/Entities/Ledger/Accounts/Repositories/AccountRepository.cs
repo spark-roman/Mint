@@ -64,16 +64,16 @@ public class AccountRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<List<AccountDto>?> GetAccountsByExternalUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken)
+    public async Task<AccountDto?> GetAccountByExternalUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var entities = await context.Accounts
+        var account = await context.Accounts
             .Include(a => a.User)
             .Where(a => a.User.ExternalUserId == externalUserId && a.User.SystemType == systemType && a.Status == AccountStatus.Active)
-            .ToListAsync(cancellationToken);
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return entities.Select(_accountMapper.Map).ToList();
+        return account is null ? null : _accountMapper.Map(account);
     }
 
     /// <inheritdoc/>

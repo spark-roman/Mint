@@ -29,8 +29,8 @@ public interface IAccountRepository
     /// <param name="externalUserId">External user id (e.g., Telegram ID)</param>
     /// <param name="systemType">Auth system type</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>List of accounts</returns>
-    Task<List<AccountDto>?> GetAccountsByExternalUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken);
+    /// <returns>Account DTO or null if not found</returns>
+    Task<AccountDto?> GetAccountByExternalUserIdAsync(long externalUserId, byte systemType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Update account balance

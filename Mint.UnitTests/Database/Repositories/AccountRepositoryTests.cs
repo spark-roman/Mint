@@ -109,41 +109,40 @@ public class AccountRepositoryTests : IClassFixture<RepositoryFixture>
     }
 
     /// <summary>
-    /// Verifies that retrieving accounts by external user ID and system type returns the correct list.
+    /// Verifies that retrieving an account by external user ID and system type returns the correct account.
     /// </summary>
     [Fact]
-    public async Task GetAccountsByExternalUserIdAsync_ExistingUser_ReturnsAccountList()
+    public async Task GetAccountByExternalUserIdAsync_ExistingUser_ReturnsAccount()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         // Act
-        var result = await repository.GetAccountsByExternalUserIdAsync(1002, 1, CancellationToken.None);
+        var result = await repository.GetAccountByExternalUserIdAsync(1002, 1, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.NotEmpty(result);
-        Assert.Equal(2, result[0].UserId);
-        Assert.Equal(3200.00m, result[0].Balance);
+        Assert.Equal(2, result.UserId);
+        Assert.Equal(3200.00m, result.Balance);
+        Assert.Equal(AccountStatus.Active, result.Status);
     }
 
     /// <summary>
-    /// Verifies that retrieving accounts for a user without accounts returns empty list.
+    /// Verifies that retrieving an account for a user without accounts returns null.
     /// </summary>
     [Fact]
-    public async Task GetAccountsByExternalUserIdAsync_UserWithoutAccounts_ReturnsEmptyList()
+    public async Task GetAccountByExternalUserIdAsync_UserWithoutAccounts_ReturnsNull()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         // Act
-        var result = await repository.GetAccountsByExternalUserIdAsync(999999, 1, CancellationToken.None);
+        var result = await repository.GetAccountByExternalUserIdAsync(999999, 1, CancellationToken.None);
 
         // Assert
-        Assert.NotNull(result);
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     /// <summary>
