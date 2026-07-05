@@ -92,14 +92,7 @@ public class UserProfilesHandler(
     {
         ArgumentNullException.ThrowIfNull(userCreateDto);
 
-        var existing = await _userRepository.GetUserAsync(userCreateDto.ExternalUserId, userCreateDto.SystemType, cancellationToken);
-        
-        if (existing != null)
-        {
-            return existing;
-        }
-
-        await _userRepository.CreateUserAsync(userCreateDto, cancellationToken);
+        await _userRepository.CreateOrUpdateUserAsync(userCreateDto, cancellationToken);
 
         var accountCreateDto = new AccountCreateDto
         {
@@ -159,13 +152,13 @@ public class UserProfilesHandler(
             throw new InvalidOperationException($"User with ExternalUserId {externalUserId} not found");
         }
 
-        var accounts = await _accountRepository.GetAccountsByExternalUserIdAsync(user.Id, (byte)systemType, cancellationToken);
-        var userStat = await _statsRepository.GetStatsByUserIdAsync(user.Id, cancellationToken);
-        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.Id, cancellationToken);
+        var accounts = await _accountRepository.GetAccountsByExternalUserIdAsync(user.ExternalUserId, (byte)systemType, cancellationToken);
+        var userStat = await _statsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
+        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(user.ExternalUserId, cancellationToken);
 
         var rank = await _rankConfigRepository.GetHighestRankAsync(userStat?.RankPoints ?? 0, cancellationToken);
 
-        var totalDuels = userStat?.TotalWins ?? 0 + userStat?.TotalLosses ?? 0;
+        var totalDuels = (userStat?.TotalWins ?? 0) + (userStat?.TotalLosses ?? 0);
         var wins = userStat?.TotalWins ?? 0;
         var winrate = totalDuels > 0 ? Math.Round((double)wins / totalDuels * 100, 1) : 0;
 

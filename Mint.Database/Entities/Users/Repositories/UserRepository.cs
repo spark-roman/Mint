@@ -9,34 +9,19 @@ using Mint.Database.Entities.Users.Dto;
 namespace Mint.Database.Entities.Users.Repositories;
 
 /// <inheritdoc/>
-public class UserRepository : IUserRepository
+public class UserRepository(
+    IDbEntityMapper<UserCreateDto, UserEntity> userCreateMapper,
+    IDbEntityMapper<UserEntity, UserDto> userMapper,
+    IDbContextFactory<MintDbContext> dbContextFactory,
+    TimeProvider timeProvider) : IUserRepository
 {
-    private readonly IDbEntityMapper<UserCreateDto, UserEntity> _userCreateMapper;
+    private readonly IDbEntityMapper<UserCreateDto, UserEntity> _userCreateMapper = userCreateMapper ?? throw new ArgumentNullException(nameof(userCreateMapper));
 
-    private readonly IDbEntityMapper<UserEntity, UserDto> _userMapper;
+    private readonly IDbEntityMapper<UserEntity, UserDto> _userMapper = userMapper ?? throw new ArgumentNullException(nameof(userMapper));
 
-    private readonly IDbContextFactory<MintDbContext> _dbContextFactory;
+    private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
 
-    private readonly TimeProvider _timeProvider;
-
-    /// <summary>
-    /// Initial constructor
-    /// </summary>
-    /// <param name="userCreateMapper">Create user mapper</param>
-    /// <param name="userMapper">Mapper for user entity</param>
-    /// <param name="dbContextFactory">Database context factory</param>
-    /// <param name="timeProvider">Date/time provider</param>
-    public UserRepository(
-        IDbEntityMapper<UserCreateDto, UserEntity> userCreateMapper,
-        IDbEntityMapper<UserEntity, UserDto> userMapper,
-        IDbContextFactory<MintDbContext> dbContextFactory,
-        TimeProvider timeProvider)
-    {
-        _userMapper = userMapper ?? throw new ArgumentNullException(nameof(userMapper));
-        _userCreateMapper = userCreateMapper ?? throw new ArgumentNullException(nameof(userCreateMapper));
-        _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
-        _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-    }
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc/>
     public async Task<long> CreateUserAsync(UserCreateDto user, CancellationToken cancellationToken)
@@ -80,6 +65,34 @@ public class UserRepository : IUserRepository
         await context.SaveChangesAsync(cancellationToken);
 
         return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<long> CreateOrUpdateUserAsync(UserCreateDto user, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(user);
+
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var existingUser = await context.Users
+            .FirstOrDefaultAsync(u => u.ExternalUserId == user.ExternalUserId && u.SystemType == user.SystemType, cancellationToken);
+
+        if (existingUser is null)
+        {
+            return await CreateUserAsync(user, cancellationToken);
+        }
+        else
+        {
+            existingUser.FirstName = user.FirstName;
+            existingUser.LastName = user.LastName;
+            existingUser.UserName = user.UserName;
+            existingUser.LastAuthDate = _timeProvider.GetUtcNow();
+            
+            await context.SaveChangesAsync(cancellationToken);
+
+            return existingUser.Id;
+        }
+
     }
 }
 

@@ -17,6 +17,14 @@ public interface IUserRepository
     Task<long> CreateUserAsync(UserCreateDto user, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Create or update user
+    /// </summary>
+    /// <param name="user">User entity for creation</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Created or updated user Id</returns>
+    Task<long> CreateOrUpdateUserAsync(UserCreateDto user, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Get user
     /// </summary>
     /// <param name="externalUserId">Vendor user id</param>
