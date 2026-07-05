@@ -3,6 +3,7 @@ using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Telegram.Bot.Types;
@@ -64,7 +65,7 @@ public sealed class ProfileCommandHandler(
             cancellationToken);
 
         var externalUser = _userMapper.Map(tgUser);
-        var userProfile = await _userProfilesHandler.GetUserProfileAsync(externalUser, cancellationToken);
+        var userProfile = await _userProfilesHandler.GetProfileAsync(externalUser.ExternalUserId, AuthSystem.Tg, cancellationToken);
 
         if (userProfile is null)
         {

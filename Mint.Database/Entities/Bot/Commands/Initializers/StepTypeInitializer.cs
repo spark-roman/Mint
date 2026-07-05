@@ -51,7 +51,6 @@ public sealed class BotInitializer
             Message = """
                 👤 **Ваш игровой профиль**
                 ━━━━━━━━━━━━━━━━━━━━━━━
-                🆔 ID: `{{user_id}}`
                 🏆 Ранг: {{rank_emoji}} **{{rank_name}}**
                 💰 Баланс: {{balance}} 🪙
 

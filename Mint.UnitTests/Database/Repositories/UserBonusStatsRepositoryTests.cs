@@ -2,6 +2,7 @@ using Mint.Database.Entities.UserInteractive.Bonuses.Dto;
 using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.Common.Contracts.Users;
 
 namespace Mint.UnitTests.Database.Repositories;
 
@@ -89,7 +90,7 @@ public class UserBonusStatsRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Act
         var statsId = await repository.CreateStatsAsync(stats, CancellationToken.None);
-        var result = await repository.GetStatsByUserIdAsync(stats.ExternalUserId, CancellationToken.None);
+        var result = await repository.GetStatsByUserIdAsync(stats.ExternalUserId, (byte)AuthSystem.Tg, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -111,7 +112,7 @@ public class UserBonusStatsRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();
 
         // Act
-        var result = await repository.GetStatsByUserIdAsync(999, CancellationToken.None);
+        var result = await repository.GetStatsByUserIdAsync(999, (byte)AuthSystem.Tg, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -153,7 +154,7 @@ public class UserBonusStatsRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Act
         var result = await repository.UpdateStatsAsync(updateStats, CancellationToken.None);
-        var updated = await repository.GetStatsByUserIdAsync(updateStats.ExternalUserId, CancellationToken.None);
+        var updated = await repository.GetStatsByUserIdAsync(updateStats.ExternalUserId, (byte)AuthSystem.Tg, CancellationToken.None);
 
         // Assert
         Assert.True(result);

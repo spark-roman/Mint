@@ -169,10 +169,23 @@ public class CategoryRepositoryTests : IClassFixture<RepositoryFixture>
         using var scope = _fixture.ServiceProvider.CreateScope();
         var repository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
 
+        // Create a new category first (seed data may be modified by other tests)
+        var newCategory = new CategoryDto
+        {
+            Name = "Тестовая категория для обновления",
+            Description = "Описание",
+            IsActiveForAI = true,
+            SearchKeywords = "ключи",
+            Code = "UPD_TEST"
+        };
+
+        var created = await repository.CreateAsync(newCategory, CancellationToken.None);
+        Assert.NotNull(created);
+
         var updatedCategory = new CategoryDto
         {
-            Id = 1,
-            Name = "Обновлённые Нейросети",
+            Id = created.Id,
+            Name = "Обновлённая категория",
             Description = "Новое описание",
             IsActiveForAI = false,
             SearchKeywords = "обновлённые ключи",
@@ -180,12 +193,12 @@ public class CategoryRepositoryTests : IClassFixture<RepositoryFixture>
         };
 
         // Act
-        var result = await repository.UpdateAsync(1, updatedCategory, CancellationToken.None);
+        var result = await repository.UpdateAsync(created.Id, updatedCategory, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(1, result.Id);
-        Assert.Equal("Обновлённые Нейросети", result.Name);
+        Assert.Equal(created.Id, result.Id);
+        Assert.Equal("Обновлённая категория", result.Name);
         Assert.Equal("Новое описание", result.Description);
         Assert.False(result.IsActiveForAI);
         Assert.Equal("обновлённые ключи", result.SearchKeywords);

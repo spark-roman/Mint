@@ -18,10 +18,11 @@ public interface IUserStatsRepository
     /// <summary>
     /// Get user stats by user ID
     /// </summary>
-    /// <param name="userId">User ID</param>
+    /// <param name="externaUserId">External user id</param>
+    /// <param name="systemType">System type</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>User stats DTO or null if not found</returns>
-    Task<UserStatsDto?> GetStatsByUserIdAsync(long userId, CancellationToken cancellationToken);
+    Task<UserStatsDto?> GetStatsByUserIdAsync(long externaUserId, byte systemType, CancellationToken cancellationToken);
 
     /// <summary>
     /// Update user stats
