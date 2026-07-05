@@ -2,6 +2,7 @@ using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Users;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.Seeding;
@@ -45,6 +46,15 @@ public static class StartCommandSeeder
         {
             context.Buttons.Add(button);
         }
+
+        context.Accounts.Add(new AccountEntity
+        {
+            Id = 1,
+            UserId = 0,
+            Balance = 999999999.00m,
+            CreatedAt = DateTimeOffset.UtcNow,
+            Status = AccountStatus.Active
+        });
 
         context.Users.AddRange(
             new UserEntity
