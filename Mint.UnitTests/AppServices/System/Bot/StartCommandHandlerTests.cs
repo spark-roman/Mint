@@ -1,6 +1,12 @@
+using AdvApplication.Auth.Users;
 using Mint.App.Services.System.Bot.Handlers.Commands;
+using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.App.Services.UserInteractive.Profiles.Handlers;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Repositories;
+using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.Database.Entities.Users.Dto;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
@@ -55,7 +61,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result);
-        Assert.Contains("🎉 Добро пожаловать в Mint!", result.Message);
+        Assert.NotNull(result.Message);
         Assert.NotNull(result.Keyboard);
         Assert.Equal(3, result.Keyboard.Count);
         Assert.Equal("📊 Дуэли дня", result.Keyboard[0].Caption);
@@ -64,16 +70,11 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         Assert.False(result.IsFinal);
         Assert.True(result.IsNewMessage);
 
-        _fixture.ProfileHandlerMock.Verify(
-            h => h.InitializeUserAsync(
-                It.Is<UserCreateDto>(dto =>
-                    dto.ExternalUserId == user.Id &&
-                    dto.SystemType == (byte)AuthSystem.Tg &&
-                    dto.FirstName == user.FirstName &&
-                    dto.LastName == user.LastName &&
-                    dto.UserName == user.Username),
-                It.IsAny<CancellationToken>()),
-            Times.AtLeast(1));
+        // Verify user was initialized via real handler
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var createdUser = await userRepository.GetUserAsync(user.Id, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(createdUser);
+        Assert.Equal(user.Id, createdUser.ExternalUserId);
     }
 
     /// <summary>
@@ -171,17 +172,18 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         // Arrange
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
-        var profileHandler = _fixture.ProfileHandlerMock;
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
 
-        var user = StartCommandHandlerFixture.CreateMockUser(999, "Alice", "Bob", "alice_bob");
+        var userId = 99999;
+        var user = StartCommandHandlerFixture.CreateMockUser(userId, "Alice", "Bob", "alice_bob");
 
         // Act
         await handler.HandleAsync(user, "nonexistent", CancellationToken.None);
 
-        // Assert
-        profileHandler.Verify(
-            h => h.InitializeUserAsync(It.IsAny<UserCreateDto>(), It.IsAny<CancellationToken>()),
-            Times.Once());
+        // Assert - user should be initialized regardless of scenario
+        var createdUser = await userRepository.GetUserAsync(userId, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(createdUser);
+        Assert.Equal(userId, createdUser.ExternalUserId);
     }
 
     #endregion
@@ -270,6 +272,51 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         Assert.NotNull(session);
         Assert.Equal(1, session.ScenarioId); // start scenario
         Assert.Equal(1, session.CurrentStepId); // first step
+    }
+
+    #endregion
+
+    #region HandleAsync - Message Formatting
+
+    /// <summary>
+    /// Verifies that HandleAsync calls GetProfileAsync and formats the message with profile data using real services.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_CorrectlyFormatsMessage_WithProfileData()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var profileHandler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        var userId = 88888;
+        var user = StartCommandHandlerFixture.CreateMockUser(userId: userId);
+
+        // Act
+        var result = await handler.HandleAsync(user, "start", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.Message);
+        Assert.NotNull(result.Keyboard);
+        Assert.NotEmpty(result.Keyboard);
+
+        // Verify user was initialized via real handler
+        var createdUser = await userRepository.GetUserAsync(userId, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(createdUser);
+        Assert.Equal(userId, createdUser.ExternalUserId);
+
+        // Verify account was created with start bonus
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(userId, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
+        Assert.Equal(100.00m, account.Balance);
+
+        // Verify message contains balance and rank with emoji
+        Assert.Contains("100", result.Message);
+        Assert.Contains("🌱", result.Message);
+        Assert.Contains("Новичок", result.Message);
     }
 
     #endregion

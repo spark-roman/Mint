@@ -3,6 +3,7 @@ using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Users.Dto;
 using Mint.Database.Entities.Users.Sessions.Repositories;
@@ -15,6 +16,7 @@ public sealed class StartCommandHandler(
     IScenarioRepository scenarioRepository,
     IUserSessionRepository sessionRepository,
     IUserProfilesHandler profileHandler,
+    IMessageFormatter messageFormatter,
     IDtoMapper<User, UserCreateDto> userCreateDtoMapper) : ICommandHandler
 {
     private readonly IScenarioRepository _scenarioRepository = scenarioRepository ?? throw new ArgumentNullException(nameof(scenarioRepository));
@@ -22,6 +24,8 @@ public sealed class StartCommandHandler(
     private readonly IUserSessionRepository _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
 
     private readonly IUserProfilesHandler _profileHandler = profileHandler ?? throw new ArgumentNullException(nameof(profileHandler));
+
+    private readonly IMessageFormatter _messageFormatter = messageFormatter ?? throw new ArgumentNullException(nameof(messageFormatter));
 
     private readonly IDtoMapper<User, UserCreateDto> _userCreateDtoMapper = userCreateDtoMapper ?? throw new ArgumentNullException(nameof(userCreateDtoMapper));
 
@@ -61,10 +65,13 @@ public sealed class StartCommandHandler(
             cancellationToken);
 
         var buttons = await _scenarioRepository.GetButtonsByStepIdAsync(step.Id, cancellationToken);
+        var profile = await _profileHandler.GetProfileAsync(tgUser.Id, AuthSystem.Tg, cancellationToken);
+
+        var text = await _messageFormatter.FormatAsync(step.Message, profile, cancellationToken);
 
         return new CommandResult
         {
-            Message = step.Message,
+            Message = text,
             Keyboard = buttons.AsReadOnly(),
             IsFinal = step.IsFinal,
             IsNewMessage = true
