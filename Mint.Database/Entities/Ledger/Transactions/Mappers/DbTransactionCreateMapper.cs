@@ -16,7 +16,7 @@ public class DbTransactionCreateMapper : IDbEntityMapper<TransactionCreateDto, T
             DebetAccountId = entity.DebetAccountId,
             CreditAccountId = entity.CreditAccountId,
             Amount = entity.Amount,
-            BonusTypeId = (int)entity.BounusType,
+            BonusTypeId = (int)entity.BonusType,
             Description = entity.Description,
             CreatedAt = entity.CreatedAt
         };
