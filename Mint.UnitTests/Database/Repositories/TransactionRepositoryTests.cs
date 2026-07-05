@@ -2,6 +2,7 @@ using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 
 namespace Mint.UnitTests.Database.Repositories;
 
@@ -37,7 +38,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebetAccountId = 1,
             Amount = 100.00m,
             Description = "Test transaction",
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            BounusType = BonusType.Start
         };
 
         // Act
@@ -77,7 +79,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebetAccountId = 1,
             Amount = 250.50m,
             Description = "Click transaction",
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            BounusType = BonusType.Start
         };
 
         // Act
@@ -89,6 +92,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(transactionId, result.Id);
         Assert.Equal(1, result.DebetAccountId);
         Assert.Equal(250.50m, result.Amount);
+        Assert.Equal(1, (int)result.BounusType);
         Assert.Equal("Click transaction", result.Description);
     }
 
@@ -125,7 +129,8 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebetAccountId = 1,
             Amount = 100.00m,
             Description = "First",
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            BounusType = BonusType.Start
         }, CancellationToken.None);
 
         await repository.CreateTransactionAsync(new TransactionCreateDto

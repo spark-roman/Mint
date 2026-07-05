@@ -70,12 +70,6 @@ public class TransactionEntity
     public string? Description { get; set; }
 
     /// <summary>
-    /// Bonus type id
-    /// </summary>
-    [Column("bounus_type_id")]
-    public int BounusTypeId { get; set; }
-
-    /// <summary>
     /// Creation date
     /// </summary>
     [Column("created_at")]
