@@ -60,7 +60,7 @@ public class TransactionRepository(
                 else
                 {
                     accounts = await context.Accounts
-                        .FromSqlRaw("SELECT * FROM \"Accounts\" WHERE \"Id\" IN ({0}, {1}) FOR UPDATE", firstId, secondId)
+                        .FromSqlRaw("SELECT * FROM \"accounts\" WHERE \"Id\" IN ({0}, {1}) FOR UPDATE", firstId, secondId)
                         .ToDictionaryAsync(a => a.Id, cancellationToken);
                 }
 
