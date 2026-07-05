@@ -12,12 +12,10 @@ namespace Mint.Database.Entities.Ledger.Transactions.Repositories;
 /// <summary>
 /// Repository for transactions
 /// </summary>
-/// <param name="transactionCreateMapper">Mapper for creating transaction</param>
-/// <param name="transactionMapper">Mapper for transaction entity</param>
-/// <param name="dbContextFactory">Database context factory</param>
 public class TransactionRepository(
     IDbEntityMapper<TransactionCreateDto, TransactionEntity> transactionCreateMapper,
     IDbEntityMapper<TransactionEntity, TransactionDto> transactionMapper,
+    TimeProvider timeProvider,
     IDbContextFactory<MintDbContext> dbContextFactory) : ITransactionRepository
 {
     private readonly IDbEntityMapper<TransactionCreateDto, TransactionEntity> _transactionCreateMapper = transactionCreateMapper ?? throw new ArgumentNullException(nameof(transactionCreateMapper));
@@ -25,6 +23,8 @@ public class TransactionRepository(
     private readonly IDbEntityMapper<TransactionEntity, TransactionDto> _transactionMapper = transactionMapper ?? throw new ArgumentNullException(nameof(transactionMapper));
 
     private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc/>
     public async Task<long> CreateTransactionAsync(TransactionCreateDto transaction, CancellationToken cancellationToken)
@@ -90,7 +90,9 @@ public class TransactionRepository(
                 }
 
                 debetAccount.Balance -= entity.Amount;
+                debetAccount.LastTransactionDate = _timeProvider.GetUtcNow();
                 creditAccount.Balance += entity.Amount;
+                creditAccount.LastTransactionDate = _timeProvider.GetUtcNow();
 
                 await context.Transactions.AddAsync(entity, cancellationToken);
 

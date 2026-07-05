@@ -8,6 +8,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Mint.App.Services.System.Bot.Handlers;
 
@@ -68,7 +69,19 @@ public class UpdateHandler(
 
             var handler = commandHandlerFactory.Create(TgCommandType.Start);
 
-            await handler.HandleAsync(updateCommand.User!, "start", cancellationToken);
+            var commandResult = await handler.HandleAsync(updateCommand.User!, "start", cancellationToken);
+
+            await botClient.SendTextMessageAsync(
+                chatId: updateCommand.ChatId,
+                text: commandResult.Message,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                replyMarkup: commandResult.Keyboard is not null
+                    ? new InlineKeyboardMarkup(
+                        [
+                            ..commandResult.Keyboard.Select(button => new[] { InlineKeyboardButton.WithCallbackData(button.Caption, button.Action) })
+                        ])
+                    : null,
+                cancellationToken: cancellationToken);
         } 
         catch (Exception ex)
         {

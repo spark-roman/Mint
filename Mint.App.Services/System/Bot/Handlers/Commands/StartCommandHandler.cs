@@ -60,16 +60,6 @@ public sealed class StartCommandHandler(
             "{}",
             cancellationToken);
 
-        /*var externalUser = _userMapper.Map(tgUser);
-        var userProfile = await _profileHandler.GetUserProfileAsync(externalUser, cancellationToken);
-
-        if (userProfile is null)
-        {
-            throw new InvalidOperationException($"Profile not found: {externalUser.ExternalUserId}");
-        }
-
-        var message = await _messageFormatter.FormatAsync(step.Message, userProfile, cancellationToken);*/
-
         var buttons = await _scenarioRepository.GetButtonsByStepIdAsync(step.Id, cancellationToken);
 
         return new CommandResult
