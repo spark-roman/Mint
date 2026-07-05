@@ -1,9 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
+using Mint.App.Services.System.Bot.Handlers.Router;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Mappers;
+using Mint.Database.Entities.Bot.Commands.Dto;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
@@ -51,37 +54,22 @@ public class UpdateHandler(
 
         if (!string.IsNullOrEmpty(updateCommand.CallbackId))
         {
-            try
-            {
-                await botClient.AnswerCallbackQueryAsync(update.CallbackQuery!.Id, cancellationToken: cancellationToken);
-            }
-            catch (ApiRequestException ex)
-            {
-                _logger.LogError(ex, "Error while answering callback query");
-            }
+            await AnswerCallbackAsync(botClient, updateCommand.CallbackId, cancellationToken);
         }
 
 #pragma warning disable CA1031 // Do not catch general exception types
         try
         {
             var scope = _serviceScopeFactory.CreateScope();
+
+            var router = scope.ServiceProvider.GetRequiredService<ICommandRouter>();
+            var commandResult = await router.RouteAsync(updateCommand, cancellationToken);
+
             var commandHandlerFactory = scope.ServiceProvider.GetRequiredService<ICommandHandlerFactory>();
 
             var handler = commandHandlerFactory.Create(TgCommandType.Start);
 
-            var commandResult = await handler.HandleAsync(updateCommand.User!, "start", cancellationToken);
-
-            await botClient.SendTextMessageAsync(
-                chatId: updateCommand.ChatId,
-                text: commandResult.Message,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                replyMarkup: commandResult.Keyboard is not null
-                    ? new InlineKeyboardMarkup(
-                        [
-                            ..commandResult.Keyboard.Select(button => new[] { InlineKeyboardButton.WithCallbackData(button.Caption, button.Action) })
-                        ])
-                    : null,
-                cancellationToken: cancellationToken);
+            await SendResponseAsync(botClient, updateCommand, commandResult, cancellationToken);
         } 
         catch (Exception ex)
         {
@@ -96,5 +84,59 @@ public class UpdateHandler(
             }
         }
 #pragma warning restore CA1031 // Do not catch general exception types
+    }
+
+    private async Task AnswerCallbackAsync(ITelegramBotClient botClient, string callbackId, CancellationToken ct)
+    {
+        try
+        {
+            await botClient.AnswerCallbackQueryAsync(callbackId, cancellationToken: ct);
+        }
+        catch (ApiRequestException ex)
+        {
+            _logger.LogError("Error while answering callback query: {CallbackId}, message: {Message}", callbackId, ex.Message);
+
+            throw;
+        }
+    }
+
+    private async Task SendResponseAsync(ITelegramBotClient botClient, UpdateCommandDto updateCommand, CommandResult result, CancellationToken ct)
+    {
+        // Если сообщение пустое — не отправляем
+        if (string.IsNullOrEmpty(result.Message))
+        {
+            _logger.LogWarning("Empty message in result");
+            return;
+        }
+
+        try
+        {
+            await botClient.SendTextMessageAsync(
+                chatId: updateCommand.ChatId,
+                text: result.Message,
+                parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                replyMarkup: BuildKeyboard(result.Keyboard),
+                cancellationToken: ct);
+        }
+        catch (ApiRequestException ex)
+        {
+            _logger.LogError(ex, "Error sending message to user {UserId}", updateCommand.User?.Id);
+        }
+    }
+
+    private static InlineKeyboardMarkup? BuildKeyboard(IReadOnlyCollection<ButtonDto>? buttons)
+    {
+        if (buttons == null || buttons.Count == 0)
+            return null;
+
+        var rows = buttons
+            .OrderBy(b => b.OrderNum)
+            .Select(b => new[]
+            {
+                InlineKeyboardButton.WithCallbackData(b.Caption, b.Action)
+            })
+            .ToArray();
+
+        return new InlineKeyboardMarkup(rows);
     }
 }

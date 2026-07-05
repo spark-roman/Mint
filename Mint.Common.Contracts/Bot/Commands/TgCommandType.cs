@@ -6,11 +6,6 @@ namespace Mint.Common.Contracts.Bot.Commands;
 public enum TgCommandType
 {
     /// <summary>
-    /// For test only command
-    /// </summary>
-    ForTestOnly = -100500,
-
-    /// <summary>
     /// Not supported command
     /// </summary>
     None = 0,
@@ -21,32 +16,67 @@ public enum TgCommandType
     Start = 1,
 
     /// <summary>
-    /// Add command
-    /// </summary>
-    Add = 2,
-
-    /// <summary>
-    /// List command
-    /// </summary>
-    List = 3,
-
-    /// <summary>
-    /// Delete command
-    /// </summary>
-    Delete = 4,
-
-    /// <summary>
-    /// Buy command
-    /// </summary>
-    Buy = 5,
-
-    /// <summary>
     /// Help command
     /// </summary>
-    Help = 6,
+    Help = 2,
 
     /// <summary>
-    /// Feedback command
+    /// Profile command
     /// </summary>
-    Feedback = 7
+    Profile = 10,
+
+    /// <summary>
+    /// Duels command
+    /// </summary>
+    Duels = 11,
+
+    /// <summary>
+    /// Referral command
+    /// </summary>
+    Referral = 12,
+
+    /// <summary>
+    /// Main menu command
+    /// </summary>
+    MainMenu = 13,
+
+    /// <summary>
+    /// Claim bonus command
+    /// </summary>
+    ClaimBonus = 20,
+
+    /// <summary>
+    /// Leaderboard command
+    /// </summary>
+    Leaderboard = 21,
+
+    /// <summary>
+    /// Category selection command
+    /// </summary>
+    CategorySelection = 30,
+
+    /// <summary>
+    /// Duel selection command
+    /// </summary>
+    DuelSelection = 31,
+
+    /// <summary>
+    /// Bet placement command
+    /// </summary>
+    BetPlacement = 32,
+
+    /// <summary>
+    /// Text input command
+    /// </summary>
+    TextInput = 40,
+
+    /// <summary>
+    /// Callback command
+    /// </summary>
+    Callback = 41,
+
+    /// <summary>
+    /// Callback navigation command
+    /// </summary>
+    CallbackNavigation = 42
 }

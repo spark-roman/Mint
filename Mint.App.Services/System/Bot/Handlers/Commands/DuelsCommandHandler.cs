@@ -19,7 +19,7 @@ public sealed class DuelsCommandHandler(
     private readonly ICategoryRepository _categoryRepository = categoryRepository;
 
     /// <inheritdoc />
-    public async Task<CommandResult> HandleAsync(User tgUser, string command, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tgUser);
 

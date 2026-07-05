@@ -12,8 +12,8 @@ public interface ICommandHandler
     /// Handles a text command from the user.
     /// </summary>
     /// <param name="tgUser">Telegram user.</param>
-    /// <param name="command">Command name (start, profile, duels, referral).</param>
+    /// <param name="inputData">Input data.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Command result containing message and keyboard.</returns>
-    Task<CommandResult> HandleAsync(User tgUser, string command, CancellationToken cancellationToken);
+    Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken);
 }

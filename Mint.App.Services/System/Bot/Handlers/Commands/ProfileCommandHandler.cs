@@ -32,7 +32,7 @@ public sealed class ProfileCommandHandler(
     private readonly IDtoMapper<User, ExternalUserDto> _userMapper = userMapper ?? throw new ArgumentNullException(nameof(userMapper));
 
     /// <inheritdoc />
-    public async Task<CommandResult> HandleAsync(User tgUser, string command, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tgUser);
 

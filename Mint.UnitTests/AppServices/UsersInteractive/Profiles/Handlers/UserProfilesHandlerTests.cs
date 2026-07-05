@@ -4,6 +4,8 @@ using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
+using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.Database.Entities.Users.Dto;
 using Mint.UnitTests.AppServices.UsersInteractive.Fixtures;
 
@@ -331,6 +333,116 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.InitializeUserAsync(null!, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Verifies that InitializeUserAsync creates user stats for a new user.
+    /// </summary>
+    [Fact]
+    public async Task InitializeUserAsync_NewUser_CreatesUserStats()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+
+        var newUser = new UserCreateDto
+        {
+            ExternalUserId = 60000,
+            SystemType = (byte)AuthSystem.Tg,
+            FirstName = "Stats",
+            LastName = "User",
+            UserName = "stats_user",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act
+        await handler.InitializeUserAsync(newUser, CancellationToken.None);
+
+        // Assert
+        var user = await userRepository.GetUserAsync(60000, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(user);
+        Assert.Equal(60000, user.ExternalUserId);
+
+        var stats = await statsRepository.GetStatsByUserIdAsync(60000, CancellationToken.None);
+        Assert.NotNull(stats);
+    }
+
+    /// <summary>
+    /// Verifies that InitializeUserAsync creates bonus stats for a new user.
+    /// </summary>
+    [Fact]
+    public async Task InitializeUserAsync_NewUser_CreatesUserBonusStats()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var bonusStatsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();
+
+        var newUser = new UserCreateDto
+        {
+            ExternalUserId = 70000,
+            SystemType = (byte)AuthSystem.Tg,
+            FirstName = "Bonus",
+            LastName = "User",
+            UserName = "bonus_user",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act
+        await handler.InitializeUserAsync(newUser, CancellationToken.None);
+
+        // Assert
+        var bonusStats = await bonusStatsRepository.GetStatsByUserIdAsync(70000, CancellationToken.None);
+        Assert.NotNull(bonusStats);
+        Assert.True(bonusStats.IsStartBonusClaimed);
+    }
+
+    /// <summary>
+    /// Verifies that the Start bonus can only be claimed once.
+    /// </summary>
+    [Fact]
+    public async Task InitializeUserAsync_UserWithStartBonusAlreadyClaimed_DoesNotClaimAgain()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var bonusStatsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        // User 1001 (Alice) already has IsStartBonusClaimed = true in seed data
+        var existingAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(existingAccount);
+        var initialBalance = existingAccount.Balance;
+
+        var updateDto = new UserCreateDto
+        {
+            ExternalUserId = 1001,
+            SystemType = (byte)AuthSystem.Tg,
+            FirstName = "Alice",
+            LastName = "Updated",
+            UserName = "alice.updated",
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act
+        var result = await handler.InitializeUserAsync(updateDto, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1001, result.ExternalUserId);
+
+        var bonusStats = await bonusStatsRepository.GetStatsByUserIdAsync(1001, CancellationToken.None);
+        Assert.NotNull(bonusStats);
+        Assert.True(bonusStats.IsStartBonusClaimed);
+
+        // Verify start bonus was not claimed again (balance should not increase by 100)
+        var updatedAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(updatedAccount);
+        Assert.Equal(initialBalance, updatedAccount.Balance);
     }
 
     #endregion

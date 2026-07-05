@@ -26,7 +26,7 @@ public sealed class StartCommandHandler(
     private readonly IDtoMapper<User, UserCreateDto> _userCreateDtoMapper = userCreateDtoMapper ?? throw new ArgumentNullException(nameof(userCreateDtoMapper));
 
     /// <inheritdoc />
-    public async Task<CommandResult> HandleAsync(User tgUser, string command, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tgUser);
 
