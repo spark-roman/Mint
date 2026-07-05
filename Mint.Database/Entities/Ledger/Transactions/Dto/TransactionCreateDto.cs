@@ -30,7 +30,7 @@ public record TransactionCreateDto
     /// <summary>
     /// Type of bonus
     /// </summary>
-    public BonusType BounusType { get; init; }
+    public BonusType BonusType { get; init; }
 
     /// <summary>
     /// Creation date

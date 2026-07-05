@@ -1,6 +1,10 @@
 using System.ComponentModel;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Storage;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.Mappers;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
 
 namespace Mint.Database.Entities.Ledger.Transactions.Repositories;
@@ -30,19 +34,84 @@ public class TransactionRepository(
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entity = _transactionCreateMapper.Map(transaction);
 
-        await context.Transactions.AddAsync(entity, cancellationToken);
-        var creditAccount = await context.Accounts.FirstOrDefaultAsync(a => a.Id == entity.CreditAccountId, cancellationToken);
+        var strategy = context.Database.CreateExecutionStrategy();
 
-        if (creditAccount is null)
+        return await strategy.ExecuteAsync(async () =>
         {
-            throw new InvalidOperationException($"Account not found{entity.CreditAccountId}");
-        }
+            IDbContextTransaction? dbTransaction = null;
+            if (!context.Database.IsInMemory())
+            {
+                dbTransaction = await context.Database.BeginTransactionAsync(cancellationToken);
+            }
 
-        creditAccount.Balance += entity.Amount;
+            try
+            {
+                var firstId = Math.Min(entity.DebetAccountId, entity.CreditAccountId);
+                var secondId = Math.Max(entity.DebetAccountId, entity.CreditAccountId);
 
-        await context.SaveChangesAsync(cancellationToken);
+                Dictionary<long, AccountEntity> accounts;
 
-        return entity.Id;
+                if (context.Database.IsInMemory())
+                {
+                    accounts = await context.Accounts
+                        .Where(a => a.Id == firstId || a.Id == secondId)
+                        .ToDictionaryAsync(a => a.Id, cancellationToken);
+                }
+                else
+                {
+                    accounts = await context.Accounts
+                        .FromSqlRaw("SELECT * FROM \"Accounts\" WHERE \"Id\" IN ({0}, {1}) FOR UPDATE", firstId, secondId)
+                        .ToDictionaryAsync(a => a.Id, cancellationToken);
+                }
+
+                if (!accounts.TryGetValue(entity.DebetAccountId, out var debetAccount))
+                {
+                    throw new InvalidOperationException($"Debet account not found: {entity.DebetAccountId}");
+                }
+
+                if (!accounts.TryGetValue(entity.CreditAccountId, out var creditAccount))
+                {
+                    throw new InvalidOperationException($"Credit account not found: {entity.CreditAccountId}");
+                }
+
+                if (debetAccount.Balance < entity.Amount)
+                {
+                    throw new InvalidOperationException($"Debet account balance is not enough for transaction: {entity.DebetAccountId}");
+                }
+
+                if (debetAccount.Status != AccountStatus.Active)
+                {
+                    throw new InvalidOperationException($"Debet account is not active: {entity.DebetAccountId}");
+                }
+
+                if (creditAccount.Status != AccountStatus.Active)
+                {
+                    throw new InvalidOperationException($"Credit account is not active: {entity.CreditAccountId}");
+                }
+
+                debetAccount.Balance -= entity.Amount;
+                creditAccount.Balance += entity.Amount;
+
+                await context.Transactions.AddAsync(entity, cancellationToken);
+
+                await context.SaveChangesAsync(cancellationToken);
+
+                if (dbTransaction is not null)
+                {
+                    await dbTransaction.CommitAsync(cancellationToken);
+                }
+            }
+            catch
+            {
+                if (dbTransaction is not null)
+                {
+                    await dbTransaction.RollbackAsync(cancellationToken);
+                }
+                throw;
+            }
+
+            return entity.Id;
+        });
     }
 
     /// <inheritdoc/>

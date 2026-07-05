@@ -122,7 +122,7 @@ public class UserProfilesHandler(
                 CreditAccountId = creditAccountId,
                 Amount = 100,
                 Description = "Start bonus",
-                BounusType = BonusType.Start,
+                BonusType = BonusType.Start,
                 CreatedAt = _timeProvider.GetUtcNow()
             };
 
@@ -232,7 +232,7 @@ public class UserProfilesHandler(
             CreditAccountId = account.Id,
             Amount = 100,
             Description = "Daily bonus",
-            BounusType = BonusType.Daily,
+            BonusType = BonusType.Daily,
             CreatedAt = _timeProvider.GetUtcNow()
         };
 
@@ -258,7 +258,7 @@ public class UserProfilesHandler(
                 CreditAccountId = account.Id,
                 Amount = 1000,
                 Description = "Streak bonus",
-                BounusType = BonusType.Streak,
+                BonusType = BonusType.Streak,
                 CreatedAt = _timeProvider.GetUtcNow()
             };
 
