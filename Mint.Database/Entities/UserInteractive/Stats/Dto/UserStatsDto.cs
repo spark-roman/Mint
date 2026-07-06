@@ -23,7 +23,7 @@ public record UserStatsDto
     /// <summary>
     /// Rank points
     /// </summary>
-    public int RankPoints { get; init; }
+    public decimal RankPoints { get; init; }
 
     /// <summary>
     /// Total wins
@@ -39,11 +39,6 @@ public record UserStatsDto
     /// Number of successfully referred friends who completed the conditions
     /// </summary>
     public int ReferralCount { get; init; }
-
-    /// <summary>
-    /// Amount of coins earned through the referral program
-    /// </summary>
-    public decimal ReferralEarnings { get; init; }
 
     /// <summary>
     /// Last update timestamp
@@ -59,7 +54,7 @@ public record UserStatsUpdateDto
     /// <summary>
     /// Rank points
     /// </summary>
-    public int RankPoints { get; init; }
+    public decimal RankPoints { get; init; }
 
     /// <summary>
     /// Total wins
@@ -75,10 +70,5 @@ public record UserStatsUpdateDto
     /// Number of successfully referred friends who completed the conditions
     /// </summary>
     public int ReferralCount { get; init; }
-
-    /// <summary>
-    /// Amount of coins earned through the referral program
-    /// </summary>
-    public decimal ReferralEarnings { get; init; }
 }
 

@@ -28,11 +28,15 @@ public class DbUserBonusStatsCreateMapper : IDbEntityMapper<UserBonusStatsCreate
         {
             UserId = entity.InternalUserId,
             IsStartBonusClaimed = entity.IsStartBonusClaimed,
+            TotalStartBonusesClaimed = entity.TotalStartBonusesClaimed,
             CurrentDailyStreak = entity.CurrentDailyStreak,
+            TotalStreakBonusesClaimed = entity.TotalStreakBonusesClaimed,
+            LastStreakClaimedAt = entity.LastStreakClaimedAt,
+            TotalDailyBonusesClaimed = entity.TotalDailyBonusesClaimed,
             LastDailyClaimedAt = entity.LastDailyClaimedAt,
             NextDailyAvailableAt = entity.NextDailyAvailableAt,
             TotalReferralBonusesClaimed = entity.TotalReferralBonusesClaimed,
-            LastRatingBonusClaimedAt = entity.LastRatingBonusClaimedAt
+            LastRankBonusClaimedAt = entity.LastRankBonusClaimedAt
         };
     }
 }

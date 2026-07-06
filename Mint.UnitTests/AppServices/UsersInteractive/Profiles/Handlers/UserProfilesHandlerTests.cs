@@ -161,7 +161,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var account = await accountRepository.GetAccountByExternalUserIdAsync(
             50000, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(account);
-        Assert.Equal(100.00m, account.Balance); // 0 initial + 100 start bonus
+        Assert.Equal(1000.00m, account.Balance); // 0 initial + 1000 start bonus
     }
 
     /// <summary>
@@ -222,7 +222,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var updatedAccount = await accountRepository.GetAccountByExternalUserIdAsync(
             1002, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(updatedAccount);
-        Assert.Equal(originalBalance + 100.00m, updatedAccount.Balance);
+        Assert.Equal(originalBalance + 1000.00m, updatedAccount.Balance);
     }
 
     /// <summary>

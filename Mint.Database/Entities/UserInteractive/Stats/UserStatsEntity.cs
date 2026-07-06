@@ -34,7 +34,7 @@ public class UserStatsEntity
     /// Accumulated rank points
     /// </summary>
     [Column("rank_points")]
-    public int RankPoints { get; set; } = 0;
+    public decimal RankPoints { get; set; } = 0;
 
     /// <summary>
     /// Number of won duels
@@ -54,12 +54,6 @@ public class UserStatsEntity
     /// </summary>
     [Column("referral_count")]
     public int ReferralCount { get; set; } = 0;
-
-    /// <summary>
-    /// Amount of coins earned through the referral program
-    /// </summary>
-    [Column("referral_earnings")]
-    public decimal ReferralEarnings { get; set; } = 0;
 
     /// <summary>
     /// Last update timestamp

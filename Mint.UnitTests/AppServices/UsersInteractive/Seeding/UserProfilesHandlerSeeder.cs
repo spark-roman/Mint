@@ -72,6 +72,15 @@ public static class UserProfilesHandlerSeeder
             new AccountEntity
             {
                 Id = 1,
+                UserId = 0,
+                Balance = 1000000.00m,
+                CreatedAt = DateTimeOffset.UtcNow,
+                LastTransactionDate = DateTimeOffset.UtcNow,
+                Status = AccountStatus.Active
+            },
+            new AccountEntity
+            {
+                Id = 2,
                 UserId = 1,
                 Balance = 1500.50m,
                 CreatedAt = DateTimeOffset.UtcNow,
@@ -80,7 +89,7 @@ public static class UserProfilesHandlerSeeder
             },
             new AccountEntity
             {
-                Id = 2,
+                Id = 3,
                 UserId = 2,
                 Balance = 3200.00m,
                 CreatedAt = DateTimeOffset.UtcNow,
@@ -89,7 +98,7 @@ public static class UserProfilesHandlerSeeder
             },
             new AccountEntity
             {
-                Id = 3,
+                Id = 4,
                 UserId = 3,
                 Balance = 750.25m,
                 CreatedAt = DateTimeOffset.UtcNow,
@@ -106,7 +115,6 @@ public static class UserProfilesHandlerSeeder
                 TotalWins = 10,
                 TotalLosses = 5,
                 ReferralCount = 2,
-                ReferralEarnings = 1000.00m,
                 UpdatedAt = DateTimeOffset.UtcNow
             },
             new UserStatsEntity
@@ -117,7 +125,6 @@ public static class UserProfilesHandlerSeeder
                 TotalWins = 5,
                 TotalLosses = 8,
                 ReferralCount = 0,
-                ReferralEarnings = 0.00m,
                 UpdatedAt = DateTimeOffset.UtcNow
             },
             new UserStatsEntity
@@ -128,7 +135,6 @@ public static class UserProfilesHandlerSeeder
                 TotalWins = 20,
                 TotalLosses = 10,
                 ReferralCount = 5,
-                ReferralEarnings = 2500.00m,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
 
@@ -144,7 +150,7 @@ public static class UserProfilesHandlerSeeder
                 LastDailyClaimedAt = now.AddDays(-1),
                 NextDailyAvailableAt = now.AddHours(12),
                 TotalReferralBonusesClaimed = 1,
-                LastRatingBonusClaimedAt = now.AddDays(-3)
+                LastRankBonusClaimedAt = now.AddDays(-3)
             },
             new UserBonusStatsEntity
             {
@@ -155,7 +161,7 @@ public static class UserProfilesHandlerSeeder
                 LastDailyClaimedAt = null,
                 NextDailyAvailableAt = now.AddHours(-1),
                 TotalReferralBonusesClaimed = 0,
-                LastRatingBonusClaimedAt = null
+                LastRankBonusClaimedAt = null
             });
 
         context.BonusTypes.AddRange(

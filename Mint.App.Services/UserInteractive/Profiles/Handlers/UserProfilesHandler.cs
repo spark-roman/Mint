@@ -1,7 +1,6 @@
 using AdvApplication.Auth.Users;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
-using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.Users;
@@ -79,11 +78,13 @@ public class UserProfilesHandler(
 
         if (await _bonusValidator.CanApplyStartBonus(bonusStat, cancellationToken))
         {
+            var startBonusAmount = 1000.00m;
+            
             var transaction = new TransactionCreateDto
             {
                 DebetAccountId = 1,
                 CreditAccountId = creditAccountId,
-                Amount = 100,
+                Amount = startBonusAmount,
                 Description = "Start bonus",
                 BonusType = BonusType.Start,
                 CreatedAt = _timeProvider.GetUtcNow()
@@ -102,7 +103,9 @@ public class UserProfilesHandler(
             {
                ExternalUserId = userCreateDto.ExternalUserId,
                IsStartBonusClaimed = true,
-               StartBonusClaimedAt = _timeProvider.GetUtcNow()
+               TotalStartBonusesClaimed = startBonusAmount,
+               StartBonusClaimedAt = _timeProvider.GetUtcNow(),
+               NextDailyAvailableAt = _timeProvider.GetUtcNow()
             };
 
             await _bonusStatsRepository.CreateStatsAsync(bonusStats, cancellationToken);
@@ -132,10 +135,12 @@ public class UserProfilesHandler(
         var wins = userStat?.TotalWins ?? 0;
         var winrate = totalDuels > 0 ? Math.Round((double)wins / totalDuels * 100, 1) : 0;
 
+        var totalDailyBonus = bonusStat?.TotalDailyBonusesClaimed + bonusStat?.TotalStreakBonusesClaimed;
+
         var now = _timeProvider.GetUtcNow();
         var canClaimDailyBonus = await _bonusValidator.CanApplyDailyBonus(bonusStat, cancellationToken);
         var timeUntilBonus = bonusStat != null && bonusStat.NextDailyAvailableAt > now 
-            ? bonusStat.NextDailyAvailableAt - now 
+            ? bonusStat.NextDailyAvailableAt - now
             : null;
 
         return new UserProfileDto
@@ -153,11 +158,13 @@ public class UserProfilesHandler(
             Losses = userStat?.TotalLosses ?? 0,
             Winrate = winrate,
             ReferralCount = userStat?.ReferralCount ?? 0,
-            ReferralEarnings = userStat?.ReferralEarnings ?? 0,
+            TotalReferralBonus = bonusStat?.TotalReferralBonusesClaimed ?? 0,
             CanClaimDailyBonus = canClaimDailyBonus,
             TimeUntilBonus = timeUntilBonus,
             StreakDays = bonusStat?.CurrentDailyStreak ?? 0,
-            CreatedAt = user.CreatedAt
+            CreatedAt = user.CreatedAt,
+            NextDailyAvailableAt =bonusStat?.NextDailyAvailableAt,
+            TotalDailyBonus = totalDailyBonus ?? 0,
         };
     }
 
@@ -189,11 +196,13 @@ public class UserProfilesHandler(
             return false;
         }
 
+        var dailyBonusAmount = 100.00m;
+
         var transaction = new TransactionCreateDto
         {
             DebetAccountId = 1,
             CreditAccountId = account.Id,
-            Amount = 100,
+            Amount = dailyBonusAmount,
             Description = "Daily bonus",
             BonusType = BonusType.Daily,
             CreatedAt = _timeProvider.GetUtcNow()
@@ -206,7 +215,9 @@ public class UserProfilesHandler(
             ExternalUserId = user.ExternalUserId,
             IsStartBonusClaimed = bonusStat.IsStartBonusClaimed,
             CurrentDailyStreak = bonusStat.CurrentDailyStreak + 1,
-            LastDailyClaimedAt = _timeProvider.GetUtcNow()
+            TotalDailyBonusesClaimed = bonusStat.TotalDailyBonusesClaimed + dailyBonusAmount,
+            LastDailyClaimedAt = _timeProvider.GetUtcNow(),
+            NextDailyAvailableAt = _timeProvider.GetUtcNow().AddDays(1)
         };
 
         await _bonusStatsRepository.UpdateStatsAsync(updateBonusDto, cancellationToken);
@@ -215,11 +226,13 @@ public class UserProfilesHandler(
 
         if (canApplyStreakBonus)
         {
+            var streakBonusAmount = 1000.00m;
+
             transaction = new TransactionCreateDto
             {
                 DebetAccountId = 1,
                 CreditAccountId = account.Id,
-                Amount = 1000,
+                Amount = streakBonusAmount,
                 Description = "Streak bonus",
                 BonusType = BonusType.Streak,
                 CreatedAt = _timeProvider.GetUtcNow()
@@ -232,7 +245,8 @@ public class UserProfilesHandler(
                 ExternalUserId = user.ExternalUserId,
                 IsStartBonusClaimed = bonusStat.IsStartBonusClaimed,
                 CurrentDailyStreak = 0,
-                LastDailyClaimedAt = _timeProvider.GetUtcNow()
+                TotalStreakBonusesClaimed = bonusStat.TotalStreakBonusesClaimed + streakBonusAmount,
+                LastStreakClaimedAt = _timeProvider.GetUtcNow(),
             };
 
             await _bonusStatsRepository.UpdateStatsAsync(updateBonusDto, cancellationToken);
