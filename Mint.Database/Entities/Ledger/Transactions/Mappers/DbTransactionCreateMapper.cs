@@ -13,7 +13,7 @@ public class DbTransactionCreateMapper : IDbEntityMapper<TransactionCreateDto, T
 
         return new TransactionEntity
         {
-            DebetAccountId = entity.DebetAccountId,
+            DebitAccountId = entity.DebitAccountId,
             CreditAccountId = entity.CreditAccountId,
             Amount = entity.Amount,
             BonusTypeId = (int)entity.BonusType,

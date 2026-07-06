@@ -40,7 +40,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Test transaction",
             CreatedAt = DateTimeOffset.UtcNow,
@@ -79,7 +79,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 2,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = amount,
             Description = "Transfer test",
             BonusType = BonusType.Start,
@@ -123,7 +123,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 3,
+            DebitAccountId = 3,
             Amount = amount,
             Description = "Insufficient balance test",
             BonusType = BonusType.Daily,
@@ -134,7 +134,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => repository.CreateTransactionAsync(transaction, CancellationToken.None));
 
-        Assert.Contains("Debet account balance is not enough", exception.Message);
+        Assert.Contains("Debit account balance is not enough", exception.Message);
 
         // Verify balance was not changed (transaction rolled back)
         var unchangedAccount = await accountRepository.GetAccountByIdAsync(3, CancellationToken.None);
@@ -155,7 +155,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 999999, // Non-existent account
+            DebitAccountId = 999999, // Non-existent account
             Amount = 100.00m,
             Description = "Non-existent debit account test",
             BonusType = BonusType.None,
@@ -166,7 +166,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => repository.CreateTransactionAsync(transaction, CancellationToken.None));
 
-        Assert.Contains("Debet account not found", exception.Message);
+        Assert.Contains("Debit account not found", exception.Message);
     }
 
     /// <summary>
@@ -182,7 +182,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 999999, // Non-existent account
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Non-existent credit account test",
             BonusType = BonusType.None,
@@ -224,7 +224,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 2,
-            DebetAccountId = 100,
+            DebitAccountId = 100,
             Amount = 100.00m,
             Description = "Inactive debit account test",
             BonusType = BonusType.None,
@@ -235,7 +235,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var exception = await Assert.ThrowsAsync<InvalidOperationException>(
             () => repository.CreateTransactionAsync(transaction, CancellationToken.None));
 
-        Assert.Contains("Debet account is not active", exception.Message);
+        Assert.Contains("Debit account is not active", exception.Message);
     }
 
     /// <summary>
@@ -266,7 +266,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 200,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Inactive credit account test",
             BonusType = BonusType.None,
@@ -292,7 +292,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 250.50m,
             Description = "Click transaction",
             CreatedAt = DateTimeOffset.UtcNow,
@@ -306,7 +306,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Equal(transactionId, result.Id);
-        Assert.Equal(1, result.DebetAccountId);
+        Assert.Equal(1, result.DebitAccountId);
         Assert.Equal(250.50m, result.Amount);
         Assert.Equal(1, (int)result.BounusType);
         Assert.Equal("Click transaction", result.Description);
@@ -342,7 +342,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 100.00m,
             Description = "First",
             CreatedAt = DateTimeOffset.UtcNow,
@@ -352,7 +352,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
             CreditAccountId = 1,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = -50.00m,
             Description = "Second",
             CreatedAt = DateTimeOffset.UtcNow
@@ -407,7 +407,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var transaction = new TransactionCreateDto
         {
             CreditAccountId = 2,
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Update LastTransactionDate test",
             BonusType = BonusType.Start,

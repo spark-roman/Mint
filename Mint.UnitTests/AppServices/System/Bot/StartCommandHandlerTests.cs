@@ -44,7 +44,6 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
-        var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser();
 

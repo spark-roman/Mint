@@ -30,3 +30,4 @@ msbuild.log
 msbuild.err
 msbuild.wrn
 AddMigration.sh
+Mint.Database/Migrations/20260706230835_RenameToDebit.cs

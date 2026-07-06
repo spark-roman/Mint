@@ -52,7 +52,7 @@ public sealed class BotInitializer
                 👤 **Ваш игровой профиль**
                 ━━━━━━━━━━━━━━━━━━━━━━━
                 🏆 Ранг: {{rank_emoji}} **{{rank_name}}**
-                👑 Очки за все время: {{rank_points}}
+                👑 Очки по дуэлям: {{rank_points}}
                 💰 Текущие очки: {{balance}} 🪙
 
                 📊 **Статистика прогнозов**
