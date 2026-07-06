@@ -43,17 +43,46 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         // Act
         var result = await handler.GetProfileAsync(1001, AuthSystem.Tg, CancellationToken.None);
 
-        // Assert
+        // Assert - User fields
         Assert.NotNull(result);
         Assert.Equal(1001, result.ExternalUserId);
         Assert.Equal("Alice", result.FirstName);
         Assert.Equal("Smith", result.LastName);
+        Assert.NotNull(result.UserName);
         Assert.Equal("alice.smith", result.UserName);
+        
+        // Assert - Account fields
         Assert.Equal(1500.50m, result.Balance);
+        
+        // Assert - Rank fields
         Assert.Equal(150, result.RankPoints);
-        Assert.True(result.TotalDuels > 0);
+        Assert.Equal("Эксперт", result.RankName);
+        Assert.Equal("🧠", result.RankEmoji);
+        
+        // Assert - Stats fields
+        Assert.Equal(15, result.TotalDuels);
         Assert.Equal(10, result.Wins);
         Assert.Equal(5, result.Losses);
+        Assert.Equal(66.7, result.Winrate); // 10 / (10 + 5) * 100 = 66.7
+        
+        // Assert - Referral fields
+        Assert.Equal(2, result.ReferralCount);
+        Assert.Equal(1, result.TotalReferralBonus);
+        
+        // Assert - Bonus stats fields
+        Assert.Equal(3, result.StreakDays);
+        Assert.Equal(0, result.TotalDailyBonus); // TotalDailyBonusesClaimed + TotalStreakBonusesClaimed = null + null = 0
+        Assert.True(result.CanClaimDailyBonus); // mock returns true
+        Assert.NotNull(result.NextDailyAvailableAt);
+        Assert.True(result.NextDailyAvailableAt > DateTimeOffset.UtcNow);
+        Assert.NotNull(result.TimeUntilBonus);
+        Assert.True(result.TimeUntilBonus.Value.TotalHours > 0);
+
+        // Assert - CreatedAt
+        Assert.True(result.CreatedAt <= DateTimeOffset.UtcNow);
+
+        // Assert - Rank (not set in handler, defaults to empty)
+        Assert.Equal(string.Empty, result.Rank);
     }
 
     /// <summary>
@@ -101,6 +130,9 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal(5, result.Wins);
         Assert.Equal(8, result.Losses);
         Assert.Equal(38.5, result.Winrate); // 5/13 * 100 = 38.5
+        
+        // Assert - Bonus stats fields (Bob has IsStartBonusClaimed = false, streak = 0)
+        Assert.Equal(0, result.StreakDays);
     }
 
     #endregion

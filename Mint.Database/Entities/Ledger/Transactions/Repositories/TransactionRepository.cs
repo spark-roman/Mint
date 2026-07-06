@@ -46,8 +46,8 @@ public class TransactionRepository(
 
             try
             {
-                var firstId = Math.Min(entity.DebetAccountId, entity.CreditAccountId);
-                var secondId = Math.Max(entity.DebetAccountId, entity.CreditAccountId);
+                var firstId = Math.Min(entity.DebitAccountId, entity.CreditAccountId);
+                var secondId = Math.Max(entity.DebitAccountId, entity.CreditAccountId);
 
                 Dictionary<long, AccountEntity> accounts;
 
@@ -64,9 +64,9 @@ public class TransactionRepository(
                         .ToDictionaryAsync(a => a.Id, cancellationToken);
                 }
 
-                if (!accounts.TryGetValue(entity.DebetAccountId, out var debetAccount))
+                if (!accounts.TryGetValue(entity.DebitAccountId, out var debitAccount))
                 {
-                    throw new InvalidOperationException($"Debet account not found: {entity.DebetAccountId}");
+                    throw new InvalidOperationException($"Debit account not found: {entity.DebitAccountId}");
                 }
 
                 if (!accounts.TryGetValue(entity.CreditAccountId, out var creditAccount))
@@ -74,14 +74,14 @@ public class TransactionRepository(
                     throw new InvalidOperationException($"Credit account not found: {entity.CreditAccountId}");
                 }
 
-                if (debetAccount.Balance < entity.Amount)
+                if (debitAccount.Balance < entity.Amount)
                 {
-                    throw new InvalidOperationException($"Debet account balance is not enough for transaction: {entity.DebetAccountId}");
+                    throw new InvalidOperationException($"Debit account balance is not enough for transaction: {entity.DebitAccountId}");
                 }
 
-                if (debetAccount.Status != AccountStatus.Active)
+                if (debitAccount.Status != AccountStatus.Active)
                 {
-                    throw new InvalidOperationException($"Debet account is not active: {entity.DebetAccountId}");
+                    throw new InvalidOperationException($"Debit account is not active: {entity.DebitAccountId}");
                 }
 
                 if (creditAccount.Status != AccountStatus.Active)
@@ -89,8 +89,8 @@ public class TransactionRepository(
                     throw new InvalidOperationException($"Credit account is not active: {entity.CreditAccountId}");
                 }
 
-                debetAccount.Balance -= entity.Amount;
-                debetAccount.LastTransactionDate = _timeProvider.GetUtcNow();
+                debitAccount.Balance -= entity.Amount;
+                debitAccount.LastTransactionDate = _timeProvider.GetUtcNow();
                 creditAccount.Balance += entity.Amount;
                 creditAccount.LastTransactionDate = _timeProvider.GetUtcNow();
 
@@ -133,7 +133,7 @@ public class TransactionRepository(
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var entities = await context.Transactions
-            .Where(t => t.CreditAccountId == accountId || t.DebetAccountId == accountId)
+            .Where(t => t.CreditAccountId == accountId || t.DebitAccountId == accountId)
             .ToListAsync(cancellationToken);
 
         return entities.Select(_transactionMapper.Map).ToList();

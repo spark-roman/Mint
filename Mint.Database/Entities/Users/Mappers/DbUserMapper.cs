@@ -20,6 +20,7 @@ public class DbUserMapper : IDbEntityMapper<UserEntity, UserDto>
             LastName = entity.LastName,
             UserName = entity.UserName,
             LastAuthDate = entity.LastAuthDate,
+            CreatedAt = entity.CreatedAt
         };
 
         return userDto;

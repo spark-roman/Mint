@@ -1,3 +1,4 @@
+using System.Globalization;
 using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database;
 using Mint.Database.Entities.Bot.Commands;
@@ -65,7 +66,7 @@ public static class StartCommandSeeder
                 FirstName = "Test",
                 LastName = "User",
                 UserName = "testuser",
-                CreatedAt = DateTimeOffset.UtcNow,
+                CreatedAt = DateTimeOffset.Parse("1987-01-20T00:00:00.000Z", CultureInfo.InvariantCulture),
                 Status = 1
             },
             new UserEntity

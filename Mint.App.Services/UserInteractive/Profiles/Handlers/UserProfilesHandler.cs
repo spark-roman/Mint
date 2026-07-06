@@ -82,7 +82,7 @@ public class UserProfilesHandler(
             
             var transaction = new TransactionCreateDto
             {
-                DebetAccountId = 1,
+                DebitAccountId = 1,
                 CreditAccountId = creditAccountId,
                 Amount = startBonusAmount,
                 Description = "Start bonus",
@@ -200,7 +200,7 @@ public class UserProfilesHandler(
 
         var transaction = new TransactionCreateDto
         {
-            DebetAccountId = 1,
+            DebitAccountId = 1,
             CreditAccountId = account.Id,
             Amount = dailyBonusAmount,
             Description = "Daily bonus",
@@ -230,7 +230,7 @@ public class UserProfilesHandler(
 
             transaction = new TransactionCreateDto
             {
-                DebetAccountId = 1,
+                DebitAccountId = 1,
                 CreditAccountId = account.Id,
                 Amount = streakBonusAmount,
                 Description = "Streak bonus",

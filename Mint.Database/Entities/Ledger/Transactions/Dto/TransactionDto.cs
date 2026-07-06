@@ -13,12 +13,12 @@ public record TransactionDto
     public long Id { get; init; }
 
     /// <summary>
-    /// Debet account id
+    /// Debit account id
     /// </summary>
-    public long DebetAccountId { get; init; }
+    public long DebitAccountId { get; init; }
 
     /// <summary>
-    /// Debet account id
+    /// Credit account id
     /// </summary>
     public long CreditAccountId { get; init; }
 

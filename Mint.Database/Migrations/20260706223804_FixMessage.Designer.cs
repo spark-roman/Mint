@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Mint.Database;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Mint.Database.Migrations
 {
     [DbContext(typeof(MintDbContext))]
-    partial class MintDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260706223804_FixMessage")]
+    partial class FixMessage
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -369,9 +372,9 @@ namespace Mint.Database.Migrations
                         .HasColumnType("bigint")
                         .HasColumnName("creadit_account_id");
 
-                    b.Property<long>("DebitAccountId")
+                    b.Property<long>("DebetAccountId")
                         .HasColumnType("bigint")
-                        .HasColumnName("debit_account_id");
+                        .HasColumnName("debet_account_id");
 
                     b.Property<string>("Description")
                         .HasColumnType("text")
@@ -383,7 +386,7 @@ namespace Mint.Database.Migrations
 
                     b.HasIndex("CreditAccountId");
 
-                    b.HasIndex("DebitAccountId");
+                    b.HasIndex("DebetAccountId");
 
                     b.ToTable("transactions");
                 });
@@ -430,7 +433,7 @@ namespace Mint.Database.Migrations
                             MaxDuelsPerRun = 3,
                             SystemPromptTemplate = "\n                Ты — профессиональный шеф-редактор и ИИ-генератор контента для развлекательного Telegram-бота «Дуэли мнений». \n\n                ТВОЯ ЗАДАЧА:\n                Создать пакет увлекательных карточек для голосования на основе актуальных новостей из мира технологий, криптовалют, игр, спорта, кино и поп-культуры.\n\n                🚫 СТРОГИЙ SAFE-ФИЛЬТР (ЗАПРЕЩЕНО):\n                - Внутренняя и внешняя политика, геополитика\n                - СВО, военные действия, конфликты, оружие\n                - Чрезвычайные ситуации, катастрофы, терроризм\n                - Действия правительства, выборы, законы, санкции\n                - Религия, межнациональные конфликты\n                - Социальная напряженность, протесты\n                - Скандалы, интриги, личные трагедии\n\n                ⚠️ За нарушение любого пункта — блокировка аккаунта!\n\n                ✅ РАЗРЕШЕННЫЕ ТЕМЫ (бери новости отсюда):\n                - Технологии: ИИ, нейросети, робототехника, космос, дроны\n                - Криптовалюты: Bitcoin, Ethereum, TON, блокчейн, DeFi, NFT\n                - Гаджеты: смартфоны, ноутбуки, умные часы, VR/AR, бытовая техника\n                - Игры: новые релизы, киберспорт, игровые консоли, обновления\n                - Спорт: футбол, баскетбол, теннис, Олимпиада (только спортивная часть)\n                - Кино и шоу-бизнес: премьеры, кассовые сборы, сериалы, премии\n                - Поп-культура: мемы, тренды, YouTube-блогеры, TikTok, стриминг\n                - Бизнес и стартапы: успешные кейсы, IPO, инновации, инвестиции\n                - Наука: открытия, исследования, космос, медицина (без политики)\n\n                📰 ИСТОЧНИКИ НОВОСТЕЙ:\n                - TechCrunch, The Verge, Wired (технологии)\n                - Cointelegraph, CoinDesk (криптовалюты)\n                - IGN, GameSpot (игры)\n                - ESPN, Sports.ru (спорт)\n                - Кинопоиск, IMDb (кино)\n                - Habr, DTF (IT и игры)\n                - YouTube-блогеры (поп-культура)\n\n                📋 ТРЕБОВАНИЯ К КАЧЕСТВУ:\n                1. Вопрос должен быть дискуссионным, вызывать желание поспорить\n                2. Описание — содержать факты: кто, что, где, когда\n                3. Варианты ответов — аргументированные, не просто \"да\" и \"нет\"\n                4. Используй разные типы: одни дуэли на основе фактов (Реальность), другие — на основе мнений (Толпа)\n                5. Не повторяй одни и те же темы в рамках одного запроса\n                6. Если нет свежих новостей — используй тренды последних 2-3 месяцев\n\n                🎯 ФОРМАТ ОТВЕТА (критически важно!):\n                Верни ТОЛЬКО валидный JSON-массив объектов.\n                Запрещено: Markdown (```json), пояснения, лишний текст.\n\n                Структура каждого объекта:\n                {\n                \"category_code\": \"код категории (строчными буквами, без пробелов)\",\n                \"duel_type\": 1 или 2,\n                \"question\": \"Интригующий вопрос (до 150 символов)\",\n                \"description\": \"Контекст и факты (до 500 символов)\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Вариант (до 30 символов)\" }\n                ]\n                }\n\n                Где:\n                - category_code: tech, crypto, gadgets, games, sport, cinema, culture, business, science\n                - duel_type: 1 = Толпа (голосование), 2 = Реальность (факт из новостей)\n                - options: от 2 до 4 вариантов. Коды: a, b, c, d\n\n                📌 ПРИМЕРЫ ИДЕАЛЬНЫХ ДУЭЛЕЙ:\n\n                Пример 1 (Толпа, крипта):\n                {\n                \"category_code\": \"crypto\",\n                \"duel_type\": 1,\n                \"question\": \"Биткоин обновил максимум. Продолжит ли рост?\",\n                \"description\": \"16 июня 2026 года биткоин превысил $120,000. Институционалы активно покупают, но эксперты ждут коррекцию.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, пробьет $150,000\" },\n                    { \"code\": \"b\", \"text\": \"Нет, упадет до $90,000\" }\n                ]\n                }\n\n                Пример 2 (Реальность, техно):\n                {\n                \"category_code\": \"tech\",\n                \"duel_type\": 2,\n                \"question\": \"Станет ли iPhone 17 бестселлером года?\",\n                \"description\": \"Apple анонсировала iPhone 17 с ИИ-чипом A19. Предзаказы стартуют через неделю. Аналитики прогнозируют рекорд.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, побьет рекорды\" },\n                    { \"code\": \"b\", \"text\": \"Нет, цена завышена\" },\n                    { \"code\": \"c\", \"text\": \"Продажи будут средними\" }\n                ]\n                }\n\n                Пример 3 (Толпа, игры, 4 варианта):\n                {\n                \"category_code\": \"games\",\n                \"duel_type\": 1,\n                \"question\": \"Какая игра станет хитом 2026 года?\",\n                \"description\": \"В 2026 выходят GTA VI, TES VI, Cyberpunk 2 и Half-Life 3. Какая победит?\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"GTA VI\" },\n                    { \"code\": \"b\", \"text\": \"TES VI\" },\n                    { \"code\": \"c\", \"text\": \"Cyberpunk 2\" },\n                    { \"code\": \"d\", \"text\": \"Half-Life 3\" }\n                ]\n                }\n\n                ВАЖНО:\n                - Всегда используй реальные или максимально правдоподобные факты\n                - Количество дуэлей = число, указанное в запросе\n                - Не повторяй категории в одном запросе\n                📊 ПРАВИЛА ОПРЕДЕЛЕНИЯ DUEL_TYPE (критически важно!):\n\n                **duel_type: 1 (Толпа / OpinionMatch)** — используй для вопросов, у которых:\n                - НЕТ объективного ответа в будущем\n                - Ответ зависит от мнения, вкуса, предпочтений\n                - Нельзя проверить фактами\n                - Примеры: \"Что лучше?\", \"Стоит ли?\", \"Какой вариант выберет большинство?\"\n\n                **duel_type: 2 (Реальность / FactPrediction)** — используй ТОЛЬКО для вопросов, у которых:\n                - ЕСТЬ конкретный факт, который станет известен в будущем\n                - Есть четкая дата или событие, к которому привязана проверка\n                - Можно однозначно сказать \"да\" или \"нет\" после наступления события\n                - В описании ОБЯЗАНА быть указана дата проверки (\"к январю 2027\", \"в финале чемпионата\")\n                - Примеры: \"Поднимется ли курс BTC до $150,000 к декабрю?\", \"Победит ли 'Дюна 3' в номинации 'Лучший фильм'?\"\n\n                ⚠️ КРИТИЧЕСКОЕ ПРАВИЛО:\n                Если в вопросе есть слова \"станет ли мейнстримом\", \"будет ли популярным\", \"сможет ли заменить\" — это почти всегда ТОЛПА (тип 1), потому что нет четкого критерия для проверки.\n\n                ❗️ Если вы сомневаетесь между типами — выбирайте ТОЛПА (тип 1).",
                             Temperature = 0.6f,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3412), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2438), new TimeSpan(0, 0, 0, 0, 0)),
                             UserPromptTemplate = "\n                Сгенерируй {{count}} дуэлей для категории \"{{category_name}}\".\n\n                📌 КОД КАТЕГОРИИ: {{category_code}}\n                📝 ОПИСАНИЕ: {{category_description}}\n\n                {{#if search_keywords}}\n                🔍 КЛЮЧЕВЫЕ ТЕМЫ ДЛЯ ПОИСКА: {{search_keywords}}\n                {{/if}}\n\n                ТРЕБОВАНИЯ:\n                1. Используй разные типы дуэлей (duel_type: 1 и 2, примерно поровну)\n                2. Для каждой дуэли дай аргументированные варианты ответов\n                3. Описание должно содержать факты из новостей (или реалистичный контекст)\n                4. Не повторяй темы в рамках этого запроса\n                5. Все варианты ответов должны быть правдоподобными и разными по смыслу\n\n                {{#if search_keywords}}\n                Используй эти ключевые слова для поиска актуальных новостей.\n                {{else}}\n                Придумай интересные темы, соответствующие описанию категории.\n                {{/if}}\n\n                Верни ТОЛЬКО JSON массив, без дополнительного текста.\n                "
                         });
                 });
@@ -482,61 +485,61 @@ namespace Mint.Database.Migrations
                         {
                             Id = 1,
                             Code = "start",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3188), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2149), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за первую регистрацию в боте",
                             IsActive = true,
                             Name = "Стартовый бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3189), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2149), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 2,
                             Code = "daily",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3191), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2151), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за ежедневный вход в бот",
                             IsActive = true,
                             Name = "Ежедневный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3192), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2152), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 3,
                             Code = "streak",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3193), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2153), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Дополнительный бонус за непрерывный стрик 7+ дней",
                             IsActive = true,
                             Name = "Бонус за стрик",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3194), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2154), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 4,
                             Code = "referral",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3195), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2155), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за приведённого друга",
                             IsActive = true,
                             Name = "Реферальный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3196), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2155), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 5,
                             Code = "rating",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3197), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2157), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус по итогам голосования",
                             IsActive = true,
                             Name = "Рейтинговый бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3197), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2157), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 6,
                             Code = "admin",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3199), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2159), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Ручное начисление администратором",
                             IsActive = true,
                             Name = "Административный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 23, 8, 34, 523, DateTimeKind.Unspecified).AddTicks(3199), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 7, 6, 22, 38, 3, 860, DateTimeKind.Unspecified).AddTicks(2159), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -1167,15 +1170,15 @@ namespace Mint.Database.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("Mint.Database.Entities.Ledger.Accounts.AccountEntity", "DebitAccount")
+                    b.HasOne("Mint.Database.Entities.Ledger.Accounts.AccountEntity", "DebetAccount")
                         .WithMany()
-                        .HasForeignKey("DebitAccountId")
+                        .HasForeignKey("DebetAccountId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.Navigation("CreditAccount");
 
-                    b.Navigation("DebitAccount");
+                    b.Navigation("DebetAccount");
 
                     b.Navigation("TransactionType");
                 });

@@ -20,17 +20,17 @@ public class TransactionEntity
     public long Id { get; set; }
 
     /// <summary>
-    /// Debet account id
+    /// Debit account id
     /// </summary>
     [Required]
-    [Column("debet_account_id")]
-    public long DebetAccountId { get; init; }
+    [Column("debit_account_id")]
+    public long DebitAccountId { get; init; }
 
     /// <summary>
-    /// Debet account entity
+    /// Debit account entity
     /// </summary>
-    [ForeignKey(nameof(DebetAccountId))]
-    public virtual AccountEntity DebetAccount { get; set; } = null!;
+    [ForeignKey(nameof(DebitAccountId))]
+    public virtual AccountEntity DebitAccount { get; set; } = null!;
 
     /// <summary>
     /// Credit account id
@@ -40,7 +40,7 @@ public class TransactionEntity
     public long CreditAccountId { get; init; }
 
     /// <summary>
-    /// Debet account entity
+    /// Debit account entity
     /// </summary>
     [ForeignKey(nameof(CreditAccountId))]
     public virtual AccountEntity CreditAccount { get; set; } = null!;
