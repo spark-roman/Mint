@@ -43,16 +43,16 @@ public record UserProfileDto
     public long ReferralCount { get; init; }
 
     /// <summary>
-    /// Earnings from referrals.
+    /// Total referral bonus of the user.
     /// </summary>
-    public decimal ReferralEarnings { get; init; }
+    public decimal TotalReferralBonus { get; init; }
 
     /// <summary>
     /// Date when the user can make a new bonus.
     /// </summary>
     public DateTimeOffset? NextDailyAvailableAt { get; set; }
 
-        /// <summary>Telegram user identifier.</summary>
+    /// <summary>Telegram user identifier.</summary>
     public long ExternalUserId { get; set; }
 
     /// <summary>First name.</summary>
@@ -68,7 +68,7 @@ public record UserProfileDto
     public string RankEmoji { get; set; } = "🌱";
 
     /// <summary>Rank points.</summary>
-    public int RankPoints { get; set; }
+    public decimal RankPoints { get; set; }
 
     /// <summary>Total duels participated.</summary>
     public int TotalDuels { get; set; }
@@ -87,6 +87,9 @@ public record UserProfileDto
 
     /// <summary>Time until next bonus.</summary>
     public TimeSpan? TimeUntilBonus { get; set; }
+
+    /// <summary>Total bonus.</summary>
+    public decimal TotalDailyBonus { get; set; }
 
     /// <summary>Streak days.</summary>
     public int StreakDays { get; set; }

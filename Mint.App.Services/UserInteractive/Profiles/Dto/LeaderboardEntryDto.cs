@@ -23,7 +23,7 @@ public record LeaderboardEntryDto
     /// <summary>
     /// Points earned for being in a certain rank
     /// </summary>
-    public int RankPoints { get; init; }
+    public decimal RankPoints { get; init; }
 
     /// <summary>
     /// Total number of duels won by the user

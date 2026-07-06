@@ -21,9 +21,29 @@ public record UserBonusStatsUpdateDto
     public bool IsStartBonusClaimed { get; init; }
 
     /// <summary>
+    /// Total number of start bonuses claimed
+    /// </summary>
+    public decimal TotalStartBonusesClaimed { get; init; } = 0;
+
+    /// <summary>
     /// Current day of continuous daily bonus streak
     /// </summary>
     public int CurrentDailyStreak { get; init; }
+
+    /// <summary>
+    /// Total number of streak bonuses claimed
+    /// </summary>
+    public decimal TotalStreakBonusesClaimed { get; init; } = 0;
+
+    /// <summary>
+    /// Time of the last streak bonus claim
+    /// </summary>
+    public DateTimeOffset? LastStreakClaimedAt { get; init; }
+
+    /// <summary>
+    /// Total number of daily bonuses claimed
+    /// </summary>
+    public decimal TotalDailyBonusesClaimed { get; init; } = 0;
 
     /// <summary>
     /// Time of the last daily bonus claim
@@ -38,10 +58,15 @@ public record UserBonusStatsUpdateDto
     /// <summary>
     /// Number of referral bonuses claimed
     /// </summary>
-    public int TotalReferralBonusesClaimed { get; init; }
+    public decimal TotalReferralBonusesClaimed { get; init; } = 0;
+
+    /// <summary>
+    /// Total number of rank bonuses claimed
+    /// </summary>
+    public decimal TotalRankBonusClaimed { get; init; } = 0;
 
     /// <summary>
     /// Time of the last rating bonus claim for duel win
     /// </summary>
-    public DateTimeOffset? LastRatingBonusClaimedAt { get; init; }
+    public DateTimeOffset? LastRankBonusClaimedAt { get; init; }
 }

@@ -311,10 +311,10 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         // Verify account was created with start bonus
         var account = await accountRepository.GetAccountByExternalUserIdAsync(userId, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(account);
-        Assert.Equal(100.00m, account.Balance);
+        Assert.Equal(1000.00m, account.Balance);
 
         // Verify message contains balance and rank with emoji
-        Assert.Contains("100", result.Message);
+        Assert.Contains("1 000", result.Message);
         Assert.Contains("🌱", result.Message);
         Assert.Contains("Новичок", result.Message);
     }

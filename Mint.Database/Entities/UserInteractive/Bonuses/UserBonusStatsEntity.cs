@@ -37,11 +37,34 @@ public class UserBonusStatsEntity
     public bool IsStartBonusClaimed { get; set; } = false;
 
     /// <summary>
+    /// Total number of start bonuses claimed
+    /// </summary>
+    public decimal TotalStartBonusesClaimed { get; set; } = 0;
+
+    /// <summary>
     /// Current day of continuous daily bonus streak
     /// </summary>
     [Column("current_daily_streak")]
     public int CurrentDailyStreak { get; set; } = 0;
 
+    /// <summary>
+    /// Total number of streak bonuses claimed
+    /// </summary>
+    [Column("total_streak_bonuses_claimed")]
+    public decimal TotalStreakBonusesClaimed { get; set; } = 0;
+
+    /// <summary>
+    /// Time of the last streak bonus claim
+    /// </summary>
+    [Column("last_streak_claimed_at")]
+    public DateTimeOffset? LastStreakClaimedAt { get; set; }
+
+    /// <summary>
+    /// Total number of daily bonuses claimed
+    /// </summary>
+    [Column("total_daily_bonuses_claimed")]
+    public decimal TotalDailyBonusesClaimed { get; set; } = 0;
+    
     /// <summary>
     /// Time of the last daily bonus claim
     /// </summary>
@@ -58,11 +81,17 @@ public class UserBonusStatsEntity
     /// Number of referral bonuses claimed
     /// </summary>
     [Column("total_referral_bonuses_claimed")]
-    public int TotalReferralBonusesClaimed { get; set; } = 0;
+    public decimal TotalReferralBonusesClaimed { get; set; } = 0;
+
+    /// <summary>
+    /// Total number of rank bonuses claimed
+    /// </summary>
+    [Column("total_rank_bonus_claimed")]
+    public decimal TotalRankBonusClaimed { get; set; } = 0;
 
     /// <summary>
     /// Time of the last rating bonus claim for duel win
     /// </summary>
-    [Column("last_rating_bonus_claimed_at")]
-    public DateTimeOffset? LastRatingBonusClaimedAt { get; set; }
+    [Column("last_rank_bonus_claimed_at")]
+    public DateTimeOffset? LastRankBonusClaimedAt { get; set; }
 }

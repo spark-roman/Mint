@@ -18,11 +18,16 @@ public class DbUserBonusStatsMapper : IDbEntityMapper<UserBonusStatsEntity, User
             Id = entity.Id,
             InternalUserId = entity.UserId,
             IsStartBonusClaimed = entity.IsStartBonusClaimed,
+            TotalStartBonusesClaimed = entity.TotalStartBonusesClaimed,
             CurrentDailyStreak = entity.CurrentDailyStreak,
+            TotalStreakBonusesClaimed = entity.TotalStreakBonusesClaimed,
+            LastStreakClaimedAt = entity.LastStreakClaimedAt,
+            TotalDailyBonusesClaimed = entity.TotalDailyBonusesClaimed,
             LastDailyClaimedAt = entity.LastDailyClaimedAt,
             NextDailyAvailableAt = entity.NextDailyAvailableAt,
             TotalReferralBonusesClaimed = entity.TotalReferralBonusesClaimed,
-            LastRatingBonusClaimedAt = entity.LastRatingBonusClaimedAt
+            TotalRankBonusClaimed = entity.TotalRankBonusClaimed,
+            LastRatingBonusClaimedAt = entity.LastRankBonusClaimedAt
         };
     }
 }

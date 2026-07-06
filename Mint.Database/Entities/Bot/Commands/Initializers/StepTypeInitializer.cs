@@ -52,7 +52,8 @@ public sealed class BotInitializer
                 👤 **Ваш игровой профиль**
                 ━━━━━━━━━━━━━━━━━━━━━━━
                 🏆 Ранг: {{rank_emoji}} **{{rank_name}}**
-                💰 Баланс: {{balance}} 🪙
+                👑 Очки за все время: {{rank_points}}
+                💰 Текущие очки: {{balance}} 🪙
 
                 📊 **Статистика прогнозов**
                 ├ Всего: {{total_duels}}
@@ -62,12 +63,12 @@ public sealed class BotInitializer
 
                 👥 **Рефералы**
                 ├ Приглашено: {{referral_count}}
-                └ Заработано: {{referral_earnings}} 🪙
+                └ Всего получено: {{total_referral_bonus}} 🪙
 
                 🎁 **Ежедневный бонус**
                 ├ Статус: {{bonus_status}}
                 ├ Дней подряд: {{streak_days}} 🔥
-                └ Всего получено: {{total_bonus}} 🪙
+                └ Всего получено: {{total_daily_bonus}} 🪙
 
                 📅 В игре с: {{member_since}}
                 """,
@@ -97,7 +98,7 @@ public sealed class BotInitializer
                 `https://t.me/opinion_bot?start={{referral_code}}`
 
                 👥 Приглашено друзей: {{referral_count}}
-                💰 Заработано монет: {{referral_earnings}} 🪙
+                💰 Всего бонусов: {{total_referral_bonus}} 🪙
                 """,
             IsFinal = false
         }

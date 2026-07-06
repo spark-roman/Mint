@@ -8,18 +8,14 @@ namespace Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
 /// Repository for user bonus stats
 /// </summary>
 /// <param name="statsCreateMapper">Mapper for creating stats</param>
-/// <param name="statsUpdateMapper">Mapper for updating stats</param>
 /// <param name="statsMapper">Mapper for stats entity</param>
 /// <param name="dbContextFactory">Database context factory</param>
 public class UserBonusStatsRepository(
     IDbEntityMapper<UserBonusStatsCreateDto, UserBonusStatsEntity> statsCreateMapper,
-    IDbEntityMapper<UserBonusStatsUpdateDto, UserBonusStatsEntity> statsUpdateMapper,
     IDbEntityMapper<UserBonusStatsEntity, UserBonusStatsDto> statsMapper,
     IDbContextFactory<MintDbContext> dbContextFactory) : IUserBonusStatsRepository
 {
     private readonly IDbEntityMapper<UserBonusStatsCreateDto, UserBonusStatsEntity> _statsCreateMapper = statsCreateMapper ?? throw new ArgumentNullException(nameof(statsCreateMapper));
-
-    private readonly IDbEntityMapper<UserBonusStatsUpdateDto, UserBonusStatsEntity> _statsUpdateMapper = statsUpdateMapper ?? throw new ArgumentNullException(nameof(statsUpdateMapper));
 
     private readonly IDbEntityMapper<UserBonusStatsEntity, UserBonusStatsDto> _statsMapper = statsMapper ?? throw new ArgumentNullException(nameof(statsMapper));
 
@@ -56,11 +52,9 @@ public class UserBonusStatsRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var stats = context.Users
-            .Where(u => u.ExternalUserId == externalUserId && u.SystemType == systemType)
-            .Include(u => u.BonusStats)
-            .Select(u => u.BonusStats)
-            .FirstOrDefault();
+        var stats = context.UserBonusStats
+            .Include(ubs => ubs.User)
+            .FirstOrDefault(ubs => ubs.User.ExternalUserId == externalUserId && ubs.User.SystemType == systemType);
 
         return stats is null ? null : _statsMapper.Map(stats);
     }
@@ -83,13 +77,17 @@ public class UserBonusStatsRepository(
             return false;
         }
 
-        var updatedEntity = _statsUpdateMapper.Map(dto);
-        stats.IsStartBonusClaimed = updatedEntity.IsStartBonusClaimed;
-        stats.CurrentDailyStreak = updatedEntity.CurrentDailyStreak;
-        stats.LastDailyClaimedAt = updatedEntity.LastDailyClaimedAt;
-        stats.NextDailyAvailableAt = updatedEntity.NextDailyAvailableAt;
-        stats.TotalReferralBonusesClaimed = updatedEntity.TotalReferralBonusesClaimed;
-        stats.LastRatingBonusClaimedAt = updatedEntity.LastRatingBonusClaimedAt;
+        stats.IsStartBonusClaimed = dto.IsStartBonusClaimed;
+        stats.TotalStartBonusesClaimed = dto.TotalStartBonusesClaimed;
+        stats.CurrentDailyStreak = dto.CurrentDailyStreak;
+        stats.TotalStreakBonusesClaimed = dto.TotalStreakBonusesClaimed;
+        stats.LastStreakClaimedAt = dto.LastStreakClaimedAt;
+        stats.TotalDailyBonusesClaimed = dto.TotalDailyBonusesClaimed;
+        stats.LastDailyClaimedAt = dto.LastDailyClaimedAt;
+        stats.NextDailyAvailableAt = dto.NextDailyAvailableAt;
+        stats.TotalReferralBonusesClaimed = dto.TotalReferralBonusesClaimed;
+        stats.TotalRankBonusClaimed = dto.TotalRankBonusClaimed;
+        stats.LastRankBonusClaimedAt = dto.LastRankBonusClaimedAt;
 
         await context.SaveChangesAsync(cancellationToken);
         return true;

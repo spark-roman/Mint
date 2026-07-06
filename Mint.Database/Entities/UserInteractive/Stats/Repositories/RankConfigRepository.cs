@@ -66,7 +66,7 @@ public class RankConfigRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<RankConfigDto?> GetHighestRankAsync(int points, CancellationToken cancellationToken)
+    public async Task<RankConfigDto?> GetHighestRankAsync(decimal points, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 

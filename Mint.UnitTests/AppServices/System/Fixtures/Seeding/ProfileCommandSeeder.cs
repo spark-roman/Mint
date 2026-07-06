@@ -108,8 +108,7 @@ public static class ProfileCommandSeeder
                 RankPoints = 150,
                 TotalWins = 10,
                 TotalLosses = 5,
-                ReferralCount = 2,
-                ReferralEarnings = 1000.00m
+                ReferralCount = 2
             },
             new UserStatsEntity
             {
@@ -118,8 +117,7 @@ public static class ProfileCommandSeeder
                 RankPoints = 75,
                 TotalWins = 5,
                 TotalLosses = 8,
-                ReferralCount = 0,
-                ReferralEarnings = 0.00m
+                ReferralCount = 0
             });
 
         context.SaveChanges();

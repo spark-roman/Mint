@@ -29,8 +29,10 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             ["{{rank_emoji}}"] = userProfileDto.RankEmoji ?? "🌱",
             ["{{rank_points}}"] = userProfileDto.RankPoints.ToString(CultureInfo.InvariantCulture) ?? "",
             ["{{referral_count}}"] = userProfileDto.ReferralCount.ToString(CultureInfo.InvariantCulture) ?? "0",
-            ["{{referral_earnings}}"] = userProfileDto.ReferralEarnings.ToString("N0", CultureInfo.InvariantCulture) ?? "0",
-            ["{{streak_days}}"] = userProfileDto.StreakDays.ToString("N0", CultureInfo.InvariantCulture) ?? "0"
+            ["{{total_referral_bonus}}"] = userProfileDto.TotalReferralBonus.ToString("N0", CultureInfo.InvariantCulture) ?? "0",
+            ["{{streak_days}}"] = userProfileDto.StreakDays.ToString("N0", CultureInfo.InvariantCulture) ?? "0",
+            ["{{total_daily_bonus}}"] = userProfileDto.TotalDailyBonus.ToString("N0", CultureInfo.InvariantCulture) ?? "0",
+            ["{{member_since}}"] = userProfileDto.CreatedAt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "",
         };
 
         if (_timeProvider.GetUtcNow() >= userProfileDto.NextDailyAvailableAt)

@@ -18,7 +18,7 @@ public record UserStatsCreateDto
     /// <summary>
     /// Rank points
     /// </summary>
-    public int RankPoints { get; init; }
+    public decimal RankPoints { get; init; }
 
     /// <summary>
     /// Total wins
