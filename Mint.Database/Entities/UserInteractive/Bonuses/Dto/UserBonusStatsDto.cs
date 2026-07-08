@@ -58,7 +58,7 @@ public record UserBonusStatsDto
     /// <summary>
     /// Time of the last rating bonus claim for duel win
     /// </summary>
-    public DateTimeOffset? LastRatingBonusClaimedAt { get; init; }
+    public DateTimeOffset? LastRankBonusClaimedAt { get; init; }
 
     /// <summary>
     /// Total number of streak bonuses claimed

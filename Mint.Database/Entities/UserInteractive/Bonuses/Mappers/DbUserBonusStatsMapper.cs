@@ -27,7 +27,7 @@ public class DbUserBonusStatsMapper : IDbEntityMapper<UserBonusStatsEntity, User
             NextDailyAvailableAt = entity.NextDailyAvailableAt,
             TotalReferralBonusesClaimed = entity.TotalReferralBonusesClaimed,
             TotalRankBonusClaimed = entity.TotalRankBonusClaimed,
-            LastRatingBonusClaimedAt = entity.LastRankBonusClaimedAt
+            LastRankBonusClaimedAt = entity.LastRankBonusClaimedAt
         };
     }
 }

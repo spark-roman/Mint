@@ -102,7 +102,6 @@ public class UpdateHandler(
 
     private async Task SendResponseAsync(ITelegramBotClient botClient, UpdateCommandDto updateCommand, CommandResult result, CancellationToken ct)
     {
-        // Если сообщение пустое — не отправляем
         if (string.IsNullOrEmpty(result.Message))
         {
             _logger.LogWarning("Empty message in result");
@@ -111,12 +110,25 @@ public class UpdateHandler(
 
         try
         {
-            await botClient.SendTextMessageAsync(
-                chatId: updateCommand.ChatId,
-                text: result.Message,
-                parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
-                replyMarkup: BuildKeyboard(result.Keyboard),
-                cancellationToken: ct);
+            if (result.IsNewMessage)
+            {
+                await botClient.SendTextMessageAsync(
+                    chatId: updateCommand.ChatId,
+                    text: result.Message,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                    replyMarkup: BuildKeyboard(result.Keyboard),
+                    cancellationToken: ct);
+            }
+            else
+            {
+                await botClient.EditMessageTextAsync(
+                    chatId: updateCommand.ChatId,
+                    messageId: updateCommand.MessageId,
+                    text: result.Message,
+                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                    replyMarkup: BuildKeyboard(result.Keyboard),
+                    cancellationToken: ct);
+            }
         }
         catch (ApiRequestException ex)
         {

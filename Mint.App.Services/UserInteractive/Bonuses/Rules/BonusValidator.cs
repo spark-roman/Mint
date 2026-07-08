@@ -11,7 +11,21 @@ public class BonusValidator(TimeProvider timeProvider) : IBonusValidator
     public Task<bool> CanApplyDailyBonus(UserBonusStatsDto? statsDto, CancellationToken cancellation)
     {
         var now = _timeProvider.GetUtcNow();
-        var validationResult = statsDto is not null && now > statsDto.NextDailyAvailableAt;
+
+        bool validationResult = false;
+
+        if (statsDto is null)
+        {
+            validationResult = false;
+        }
+        else if (statsDto.NextDailyAvailableAt is null)
+        {
+            validationResult = true;
+        }
+        else if (now >= statsDto.NextDailyAvailableAt.Value)
+        {
+            validationResult = true;
+        }
 
         return Task.FromResult(validationResult);
     }

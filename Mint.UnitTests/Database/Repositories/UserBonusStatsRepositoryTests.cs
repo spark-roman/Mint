@@ -386,7 +386,7 @@ public class UserBonusStatsRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(now.AddDays(1), updated.NextDailyAvailableAt);
         Assert.Equal(3, updated.TotalReferralBonusesClaimed);
         Assert.Equal(10.5m, updated.TotalRankBonusClaimed);
-        Assert.Equal(now.AddDays(-2), updated.LastRatingBonusClaimedAt);
+        Assert.Equal(now.AddDays(-2), updated.LastRankBonusClaimedAt);
     }
 
     /// <summary>

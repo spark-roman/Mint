@@ -123,11 +123,12 @@ public class AccountRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var balnce = context.Users
+        var balance = await context.Users
+            .Where(u => u.ExternalUserId == externalUserId)
             .Include(u => u.Account)
             .Select(u => u.Account.Balance)
-            .FirstOrDefault();
+            .FirstOrDefaultAsync(cancellationToken);
 
-        return balnce;
+        return balance;
     }
 }

@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
@@ -98,7 +99,7 @@ public sealed class ButtonClickHandler(
         return new CommandResult
         {
             Message = step.Message,
-            Keyboard = buttons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = step.IsFinal,
             IsNewMessage = false
         };
@@ -132,7 +133,7 @@ public sealed class ButtonClickHandler(
         return Task.FromResult(new CommandResult
         {
             Message = message,
-            Keyboard = buttons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = true,
             IsNewMessage = false
         });
@@ -151,7 +152,7 @@ public sealed class ButtonClickHandler(
         return Task.FromResult(new CommandResult
         {
             Message = message,
-            Keyboard = buttons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = false,
             IsNewMessage = false
         });
@@ -193,7 +194,7 @@ public sealed class ButtonClickHandler(
         return new CommandResult
         {
             Message = nextStep.Message,
-            Keyboard = buttons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = nextStep.IsFinal,
             IsNewMessage = false
         };

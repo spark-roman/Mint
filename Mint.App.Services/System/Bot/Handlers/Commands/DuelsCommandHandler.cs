@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.Database.Entities.Bot.Commands.Dto;
@@ -63,7 +64,7 @@ public sealed class DuelsCommandHandler(
         return new CommandResult
         {
             Message = step.Message,
-            Keyboard = categoryButtons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(categoryButtons),
             IsFinal = step.IsFinal,
             IsNewMessage = false
         };

@@ -1,4 +1,5 @@
 using AdvApplication.Auth.Users;
+using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.Common.Contracts.Ledger.Accounts;
@@ -18,6 +19,7 @@ namespace Mint.App.Services.UserInteractive.Profiles.Handlers;
 
 /// <inheritdoc/>
 public class UserProfilesHandler(
+    IBonusCalculationHandler bonusCalculationHandler,
     IRankConfigRepository rankConfigRepository,
     IUserStatsRepository statsRepository,
     IAccountRepository accountRepository,
@@ -27,6 +29,9 @@ public class UserProfilesHandler(
     TimeProvider timeProvider,
     IBonusValidator bonusValidator) : IUserProfilesHandler
 {
+    private readonly IBonusCalculationHandler _bonusCalculationHandler = bonusCalculationHandler
+        ?? throw new ArgumentNullException(nameof(bonusCalculationHandler));
+
     private readonly IRankConfigRepository _rankConfigRepository = rankConfigRepository
         ?? throw new ArgumentNullException(nameof(rankConfigRepository));
 
@@ -74,41 +79,24 @@ public class UserProfilesHandler(
             ? existingAccount.Id
             : await _accountRepository.CreateAccountAsync(accountCreateDto, cancellationToken);
         
-        var bonusStat = await _bonusStatsRepository.GetStatsByUserIdAsync(userCreateDto.ExternalUserId, userCreateDto.SystemType, cancellationToken);
+        await _bonusCalculationHandler.ApplyStartBonusAsync(
+            userCreateDto.ExternalUserId,
+            userCreateDto.SystemType,
+            creditAccountId,
+            cancellationToken);
 
-        if (await _bonusValidator.CanApplyStartBonus(bonusStat, cancellationToken))
+        var existingStats = await _statsRepository.GetStatsByUserIdAsync(
+            userCreateDto.ExternalUserId,
+            userCreateDto.SystemType,
+            cancellationToken);
+
+        if (existingStats == null)
         {
-            var startBonusAmount = 1000.00m;
-            
-            var transaction = new TransactionCreateDto
-            {
-                DebitAccountId = 1,
-                CreditAccountId = creditAccountId,
-                Amount = startBonusAmount,
-                Description = "Start bonus",
-                BonusType = BonusType.Start,
-                CreatedAt = _timeProvider.GetUtcNow()
-            };
-
-            await _transactionRepository.CreateTransactionAsync(transaction, cancellationToken);
-
             var userStats = new UserStatsCreateDto
             {
                 ExternalUserId = userCreateDto.ExternalUserId
             };
-
             await _statsRepository.CreateStatsAsync(userStats, cancellationToken);
-
-            var bonusStats = new UserBonusStatsCreateDto
-            {
-               ExternalUserId = userCreateDto.ExternalUserId,
-               IsStartBonusClaimed = true,
-               TotalStartBonusesClaimed = startBonusAmount,
-               StartBonusClaimedAt = _timeProvider.GetUtcNow(),
-               NextDailyAvailableAt = _timeProvider.GetUtcNow()
-            };
-
-            await _bonusStatsRepository.CreateStatsAsync(bonusStats, cancellationToken);
         }
 
         var createdUser = await _userRepository.GetUserAsync(userCreateDto.ExternalUserId, userCreateDto.SystemType, cancellationToken);
