@@ -1,9 +1,11 @@
+using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.App.Services.UserInteractive.Users.Dto;
 using Mint.Common.Contracts.Mappers;
 using Mint.Common.Contracts.Users;
+using Mint.Database.Entities.Bot.Commands.Dto;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Telegram.Bot.Types;
@@ -74,7 +76,7 @@ public sealed class ReferralCommandHandler(
         return new CommandResult
         {
             Message = message,
-            Keyboard = buttons.AsReadOnly(),
+            Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = step.IsFinal,
             IsNewMessage = false
         };

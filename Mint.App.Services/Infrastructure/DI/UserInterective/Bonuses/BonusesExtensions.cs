@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 
 namespace Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
@@ -15,5 +16,6 @@ public static class BonusesExtensions
     public static void RegisterBonusValidators(this IServiceCollection services)
     {
         services.AddSingleton<IBonusValidator, BonusValidator>();
+        services.AddScoped<IBonusCalculationHandler, BonusCalculationHandler>();
     }
 }

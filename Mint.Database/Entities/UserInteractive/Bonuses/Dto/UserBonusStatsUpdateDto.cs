@@ -21,6 +21,11 @@ public record UserBonusStatsUpdateDto
     public bool IsStartBonusClaimed { get; init; }
 
     /// <summary>
+    /// Time of the last start bonus claim
+    /// </summary>
+    public DateTimeOffset? StartBonusClaimedAt { get; init; }
+
+    /// <summary>
     /// Total number of start bonuses claimed
     /// </summary>
     public decimal TotalStartBonusesClaimed { get; init; } = 0;

@@ -16,7 +16,7 @@ public record CommandResult
     /// <summary>
     /// Keyboard buttons to display (optional).
     /// </summary>
-    public ReadOnlyCollection<ButtonDto>? Keyboard { get; init; }
+    public Collection<ButtonDto>? Keyboard { get; init; }
 
     /// <summary>
     /// Indicates whether this is the final step of a scenario.

@@ -31,4 +31,9 @@ public record UpdateCommandDto
     /// User
     /// </summary>
     public User? User  { get; init; }
+
+    /// <summary>
+    /// Message id
+    /// </summary>
+    public int MessageId { get; set; }
 }
