@@ -1,6 +1,5 @@
 using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
-using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Dto;
@@ -28,7 +27,7 @@ public sealed class ButtonClickHandler(
 
         if (callbackData == "main_menu")
         {
-            return await NavigateToScenarioAsync(externalUserId, "start", cancellationToken);
+            return await NavigateToScenarioAsync(externalUserId, "edit_message", cancellationToken);
         }
 
         if (callbackData == "profile")

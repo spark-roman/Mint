@@ -11,6 +11,7 @@ using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 using Telegram.Bot.Types;
 using Moq;
+using Mint.App.Services.Infrastructure.DI;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 
@@ -38,14 +39,12 @@ public sealed class StartCommandHandlerFixture : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.AddStartCommandMappers();
+        services.RegisterAppServices();
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
-        services.AddScoped<IMessageFormatter, MessageFormatter>();
         services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
         services.RegisterUserProfileHandlers();
-        services.AddScoped<ICommandHandler, StartCommandHandler>();
 
         _serviceProvider = services.BuildServiceProvider();
 

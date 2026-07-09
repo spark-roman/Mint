@@ -47,6 +47,7 @@ public sealed class CommandRouter(
                 "referral" => TgCommandType.Referral,
                 "main_menu" => TgCommandType.MainMenu,
                 "claim_bonus" => TgCommandType.ClaimBonus,
+                "bonus_unavailable" => TgCommandType.BonusUnavailable,
                 "leaderboard" => TgCommandType.Leaderboard,
                 var action when action.StartsWith("category_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.CategorySelection,
                 var action when action.StartsWith("duel_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.DuelSelection,

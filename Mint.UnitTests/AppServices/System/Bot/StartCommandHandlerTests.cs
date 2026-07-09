@@ -1,17 +1,13 @@
 using AdvApplication.Auth.Users;
 using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
-using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Ledger.Accounts;
-using Mint.Database.Entities.UserInteractive.Stats.Repositories;
-using Mint.Database.Entities.Users.Dto;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 using Microsoft.Extensions.DependencyInjection;
-using Moq;
+using Mint.Common.Contracts.Bot.Commands;
 
 namespace Mint.UnitTests.AppServices.System.Bot;
 
@@ -42,7 +38,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser();
@@ -84,7 +80,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser();
@@ -116,7 +112,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
 
         var user = StartCommandHandlerFixture.CreateMockUser(999, "Alice", "Bob", "alice_bob");
 
@@ -141,7 +137,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
 
         var user = StartCommandHandlerFixture.CreateMockUser();
 
@@ -170,7 +166,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
 
         var userId = 99999;
@@ -197,7 +193,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.HandleAsync(null!, "start", CancellationToken.None));
@@ -215,7 +211,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser();
@@ -251,7 +247,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -285,7 +281,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Start);
         var profileHandler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
         var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
@@ -313,7 +309,7 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         Assert.Equal(1000.00m, account.Balance);
 
         // Verify message contains balance and rank with emoji
-        Assert.Contains("1 000", result.Message);
+        Assert.Contains("1,000", result.Message);
         Assert.Contains("🌱", result.Message);
         Assert.Contains("Новичок", result.Message);
     }

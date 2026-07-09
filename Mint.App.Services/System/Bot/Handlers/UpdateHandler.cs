@@ -15,7 +15,9 @@ using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Mint.App.Services.System.Bot.Handlers;
 
-/// <inheritdoc/>
+/// <summary>
+/// Handles incoming updates from Telegram.
+/// </summary>
 public class UpdateHandler(
     IServiceScopeFactory serviceScopeFactory,
     IDtoMapper<Update, UpdateCommandDto> userMapper,
@@ -27,12 +29,13 @@ public class UpdateHandler(
     private readonly IDtoMapper<Update, UpdateCommandDto> _userMapper = userMapper
         ?? throw new ArgumentNullException(nameof(userMapper));
 
-    private readonly ILogger<UpdateHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
+    private readonly ILogger<UpdateHandler> _logger = logger 
+        ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc/>
     public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
     {
-        Console.WriteLine($"Polling error: {exception?.Message}");
+        _logger.LogError(exception, "Polling error");
         return Task.CompletedTask;
     }
 
@@ -41,14 +44,7 @@ public class UpdateHandler(
     {
         ArgumentNullException.ThrowIfNull(update);
 
-        _logger.LogInformation("Update command from tg:{Data}", update);
-
-        if (update.Message is null && update.CallbackQuery is null)
-        {
-            _logger.LogError("Message and callback is null");
-
-            return;
-        }
+        _logger.LogInformation("Update received: {UpdateType}", update.Type);
 
         var updateCommand = _userMapper.Map(update);
 
@@ -56,18 +52,27 @@ public class UpdateHandler(
         {
             await AnswerCallbackAsync(botClient, updateCommand.CallbackId, cancellationToken);
         }
-
-#pragma warning disable CA1031 // Do not catch general exception types
+        
+        #pragma warning disable CA1031 // Do not catch general exception types
         try
         {
-            var scope = _serviceScopeFactory.CreateScope();
-
+            await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var router = scope.ServiceProvider.GetRequiredService<ICommandRouter>();
             var commandResult = await router.RouteAsync(updateCommand, cancellationToken);
 
-            var commandHandlerFactory = scope.ServiceProvider.GetRequiredService<ICommandHandlerFactory>();
+            if (!string.IsNullOrEmpty(commandResult.Notification))
+            {
+                await botClient.AnswerCallbackQueryAsync(
+                    updateCommand.CallbackId!,
+                    commandResult.Notification,
+                    cancellationToken: cancellationToken);
+            }
 
-            var handler = commandHandlerFactory.Create(TgCommandType.Start);
+            if (string.IsNullOrEmpty(commandResult.Message))
+            {
+                _logger.LogDebug("Empty message, skipping send");
+                return;
+            }
 
             await SendResponseAsync(botClient, updateCommand, commandResult, cancellationToken);
         } 
@@ -75,15 +80,7 @@ public class UpdateHandler(
         {
             _logger.LogError(ex, "Error while handling update");
         }
-        finally
-        {
-            if (GC.GetTotalMemory(false) >= 125 * 1024 * 1024)
-            {
-                _logger.LogDebug("High memory usage detected, suggesting GC");
-                GC.Collect();
-            }
-        }
-#pragma warning restore CA1031 // Do not catch general exception types
+        #pragma warning restore CA1031 // Do not catch general exception types  
     }
 
     private async Task AnswerCallbackAsync(ITelegramBotClient botClient, string callbackId, CancellationToken ct)
@@ -95,19 +92,15 @@ public class UpdateHandler(
         catch (ApiRequestException ex)
         {
             _logger.LogError("Error while answering callback query: {CallbackId}, message: {Message}", callbackId, ex.Message);
-
-            throw;
         }
     }
 
-    private async Task SendResponseAsync(ITelegramBotClient botClient, UpdateCommandDto updateCommand, CommandResult result, CancellationToken ct)
+    private async Task SendResponseAsync(
+        ITelegramBotClient botClient, 
+        UpdateCommandDto updateCommand, 
+        CommandResult result, 
+        CancellationToken ct)
     {
-        if (string.IsNullOrEmpty(result.Message))
-        {
-            _logger.LogWarning("Empty message in result");
-            return;
-        }
-
         try
         {
             if (result.IsNewMessage)

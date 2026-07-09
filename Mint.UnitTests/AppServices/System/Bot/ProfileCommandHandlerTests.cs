@@ -1,12 +1,10 @@
-using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.System.Bot.Handlers.Messages;
-using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 using Microsoft.Extensions.DependencyInjection;
-using Telegram.Bot.Types;
+using Mint.Common.Contracts.Bot.Commands;
+using Mint.App.Services.UserInteractive.Profiles.Handlers;
 
 namespace Mint.UnitTests.AppServices.System.Bot;
 
@@ -37,9 +35,8 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
-        var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser(userId: 1001, firstName: "Alice", lastName: "Smith", userName: "alice.smith");
 
@@ -72,7 +69,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
 
         var user = StartCommandHandlerFixture.CreateMockUser(userId: 1002, firstName: "Bob", lastName: "Johnson", userName: "bob.johnson");
 
@@ -96,7 +93,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
 
         var user = StartCommandHandlerFixture.CreateMockUser(userId: 1001, firstName: "Alice", lastName: "Smith", userName: "alice.smith");
 
@@ -120,7 +117,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
 
         // Act & Assert
         await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.HandleAsync(null!, "profile", CancellationToken.None));
@@ -138,7 +135,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -172,7 +169,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredService<ICommandHandler>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<ProfileCommandHandler>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
         var user = StartCommandHandlerFixture.CreateMockUser(userId: 1001, firstName: "Alice", lastName: "Smith", userName: "alice.smith");

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.Infrastructure.DI;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Database;
@@ -15,7 +16,7 @@ namespace Mint.UnitTests.AppServices.UsersInteractive.Fixtures;
 /// </summary>
 public sealed class UserProfilesHandlerFixture : IDisposable
 {
-    private readonly Mock<IBonusValidator> _bonusValidatorMock;
+   // private readonly Mock<IBonusValidator> _bonusValidatorMock;
     private readonly ServiceProvider _serviceProvider;
     private bool _disposed;
 
@@ -24,21 +25,22 @@ public sealed class UserProfilesHandlerFixture : IDisposable
     /// </summary>
     public UserProfilesHandlerFixture()
     {
-        _bonusValidatorMock = new Mock<IBonusValidator>();
+        /*_bonusValidatorMock = new Mock<IBonusValidator>();
         _bonusValidatorMock.Setup(v => v.CanApplyStartBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _bonusValidatorMock.Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _bonusValidatorMock.Setup(v => v.CanApplyStreakBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
+        _bonusValidatorMock.Setup(v => v.CanApplyStreakBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);*/
 
         var databaseName = "TestDatabase" + Guid.NewGuid();
 
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
+        services.RegisterAppServices();
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
-        services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
+        //services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
         services.AddScoped<IUserProfilesHandler, UserProfilesHandler>();
 
         _serviceProvider = services.BuildServiceProvider();
@@ -46,10 +48,7 @@ public sealed class UserProfilesHandlerFixture : IDisposable
         SeedDatabase();
     }
 
-    /// <summary>
-    /// Gets the bonus validator mock.
-    /// </summary>
-    public Mock<IBonusValidator> BonusValidatorMock => _bonusValidatorMock;
+    //public Mock<IBonusValidator> BonusValidatorMock => _bonusValidatorMock;
 
     /// <summary>
     /// Seeds the database with test data.

@@ -1,3 +1,4 @@
+using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.Common.Contracts.Users;
@@ -9,13 +10,17 @@ namespace Mint.App.Services.System.Bot.Handlers.Commands;
 /// <inheritdoc cref="ICommandHandler"/>
 public sealed class ClaimBonusCommandHandler(
     IBonusCalculationHandler bonusHandler,
-    IAccountRepository accountRepository) : ICommandHandler
+    IAccountRepository accountRepository,
+    IServiceProvider serviceProvider) : ICommandHandler
 {
     private readonly IBonusCalculationHandler _bonusHandler = bonusHandler
         ?? throw new ArgumentNullException(nameof(bonusHandler));
     
     private readonly IAccountRepository _accountRepository = accountRepository
         ?? throw new ArgumentNullException(nameof(accountRepository));
+
+    private readonly IServiceProvider _serviceProvider = serviceProvider
+        ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc/>
     public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
@@ -32,7 +37,8 @@ public sealed class ClaimBonusCommandHandler(
             return new CommandResult
             {
                 Message = "❌ Ошибка: не удалось найти ваш аккаунт",
-                IsFinal = true
+                IsFinal = true,
+                IsNewMessage = true
             };
         }
 
@@ -42,28 +48,20 @@ public sealed class ClaimBonusCommandHandler(
             account.Id,
             cancellationToken);
 
-        var newBalance = await _accountRepository.GetUserBalanceAsync(tgUser.Id, cancellationToken);
-
-        string message;
-        if (!result.Success)
+        if (!result.Success || result.AlreadyApplied)
         {
-            message = $"❌ {result.Message}";
-        }
-        else if (result.AlreadyApplied)
-        {
-            message = $"ℹ️ {result.Message}";
-        }
-        else
-        {
-            message = $"{result.Message}\n\n💳 Новый баланс: {newBalance:N0} 🪙";
+            return new CommandResult
+            {
+                Message = string.Empty,
+                IsFinal = true,
+                IsNewMessage = false,
+                Notification = result.AlreadyApplied 
+                    ? "ℹ️ Бонус уже получен сегодня" 
+                    : $"❌ {result.Message}"
+            };
         }
 
-        return new CommandResult
-        {
-            Message = message,
-            Keyboard = [],
-            IsFinal = false,
-            IsNewMessage = false
-        };
+        var profileHandler = _serviceProvider.GetRequiredService<ProfileCommandHandler>();
+        return await profileHandler.HandleAsync(tgUser, "refresh", cancellationToken);
     }
 }
