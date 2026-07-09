@@ -21,6 +21,7 @@ using Mint.Database.Infrastructure.DI.Users;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 using Telegram.Bot.Types;
 using Moq;
+using Mint.App.Services.Infrastructure.DI;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 
@@ -56,11 +57,11 @@ public sealed class ProfileCommandHandlerFixture : IDisposable
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
+        services.RegisterAppServices();
         services.AddSingleton<IDtoMapper<User, ExternalUserDto>, TgUserMapper>();
         services.AddScoped<IMessageFormatter>(_ => _messageFormatterMock.Object);
         services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
-        services.AddScoped<IUserProfilesHandler, UserProfilesHandler>();
-        services.AddScoped<ICommandHandler, ProfileCommandHandler>();
+        services.AddScoped<ProfileCommandHandler>();
 
         _serviceProvider = services.BuildServiceProvider();
 

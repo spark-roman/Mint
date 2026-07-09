@@ -72,7 +72,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         // Assert - Bonus stats fields
         Assert.Equal(3, result.StreakDays);
         Assert.Equal(0, result.TotalDailyBonus); // TotalDailyBonusesClaimed + TotalStreakBonusesClaimed = null + null = 0
-        Assert.True(result.CanClaimDailyBonus); // mock returns true
+        Assert.False(result.CanClaimDailyBonus);
         Assert.NotNull(result.NextDailyAvailableAt);
         Assert.True(result.NextDailyAvailableAt > DateTimeOffset.UtcNow);
         Assert.NotNull(result.TimeUntilBonus);

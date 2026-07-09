@@ -1,35 +1,27 @@
-using System.Collections.ObjectModel;
+using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Dto;
-using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
-using Mint.App.Services.UserInteractive.Users.Dto;
+using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Mappers;
-using Mint.Common.Contracts.Users;
-using Mint.Database.Entities.Bot.Commands.Dto;
-using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Users.Dto;
-using Mint.Database.Entities.Users.Sessions.Repositories;
 using Telegram.Bot.Types;
 
 namespace Mint.App.Services.System.Bot.Handlers.Commands;
 
 /// <inheritdoc cref="ICommandHandler"/>
 public sealed class StartCommandHandler(
-    IScenarioRepository scenarioRepository,
-    IUserSessionRepository sessionRepository,
+    [FromKeyedServices(TgCommandType.MainMenu)] ICommandHandler mainMenuCommandHandler,
     IUserProfilesHandler profileHandler,
-    IMessageFormatter messageFormatter,
     IDtoMapper<User, UserCreateDto> userCreateDtoMapper) : ICommandHandler
 {
-    private readonly IScenarioRepository _scenarioRepository = scenarioRepository ?? throw new ArgumentNullException(nameof(scenarioRepository));
+    private readonly ICommandHandler _mainMenuCommandHandler = mainMenuCommandHandler
+        ?? throw new ArgumentNullException(nameof(mainMenuCommandHandler));
 
-    private readonly IUserSessionRepository _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
+    private readonly IUserProfilesHandler _profileHandler = profileHandler
+        ?? throw new ArgumentNullException(nameof(profileHandler));
 
-    private readonly IUserProfilesHandler _profileHandler = profileHandler ?? throw new ArgumentNullException(nameof(profileHandler));
-
-    private readonly IMessageFormatter _messageFormatter = messageFormatter ?? throw new ArgumentNullException(nameof(messageFormatter));
-
-    private readonly IDtoMapper<User, UserCreateDto> _userCreateDtoMapper = userCreateDtoMapper ?? throw new ArgumentNullException(nameof(userCreateDtoMapper));
+    private readonly IDtoMapper<User, UserCreateDto> _userCreateDtoMapper = userCreateDtoMapper
+        ?? throw new ArgumentNullException(nameof(userCreateDtoMapper));
 
     /// <inheritdoc />
     public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
@@ -39,44 +31,8 @@ public sealed class StartCommandHandler(
         var userCreateDto = _userCreateDtoMapper.Map(tgUser);
         await _profileHandler.InitializeUserAsync(userCreateDto, cancellationToken);
 
-        var scenario = await _scenarioRepository.GetScenarioByNameAsync("start", cancellationToken);
-        if (scenario == null)
-        {
-            return new CommandResult
-            {
-                Message = "❌ Ошибка: сценарий 'start' не найден",
-                IsFinal = true
-            };
-        }
+        var commandResult = await _mainMenuCommandHandler.HandleAsync(tgUser, "start", cancellationToken);
 
-        var step = await _scenarioRepository.GetFirstStepByScenarioIdAsync(scenario.Id, cancellationToken);
-        if (step == null)
-        {
-            return new CommandResult
-            {
-                Message = "❌ Ошибка: первый шаг не найден",
-                IsFinal = true
-            };
-        }
-
-        await _sessionRepository.CreateOrUpdateSessionAsync(
-            tgUser.Id,
-            scenario.Id,
-            step.Id,
-            "{}",
-            cancellationToken);
-
-        var buttons = await _scenarioRepository.GetButtonsByStepIdAsync(step.Id, cancellationToken);
-        var profile = await _profileHandler.GetProfileAsync(tgUser.Id, AuthSystem.Tg, cancellationToken);
-
-        var text = await _messageFormatter.FormatAsync(step.Message, profile, cancellationToken);
-
-        return new CommandResult
-        {
-            Message = text,
-            Keyboard = new Collection<ButtonDto>(buttons),
-            IsFinal = step.IsFinal,
-            IsNewMessage = true
-        };
+        return commandResult;
     }
 }

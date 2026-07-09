@@ -27,4 +27,9 @@ public record CommandResult
     /// Indicates whether to send as a new message or edit existing.
     /// </summary>
     public bool IsNewMessage { get; init; }
+
+    /// <summary>
+    /// Notification text to show in a toast (callback answer).
+    /// </summary>
+    public string? Notification { get; init; }
 }

@@ -1,8 +1,11 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.Infrastructure.DI;
 using Mint.App.Services.System.Bot.Handlers.Commands;
+using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
+using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.Database;
 using Mint.Database.Entities.UserInteractive.Bonuses.Dto;
 using Mint.Database.Infrastructure.DI;
@@ -17,6 +20,7 @@ namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
 {
     private readonly Mock<IBonusValidator> _bonusValidatorMock;
+    private readonly Mock<IMessageFormatter> _messageFormatterMock;
     private readonly ServiceProvider _serviceProvider;
     private bool _disposed;
 
@@ -30,18 +34,25 @@ public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
         _bonusValidatorMock.Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
         _bonusValidatorMock.Setup(v => v.CanApplyStreakBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
 
+        _messageFormatterMock = new Mock<IMessageFormatter>();
+        _messageFormatterMock.Setup(f => f.FormatAsync(It.IsAny<string>(), It.IsAny<UserProfileDto>(), It.IsAny<CancellationToken>()))
+            .Returns<string, UserProfileDto, CancellationToken>((template, profile, ct) => Task.FromResult($"Ваш игровой профиль"));
+
         var databaseName = "TestDatabaseClaimBonus" + Guid.NewGuid();
 
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
+        services.RegisterAppServices();
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
-        services.AddScoped<IBonusCalculationHandler, BonusCalculationHandler>();
-        services.AddScoped<ClaimBonusCommandHandler>();
+        services.AddScoped<IMessageFormatter>(_ => _messageFormatterMock.Object);
+        services.AddScoped<ProfileCommandHandler>();
+        //services.AddScoped<IBonusCalculationHandler, BonusCalculationHandler>();
+        //services.AddScoped<ClaimBonusCommandHandler>();
 
         _serviceProvider = services.BuildServiceProvider();
 

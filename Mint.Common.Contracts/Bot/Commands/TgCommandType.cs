@@ -46,9 +46,14 @@ public enum TgCommandType
     ClaimBonus = 20,
 
     /// <summary>
+    /// Bonus unavailable command
+    /// </summary>
+    BonusUnavailable = 21,
+
+    /// <summary>
     /// Leaderboard command
     /// </summary>
-    Leaderboard = 21,
+    Leaderboard = 22,
 
     /// <summary>
     /// Category selection command

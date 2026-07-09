@@ -24,6 +24,8 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<ICommandHandler, StartCommandHandler>(TgCommandType.Start);
         services.AddKeyedScoped<ICommandHandler, ProfileCommandHandler>(TgCommandType.Profile);
         services.AddKeyedScoped<ICommandHandler, ClaimBonusCommandHandler>(TgCommandType.ClaimBonus);
+        services.AddKeyedScoped<ICommandHandler, MainMenuCommandHandler>(TgCommandType.MainMenu);
+        services.AddKeyedScoped<ICommandHandler, BonusUnavailableHandler>(TgCommandType.BonusUnavailable);
 
         services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
 
