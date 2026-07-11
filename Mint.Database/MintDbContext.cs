@@ -109,6 +109,8 @@ public class MintDbContext : DbContext
         
     }
 
+    private readonly long _godUserExternalId = -1;
+
     /// <inheritdoc/>
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -118,6 +120,9 @@ public class MintDbContext : DbContext
             .HasIndex(u => new { u.ExternalUserId, u.SystemType })
             .IsUnique()
             .HasDatabaseName("IX_users_external_user_id_system_type");
+
+        modelBuilder.Entity<UserEntity>()
+            .HasQueryFilter(u => u.ExternalUserId != _godUserExternalId);
 
         modelBuilder.Entity<VoteEntity>()
             .HasKey(v => new { v.AccountId, v.DuelId });
