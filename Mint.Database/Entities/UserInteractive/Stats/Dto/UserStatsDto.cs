@@ -44,6 +44,16 @@ public record UserStatsDto
     /// Last update timestamp
     /// </summary>
     public DateTimeOffset UpdatedAt { get; init; }
+
+    /// <summary>
+    /// User name
+    /// </summary>
+    public string UserName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Rank name
+    /// </summary>
+    public string RankName { get; set; } = string.Empty;   
 }
 
 /// <summary>

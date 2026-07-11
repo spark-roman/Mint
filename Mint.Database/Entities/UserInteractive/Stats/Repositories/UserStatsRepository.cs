@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
+using Mint.Database.Entities.UserInteractive.Stats.Mappers;
 
 namespace Mint.Database.Entities.UserInteractive.Stats.Repositories;
 
@@ -10,11 +11,13 @@ namespace Mint.Database.Entities.UserInteractive.Stats.Repositories;
 /// <param name="statsCreateMapper">Mapper for creating stats</param>
 /// <param name="statsUpdateMapper">Mapper for updating stats</param>
 /// <param name="statsMapper">Mapper for stats entity</param>
+/// <param name="dbUserStatsMapper"></param>
 /// <param name="dbContextFactory">Database context factory</param>
 public class UserStatsRepository(
     IDbEntityMapper<UserStatsCreateDto, UserStatsEntity> statsCreateMapper,
     IDbEntityMapper<UserStatsUpdateDto, UserStatsEntity> statsUpdateMapper,
     IDbEntityMapper<UserStatsEntity, UserStatsDto> statsMapper,
+    IDbUserStatsMapper dbUserStatsMapper,
     IDbContextFactory<MintDbContext> dbContextFactory) : IUserStatsRepository
 {
     private readonly IDbEntityMapper<UserStatsCreateDto, UserStatsEntity> _statsCreateMapper = statsCreateMapper ?? throw new ArgumentNullException(nameof(statsCreateMapper));
@@ -22,6 +25,8 @@ public class UserStatsRepository(
     private readonly IDbEntityMapper<UserStatsUpdateDto, UserStatsEntity> _statsUpdateMapper = statsUpdateMapper ?? throw new ArgumentNullException(nameof(statsUpdateMapper));
 
     private readonly IDbEntityMapper<UserStatsEntity, UserStatsDto> _statsMapper = statsMapper ?? throw new ArgumentNullException(nameof(statsMapper));
+
+    private readonly IDbUserStatsMapper _dbUserStatsMapper = dbUserStatsMapper ?? throw new ArgumentNullException(nameof(dbUserStatsMapper));
 
     private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
 
@@ -72,17 +77,13 @@ public class UserStatsRepository(
         var stats = context.Users
             .AsNoTracking()
             .Include(u => u.Stats)
-            .Select(u => new { Stats = u.Stats, u.ExternalUserId })
-            .OrderBy(u => u.Stats.RankPoints)
+            .Select(u => new { u.Stats, User = u })
+            .OrderByDescending(u => u.Stats.RankPoints)
             .Take(top)
+            .Select(s =>_dbUserStatsMapper.Map(s.Stats, s.User))
             .ToList();
 
-        return stats.Select(s =>
-        {
-            var dto = _statsMapper.Map(s.Stats);
-            dto.ExternalUserId = s.ExternalUserId;
-            return dto;
-        }).ToList();
+        return stats;
     }
 
     /// <inheritdoc/>
@@ -111,5 +112,17 @@ public class UserStatsRepository(
 
         await context.SaveChangesAsync(cancellationToken);
         return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<int> GetUserRankByPointsAsync(decimal rankPoints, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var higherCount = await context.UserStats
+            .AsNoTracking()
+            .CountAsync(s => s.RankPoints > rankPoints, cancellationToken);
+
+        return higherCount + 1;
     }
 }

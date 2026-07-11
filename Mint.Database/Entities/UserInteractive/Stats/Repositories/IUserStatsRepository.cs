@@ -40,4 +40,12 @@ public interface IUserStatsRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of top stats</returns>
     Task<List<UserStatsDto>> GetTopStatsByUserIdAsync(int top, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets user's rank position (1-based) by rank points.
+    /// </summary>
+    /// <param name="rankPoints">Rank points</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>User rank</returns>
+    Task<int> GetUserRankByPointsAsync(decimal rankPoints, CancellationToken cancellationToken);
 }

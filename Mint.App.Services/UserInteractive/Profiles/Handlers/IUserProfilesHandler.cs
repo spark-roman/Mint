@@ -35,13 +35,4 @@ public interface IUserProfilesHandler
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>True if bonus was claimed, false if not available.</returns>
     Task<bool> ClaimDailyBonusAsync(long externalUserId, AuthSystem systemType, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Gets top ranked users for leaderboard.
-    /// </summary>
-    /// <param name="limit">Maximum number of users to return.</param>
-    /// <param name="systemType">Auth system type.</param>
-    /// <param name="cancellationToken">CancellationToken</param>
-    /// <returns>List of leaderboard entries.</returns>
-    Task<List<LeaderboardEntryDto>> GetLeaderboardAsync(int limit, AuthSystem systemType, CancellationToken cancellationToken);
 }

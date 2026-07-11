@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Text;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
@@ -48,5 +49,57 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         var resultMessage = replacements.Aggregate(messageTemplate, (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
 
         return await Task.FromResult(resultMessage);
+    }
+
+    /// <inheritdoc />
+    public async Task<string> FormatLeaderboardAsync(string messageTemplate, LeaderboardResultDto leaderboardResult, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(leaderboardResult);
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{leaderboard_entries}}"] = BuildLeaderboardEntries(leaderboardResult.Entries),
+            ["{{user_rank_info}}"] = BuildUserRankInfo(leaderboardResult.UserRank, leaderboardResult.UserEntry),
+            ["{{total_users}}"] = leaderboardResult.TotalUsers.ToString(CultureInfo.InvariantCulture)
+        };
+
+        return await Task.FromResult(replacements.Aggregate(
+            messageTemplate,
+            (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase)));
+    }
+
+    private static string BuildLeaderboardEntries(IReadOnlyCollection<LeaderboardEntryDto> entries)
+    {
+        if (entries == null || entries.Count == 0)
+        {
+            return "Пока нет участников. Станьте первым! 🚀";
+        }
+
+        var sb = new StringBuilder();
+
+        foreach (var entry in entries)
+        {
+            var medal = entry.Rank switch
+            {
+                1 => "🥇",
+                2 => "🥈",
+                3 => "🥉",
+                _ => "🎖"
+            };
+
+            sb.AppendLine(CultureInfo.CurrentCulture, $"{medal} **{entry.Rank}.** {entry.DisplayName} — {entry.RankName} • {entry.RankPoints:N0} RP");
+        }
+
+        return sb.ToString();
+    }
+
+    private static string BuildUserRankInfo(int? userRank, LeaderboardEntryDto? userEntry)
+    {
+        if (!userRank.HasValue || userEntry == null)
+        {
+            return "👤 **Вы ещё не участвовали в дуэлях**";
+        }
+
+        return $"👤 **Ваше место в рейтинге:** #{userRank.Value} ({userEntry.RankPoints:N0} RP)";
     }
 }

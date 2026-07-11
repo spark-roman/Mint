@@ -22,6 +22,9 @@ public interface IScenarioRepository
     /// <summary>Retrieves the first step of a scenario</summary>
     Task<StepDto?> GetFirstStepByScenarioIdAsync(long scenarioId, CancellationToken cancellationToken);
 
+    /// <summary>Retrieves the first step of a scenario</summary>
+    Task<StepDto?> GetStepByOrderAsync(long scenarioId, short orderNum, CancellationToken cancellationToken);
+
     /// <summary>Retrieves the next step for a button</summary>
     Task<StepDto?> GetNextStepByButtonIdAsync(long buttonId, CancellationToken cancellationToken);
 
@@ -36,4 +39,7 @@ public interface IScenarioRepository
 
     /// <summary>Retrieves a button by its identifier</summary>
     Task<ButtonDto?> GetButtonByIdAsync(long buttonId, CancellationToken cancellationToken);
+
+    /// <summary> Gets a step by button action. </summary>
+    Task<StepDto?> GetStepByActionAsync(string action, CancellationToken cancellationToken);
 }
