@@ -242,31 +242,4 @@ public class UserProfilesHandler(
 
         return true;
     }
-
-    /// <inheritdoc />
-    public async Task<List<LeaderboardEntryDto>> GetLeaderboardAsync(int limit, AuthSystem systemType, CancellationToken cancellationToken)
-    {
-        var stats = await _statsRepository.GetTopStatsByUserIdAsync(limit, cancellationToken);
-        var result = new List<LeaderboardEntryDto>();
-
-        for (int i = 0; i < stats.Count; i++)
-        {
-            var stat = stats[i];
-            var user = await _userRepository.GetUserAsync(stat.ExternalUserId, (byte)systemType, cancellationToken);
-            var totalDuels = stat.TotalWins + stat.TotalLosses;
-            var winrate = totalDuels > 0 ? Math.Round((double)stat.TotalWins / totalDuels * 100, 1) : 0;
-
-            result.Add(new LeaderboardEntryDto
-            {
-                Rank = i + 1,
-                ExternalUserId = user?.ExternalUserId ?? 0,
-                DisplayName = user?.FirstName ?? user?.UserName ?? "Аноним",
-                RankPoints = stat.RankPoints,
-                TotalDuels = totalDuels,
-                Winrate = winrate
-            });
-        }
-
-        return result;
-    }
 }

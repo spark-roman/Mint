@@ -127,6 +127,19 @@ public sealed class ScenarioRepository : IScenarioRepository
     }
 
     /// <inheritdoc />
+    public async Task<StepDto?> GetStepByOrderAsync(long scenarioId, short orderNum, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var entity = await context.Steps
+            .Include(st => st.Buttons)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(st => st.ScenarioId == scenarioId && st.OrderNum == orderNum, cancellationToken);
+
+        return entity != null ? _stepMapper.Map(entity) : null;
+    }
+
+    /// <inheritdoc />
     public async Task<List<ButtonDto>> GetButtonsByStepIdAsync(long stepId, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -163,5 +176,21 @@ public sealed class ScenarioRepository : IScenarioRepository
             .FirstOrDefaultAsync(b => b.Id == buttonId, cancellationToken);
 
         return entity != null ? _buttonMapper.Map(entity) : null;
+    }
+
+    /// <inheritdoc />
+    public async Task<StepDto?> GetStepByActionAsync(string action, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var button = await context.Buttons
+            .AsNoTracking()
+            .Include(b => b.ParentStep)
+            .FirstOrDefaultAsync(b => b.Action == action, cancellationToken);
+
+        if (button?.ParentStep == null)
+            return null;
+
+        return _stepMapper.Map(button.ParentStep);
     }
 }

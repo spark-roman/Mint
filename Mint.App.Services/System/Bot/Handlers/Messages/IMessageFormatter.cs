@@ -15,4 +15,13 @@ public interface IMessageFormatter
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>Formatted message string.</returns>
     Task<string> FormatAsync(string messageTemplate, UserProfileDto userProfileDto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Formats a message template with leaderboard data.
+    /// </summary>
+    /// <param name="messageTemplate">Message template with placeholders like {{user_id}}.</param>
+    /// <param name="leaderboardResult">Leader board.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Formatted message string.</returns>
+    Task<string> FormatLeaderboardAsync(string messageTemplate, LeaderboardResultDto leaderboardResult, CancellationToken cancellationToken);
 }

@@ -20,11 +20,13 @@ public sealed class BotInitializer
         new ScenarioEntity { Id = 1, Name = "start", IsActive = true },
         new ScenarioEntity { Id = 2, Name = "profile", IsActive = true },
         new ScenarioEntity { Id = 3, Name = "duels", IsActive = true },
-        new ScenarioEntity { Id = 4, Name = "referral", IsActive = true }
+        new ScenarioEntity { Id = 4, Name = "referral", IsActive = true },
+        new ScenarioEntity { Id = 5, Name = "leaderboard", IsActive = true } // ← добавляем
     ];
 
     private readonly List<StepEntity> _steps =
     [
+        // ========== SCENARIO: start (Id = 1) ==========
         new StepEntity
         {
             Id = 1,
@@ -42,6 +44,8 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
+
+        // ========== SCENARIO: profile (Id = 2) ==========
         new StepEntity
         {
             Id = 2,
@@ -57,9 +61,9 @@ public sealed class BotInitializer
 
                 📊 **Статистика прогнозов**
                 ├ Всего: {{total_duels}}
-                ├ ✅ Успешно: {{wins}}
-                ├ ❌ Неудачно: {{losses}}
-                └ 🎯 Точность: {{winrate}}%
+                ├ Успешно: {{wins}}
+                ├ Неудачно: {{losses}}
+                └ Точность: {{winrate}}%
 
                 👥 **Рефералы**
                 ├ Приглашено: {{referral_count}}
@@ -74,6 +78,8 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
+
+        // ========== SCENARIO: duels (Id = 3) ==========
         new StepEntity
         {
             Id = 3,
@@ -83,6 +89,8 @@ public sealed class BotInitializer
             Message = "📊 **Выберите категорию споров:**",
             IsFinal = false
         },
+
+        // ========== SCENARIO: referral (Id = 4) ==========
         new StepEntity
         {
             Id = 4,
@@ -101,23 +109,46 @@ public sealed class BotInitializer
                 💰 Всего бонусов: {{total_referral_bonus}} 🪙
                 """,
             IsFinal = false
+        },
+
+        // ========== Шаг 2: Лидерборд (добавляем) ==========
+        new StepEntity
+        {
+            Id = 6,
+            ScenarioId = 2,
+            OrderNum = 2,
+            StepTypeId = 4,
+            Message = """
+                🏆 **ТАБЛИЦА ЛИДЕРОВ**
+
+                Рейтинг строится на основе **Очков Ранга**.
+
+                {{leaderboard_entries}}
+
+                ───────────────────────
+                {{user_rank_info}}
+                """,
+            IsFinal = false
         }
     ];
 
     private readonly List<ButtonEntity> _buttons =
     [
-        // start (StepId = 1)
+        // ========== start (ParentStepId = 1) ==========
         new ButtonEntity { Id = 1, ParentStepId = 1, OrderNum = 1, Caption = "📊 Дуэли дня", Action = "duels" },
         new ButtonEntity { Id = 2, ParentStepId = 1, OrderNum = 2, Caption = "👤 Мой профиль", Action = "profile" },
         new ButtonEntity { Id = 3, ParentStepId = 1, OrderNum = 3, Caption = "👥 Пригласить", Action = "referral" },
 
-        // profile (StepId = 2)
+        // ========== profile (ParentStepId = 2) ==========
         new ButtonEntity { Id = 4, ParentStepId = 2, OrderNum = 1, Caption = "🎁 Забрать бонус", Action = "claim_bonus" },
         new ButtonEntity { Id = 5, ParentStepId = 2, OrderNum = 2, Caption = "📈 Таблица лидеров", Action = "leaderboard" },
         new ButtonEntity { Id = 6, ParentStepId = 2, OrderNum = 3, Caption = "⬅️ Назад в меню", Action = "main_menu" },
 
-        // referral (StepId = 4)
-        new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" }
+        // ========== referral (ParentStepId = 4) ==========
+        new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" },
+
+        // ========== leaderboard (ParentStepId = 5) ==========
+        new ButtonEntity { Id = 8, ParentStepId = 6, OrderNum = 1, Caption = "🔙 Вернуться в профиль", Action = "profile" }
     ];
 
     /// <summary>

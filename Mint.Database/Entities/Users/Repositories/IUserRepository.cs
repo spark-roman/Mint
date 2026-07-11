@@ -42,5 +42,12 @@ public interface IUserRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if user was found and status changed</returns>
     Task<bool> ChangeUserStatusAsync(long externalUserId, byte systemType, UserStatus status, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets total number of users with statistics.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Total count of users</returns>
+    Task<int> GetTotalUsersCountAsync(CancellationToken cancellationToken);
 }
 

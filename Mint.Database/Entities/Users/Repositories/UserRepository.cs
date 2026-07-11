@@ -94,5 +94,15 @@ public class UserRepository(
         }
 
     }
+
+    /// <inheritdoc/>
+    public async Task<int> GetTotalUsersCountAsync(CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return await context.UserStats
+            .AsNoTracking()
+            .CountAsync(cancellationToken);
+    }
 }
 
