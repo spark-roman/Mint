@@ -14,6 +14,6 @@ public static class LeaderBoardsExtensions
     /// <param name="services"></param>
     public static void RegisterLeaderboardServices(this IServiceCollection services)
     {
-        services.AddSingleton<ILeaderboardHandler, LeaderboardHandler>();
+        services.AddScoped<ILeaderboardHandler, LeaderboardHandler>();
     }
 }
