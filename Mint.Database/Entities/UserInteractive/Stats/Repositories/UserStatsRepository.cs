@@ -78,6 +78,7 @@ public class UserStatsRepository(
             .AsNoTracking()
             .Include(u => u.Stats)
             .Select(u => new { u.Stats, User = u })
+            .Where(u => u.Stats != null && u.User != null)
             .OrderByDescending(u => u.Stats.RankPoints)
             .Take(top)
             .Select(s =>_dbUserStatsMapper.Map(s.Stats, s.User))
