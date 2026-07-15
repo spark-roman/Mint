@@ -39,6 +39,7 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CallbackNavigation);
 
         services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
+        services.AddScoped<IButtonHandlerFactory, ButtonHandlerFactory>();
 
         services.AddStartCommandMappers();
     }
