@@ -32,6 +32,7 @@ public static class RegisterAppServicesExtensions
 
         services.RegisterUserProfileHandlers();
         services.RegisterBonusValidators();
-        services.RegisterLeaderboardServices();
+        services.RegisterLeaderboardHandlers();
+        services.RegisterDuelsHandlers();
     }
 }

@@ -123,4 +123,18 @@ public sealed class CategoryRepository(
 
         return true;
     }
+
+    /// <inheritdoc/>
+    public async Task<CategoryDto?> GetByCodeAsync(string code, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(code);
+
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var category = await context.UserCategories
+            .AsNoTracking()
+            .FirstOrDefaultAsync(c => c.Code == code, cancellationToken);
+
+        return category is null ? null : _categoryMapper.Map(category);
+    }
 }

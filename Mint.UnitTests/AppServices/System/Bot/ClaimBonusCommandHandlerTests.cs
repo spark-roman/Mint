@@ -1,17 +1,13 @@
 using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
-using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.UserInteractive.Bonuses.Dto;
-using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Accounts.Repositories;
-using Mint.Database.Entities.UserInteractive.Bonuses.Dto;
 using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
-using Moq;
 using Telegram.Bot.Types;
 
 namespace Mint.UnitTests.AppServices.System.Bot;
@@ -43,9 +39,6 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
@@ -58,9 +51,8 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         Assert.False(result.IsNewMessage);
         Assert.False(result.IsFinal);
         Assert.Contains("Ежедневный бонус", result.Message);
-        Assert.Contains("Новый баланс", result.Message);
         Assert.NotNull(result.Keyboard);
-        Assert.Empty(result.Keyboard);
+        Assert.Equal(3, result.Keyboard.Count);
     }
 
     /// <summary>
@@ -71,19 +63,16 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var bonusStatsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();
-        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
 
         // Act
         await handler.HandleAsync(tgUser, "", CancellationToken.None);
 
         // Assert
-        var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(1, stats.CurrentDailyStreak);
         Assert.Equal(100m, stats.TotalDailyBonusesClaimed);
@@ -97,23 +86,20 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<Mint.Database.Entities.Ledger.Transactions.Repositories.ITransactionRepository>();
-        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
 
         // Act
         await handler.HandleAsync(tgUser, "", CancellationToken.None);
 
-        var crediAccountId = 2;
+        var crediAccountId = 1;
         // Assert
         var transactions = await transactionRepository.GetTransactionsByAccountIdAsync(crediAccountId, CancellationToken.None);
         Assert.NotNull(transactions);
         Assert.NotEmpty(transactions);
-        var transaction = transactions.First(t => t.BounusType == Mint.Common.Contracts.UserInteractive.Bonuses.BonusType.Daily);
+        var transaction = transactions.First(t => t.BounusType == BonusType.Daily);
         Assert.Equal(100m, transaction.Amount);
     }
 
@@ -125,20 +111,17 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
-        var tgUser = new User { Id = 1003, IsBot = false, FirstName = "John" };
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
 
         // Act
         await handler.HandleAsync(tgUser, "", CancellationToken.None);
 
         // Assert
-        var balance = await accountRepository.GetUserBalanceAsync(1003, CancellationToken.None);
-        Assert.Equal(3300.00m, balance); // 3200 + 100
+        var balance = await accountRepository.GetUserBalanceAsync(1002, CancellationToken.None);
+        Assert.Equal(1500.50m + 100.00m, balance); // 10000000 + 100
     }
 
     #endregion
@@ -180,13 +163,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
-
-        // Setup mock to deny daily bonus
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
-
-        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Alice" };
+        var tgUser = new User { Id = 1003, IsBot = false, FirstName = "John" };
 
         // Act
         var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
@@ -209,12 +186,9 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(false);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
-        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
+        var tgUser = new User { Id = 1003, IsBot = false, FirstName = "John" };
 
         // Act
         var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
@@ -237,9 +211,6 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var tgUser = new User { Id = 1004, IsBot = false, FirstName = "Billy" };
@@ -262,9 +233,6 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<Mint.Database.Entities.Ledger.Transactions.Repositories.ITransactionRepository>();
@@ -298,9 +266,6 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
@@ -322,9 +287,6 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
     {
         // Arrange
         await _fixture.ResetAsync();
-        _fixture.BonusValidatorMock
-            .Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true);
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var bonusStatsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();

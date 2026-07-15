@@ -47,6 +47,12 @@ public class VoteRepository(
     }
 
     /// <inheritdoc/>
+    public Task<VoteEntity?> GetVoteByDuelAndAccountAsync(long duelId, long accountId, CancellationToken cancellationToken)
+    {
+        throw new NotImplementedException();
+    }
+
+    /// <inheritdoc/>
     public async Task<List<VoteDto>?> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -66,5 +72,21 @@ public class VoteRepository(
 
         return await context.Votes
             .AnyAsync(v => v.DuelId == duelId && v.AccountId == accountId, cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> HasUserVotedInDuelAsync(long externalUserId, long duelId, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        /*return await context.Users
+            .AsNoTracking()
+            .Where(u => u.ExternalUserId == externalUserId && u.Account != null)
+            .SelectMany(u => u.Account.Votes)
+            .AnyAsync(v => v.DuelId == duelId, cancellationToken);*/
+
+        return await context.Votes
+            .Where(v => v.Account.User.ExternalUserId == externalUserId && v.DuelId == duelId)
+            .AnyAsync(cancellationToken);
     }
 }

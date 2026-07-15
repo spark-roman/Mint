@@ -41,7 +41,7 @@ public sealed class ProfileCommandHandlerFixture : IDisposable
     public ProfileCommandHandlerFixture()
     {
         _messageFormatterMock = new Mock<IMessageFormatter>();
-        _messageFormatterMock.Setup(f => f.FormatAsync(It.IsAny<string>(), It.IsAny<UserProfileDto>(), It.IsAny<CancellationToken>()))
+        _messageFormatterMock.Setup(f => f.FormatProfileAsync(It.IsAny<string>(), It.IsAny<UserProfileDto>(), It.IsAny<CancellationToken>()))
             .Returns<string, UserProfileDto, CancellationToken>((template, profile, ct) => Task.FromResult($"Ваш игровой профиль"));
         _bonusValidatorMock = new Mock<IBonusValidator>();
         _bonusValidatorMock.Setup(v => v.CanApplyStartBonus(It.IsAny<UserBonusStatsDto>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);

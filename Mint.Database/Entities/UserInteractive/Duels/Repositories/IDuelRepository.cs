@@ -29,4 +29,21 @@ public interface IDuelRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of active duels</returns>
     Task<List<DuelDto>?> GetActiveDuelsAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get first available duel for category
+    /// </summary>
+    /// <param name="categoryId">Category id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Duel DTO or null if not found</returns>
+    Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets a duel option by its identifier.
+    /// </summary>
+    /// <param name="optionId">Duel option id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Duel option DTO or null if not found</returns>
+    
+    Task<DuelOptionDto?> GetOptionByIdAsync(long optionId, CancellationToken cancellationToken);
 }

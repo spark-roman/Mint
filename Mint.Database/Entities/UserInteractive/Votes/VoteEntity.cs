@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.UserInteractive.Duels;
 
 namespace Mint.Database.Entities.UserInteractive.Votes;
@@ -55,6 +56,19 @@ public class VoteEntity
     [Required]
     [Column("bet_amount")]
     public decimal BetAmount { get; set; }
+
+    /// <summary>
+    /// Transaction id
+    /// </summary>
+    [Required]
+    [Column("transaction_id")]
+    public long TransactionId { get; set; }
+
+    /// <summary>
+    /// Transaction entity
+    /// </summary>
+    [ForeignKey(nameof(TransactionId))]
+    public TransactionEntity Transaction { get; set; } = null!;
 
     /// <summary>
     /// Creation date

@@ -40,6 +40,11 @@ public class MintDbContext : DbContext
     public DbSet<DuelEntity> Duels { get; set; }
 
     /// <summary>
+    /// Duel options
+    /// </summary>
+    public DbSet<DuelOptionEntity> DuelOptions { get; set; }
+
+    /// <summary>
     /// Votes
     /// </summary>
     public DbSet<VoteEntity> Votes { get; set; }

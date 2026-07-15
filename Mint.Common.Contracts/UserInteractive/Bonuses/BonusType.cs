@@ -36,6 +36,11 @@ public enum BonusType
     Rating,
 
     /// <summary>
+    /// Bet.
+    /// </summary>
+    Bet,
+
+    /// <summary>
     /// Admin bonus.
     /// </summary>
     Admin

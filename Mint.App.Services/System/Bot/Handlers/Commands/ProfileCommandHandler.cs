@@ -74,7 +74,7 @@ public sealed class ProfileCommandHandler(
             throw new InvalidOperationException($"Profile not found: {externalUser.ExternalUserId}");
         }
 
-        var message = await _messageFormatter.FormatAsync(step.Message, userProfile, cancellationToken);
+        var message = await _messageFormatter.FormatProfileAsync(step.Message, userProfile, cancellationToken);
 
         var buttons = await _scenarioRepository.GetButtonsByStepIdAsync(step.Id, cancellationToken);
 

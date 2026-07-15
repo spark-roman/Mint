@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.Users;
 
 namespace Mint.Database.Entities.Ledger.Accounts;
@@ -55,4 +56,9 @@ public class AccountEntity
     /// </summary>
     [Column("status")]
     public AccountStatus Status { get; set; }
+
+    /// <summary>
+    /// Account votes
+    /// </summary>
+    public virtual ICollection<VoteEntity> Votes { get; init; } = [];
 }

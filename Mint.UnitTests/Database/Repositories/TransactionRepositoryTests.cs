@@ -281,6 +281,33 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
     }
 
     /// <summary>
+    /// Verifies that creating a transaction with the same debit and credit account throws InvalidOperationException.
+    /// </summary>
+    [Fact]
+    public async Task CreateTransactionAsync_SameDebitAndCreditAccount_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+
+        var transaction = new TransactionCreateDto
+        {
+            CreditAccountId = 1,
+            DebitAccountId = 1,
+            Amount = 100.00m,
+            Description = "Same account test",
+            BonusType = BonusType.None,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act & Assert
+        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
+            () => repository.CreateTransactionAsync(transaction, CancellationToken.None));
+
+        Assert.Contains("Debit account and credit account are the same", exception.Message);
+    }
+
+    /// <summary>
     /// Verifies that retrieving a transaction by ID returns a valid TransactionDto.
     /// </summary>
     [Fact]

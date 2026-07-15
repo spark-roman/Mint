@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.System.Bot.Handlers.Buttons;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.System.Bot.Handlers.Router;
@@ -21,12 +22,21 @@ public static class BotCommandExtensions
 
         services.AddSingleton<IMessageFormatter, MessageFormatter>();
 
+        services.AddKeyedScoped<ICommandHandler, DuelsCommandHandler>(TgCommandType.Duels);
         services.AddKeyedScoped<ICommandHandler, StartCommandHandler>(TgCommandType.Start);
         services.AddKeyedScoped<ICommandHandler, ProfileCommandHandler>(TgCommandType.Profile);
         services.AddKeyedScoped<ICommandHandler, ClaimBonusCommandHandler>(TgCommandType.ClaimBonus);
         services.AddKeyedScoped<ICommandHandler, MainMenuCommandHandler>(TgCommandType.MainMenu);
         services.AddKeyedScoped<ICommandHandler, BonusUnavailableHandler>(TgCommandType.BonusUnavailable);
         services.AddKeyedScoped<ICommandHandler, LeaderboardCommandHandler>(TgCommandType.Leaderboard);
+
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CategorySelection);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.DuelSelection);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Vote);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.BetPlacement);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Cancel);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Share);
+        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CallbackNavigation);
 
         services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
 

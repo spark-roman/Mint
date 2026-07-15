@@ -24,4 +24,14 @@ public record VoteCreateDto
     /// Bet amount in coins
     /// </summary>
     public decimal BetAmount { get; init; }
+
+    /// <summary>
+    /// Transaction id
+    /// </summary>
+    public long TransactionId { get; init; }
+
+    /// <summary>
+    /// Creation date
+    /// </summary>
+    public DateTimeOffset CreatedAt { get; init; }
 }
