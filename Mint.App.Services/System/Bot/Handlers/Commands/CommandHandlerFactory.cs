@@ -9,8 +9,8 @@ public class CommandHandlerFactory(IServiceProvider serviceProvider) : ICommandH
     private readonly IServiceProvider _serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
 
     /// <inheritdoc/>
-    public ICommandHandler Create(TgCommandType commandType)
+    public ICommandHandler? Create(TgCommandType commandType)
     {
-        return _serviceProvider.GetRequiredKeyedService<ICommandHandler>(commandType);
+        return _serviceProvider.GetKeyedService<ICommandHandler>(commandType);
     }
 }

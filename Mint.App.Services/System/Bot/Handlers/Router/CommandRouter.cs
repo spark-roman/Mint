@@ -1,6 +1,7 @@
 using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
+using Mint.App.Services.System.Bot.Handlers.Buttons;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 using Mint.Common.Contracts.Bot.Commands;
@@ -10,9 +11,13 @@ namespace Mint.App.Services.System.Bot.Handlers.Router;
 /// <inheritdoc/>
 public sealed class CommandRouter(
     ICommandHandlerFactory handlerFactory,
+    IButtonHandlerFactory buttonHandlerFactory,
     ILogger<CommandRouter> logger) : ICommandRouter
 {
-    private readonly ICommandHandlerFactory _handlerFactory = handlerFactory;
+    private readonly ICommandHandlerFactory _handlerFactory = handlerFactory ?? throw new ArgumentNullException(nameof(handlerFactory));
+
+    private readonly IButtonHandlerFactory _buttonHandlerFactory = buttonHandlerFactory ?? throw new ArgumentNullException(nameof(buttonHandlerFactory));
+
     private readonly ILogger<CommandRouter> _logger = logger;
 
     /// <inheritdoc/>
@@ -23,15 +28,33 @@ public sealed class CommandRouter(
         var commandType = DetermineCommandType(updateCommand);
         _logger.LogInformation("Routing command type: {CommandType} for user {UserId}", commandType, updateCommand.User?.Id);
 
-        var handler = _handlerFactory.Create(commandType);
+        var commandHandler = _handlerFactory.Create(commandType);
 
-        var inputData = ExtractInputData(updateCommand);
+        if (commandHandler != null)
+        {
+            var inputData = ExtractInputData(updateCommand);
 
-        var result = await handler.HandleAsync(updateCommand.User!, inputData, cancellationToken);
+            var result = await commandHandler.HandleAsync(updateCommand.User!, inputData, cancellationToken);
 
-        _logger.LogInformation("Command handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
+            _logger.LogInformation("Command handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
 
-        return result;
+            return result;
+        }
+
+        var buttonHandler = _buttonHandlerFactory.Create(commandType);
+
+        if (buttonHandler != null)
+        {
+            var inputData = ExtractInputData(updateCommand);
+
+            var result = await buttonHandler.HandleAsync(updateCommand.User!.Id, inputData, cancellationToken);
+
+            _logger.LogInformation("Button handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
+
+            return result;
+        }
+
+        throw new InvalidOperationException($"Unknown command type: {commandType}");
     }
 
     /// <summary>

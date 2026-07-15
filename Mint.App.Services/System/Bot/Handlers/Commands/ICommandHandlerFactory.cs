@@ -12,5 +12,5 @@ public interface ICommandHandlerFactory
     /// </summary>
     /// <param name="commandType">Tg command type</param>
     /// <returns>Specific command handler</returns>
-    ICommandHandler Create(TgCommandType commandType);
+    ICommandHandler? Create(TgCommandType commandType);
 }
