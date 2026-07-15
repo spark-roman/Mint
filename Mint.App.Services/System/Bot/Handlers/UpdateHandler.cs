@@ -70,7 +70,7 @@ public class UpdateHandler(
 
             if (string.IsNullOrEmpty(commandResult.Message))
             {
-                _logger.LogDebug("Empty message, skipping send");
+                _logger.LogInformation("Empty message, skipping send");
                 return;
             }
 

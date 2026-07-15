@@ -21,7 +21,7 @@ public sealed class CommandRouter(
         ArgumentNullException.ThrowIfNull(updateCommand);
 
         var commandType = DetermineCommandType(updateCommand);
-        _logger.LogDebug("Routing command type: {CommandType} for user {UserId}", commandType, updateCommand.User?.Id);
+        _logger.LogInformation("Routing command type: {CommandType} for user {UserId}", commandType, updateCommand.User?.Id);
 
         var handler = _handlerFactory.Create(commandType);
 
@@ -29,7 +29,7 @@ public sealed class CommandRouter(
 
         var result = await handler.HandleAsync(updateCommand.User!, inputData, cancellationToken);
 
-        _logger.LogDebug("Command handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
+        _logger.LogInformation("Command handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
 
         return result;
     }
@@ -37,11 +37,13 @@ public sealed class CommandRouter(
     /// <summary>
     /// Determines the command type based on the incoming update.
     /// </summary>
-private static TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
+private TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
 {
     // === Обработка Callback-запросов ===
     if (!string.IsNullOrEmpty(updateCommand.CallbackData))
     {
+        _logger.LogInformation("Callback: {CallbackData}", updateCommand.CallbackData);
+
         return updateCommand.CallbackData switch
         {
             ActionConstants.MainMenu => TgCommandType.MainMenu,
@@ -67,6 +69,8 @@ private static TgCommandType DetermineCommandType(UpdateCommandDto updateCommand
 
     if (!string.IsNullOrEmpty(updateCommand.CommandText))
     {
+        _logger.LogInformation("CommandText: {CommandText}", updateCommand.CommandText);
+
         if (updateCommand.CommandText.StartsWith('/'))
         {
             return updateCommand.CommandText.ToUpperInvariant() switch
