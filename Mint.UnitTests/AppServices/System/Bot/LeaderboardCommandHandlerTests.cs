@@ -103,7 +103,8 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         Assert.NotNull(result);
         Assert.NotNull(result.Message);
 
-        // Verify leaderboard entries are formatted with correct order (Alice=1st, Charlie=2nd, Bob=3rd, Diana=4th)
+        // Verify leaderboard entries are formatted with correct order:
+        // 1. Alice (1500) - 🥇, 2. Eve (1300) - 🥈, 3. Charlie (1200) - 🥉, 4. Bob (800) - 🎖, 5. Diana (300) - 🎖
         Assert.Contains("🥇", result.Message);
         Assert.Contains("1.", result.Message);
         Assert.Contains("alice_j", result.Message);
@@ -170,24 +171,26 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         // Assert
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1001, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
         Assert.Equal(5, leaderboardResult.TotalUsers);
+        Assert.Equal(5, leaderboardResult.Entries.Count); // All 5 users with stats
     }
 
     #endregion
 
-    #region HandleAsync - User Not In Top
+    #region HandleAsync - User Not In Top N
 
     /// <summary>
-    /// Verifies that HandleAsync returns user entry for user not in top N.
+    /// Verifies that HandleAsync returns user entry even when user is not in the requested top N.
+    /// Diana (300 points) is 5th, so with top=4 she won't be in entries but still gets userEntry.
     /// </summary>
     [Fact]
-    public async Task HandleAsync_UserNotInTop_ReturnsUserEntry()
+    public async Task HandleAsync_UserNotInTopN_ReturnsUserEntry()
     {
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Leaderboard);
         var leaderboardHandler = _currentScope.ServiceProvider.GetRequiredService<ILeaderboardHandler>();
-        // User 1004 (Diana) has no stats, so not in top 4
+        // User 1004 (Diana) has 300 points and is rank #5, so not in top 4
         var tgUser = new Telegram.Bot.Types.User { Id = 1004, IsBot = false, FirstName = "Diana" };
 
         // Act
@@ -196,9 +199,11 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         // Assert
         Assert.NotNull(result);
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(4, 1004, AuthSystem.Tg, CancellationToken.None);
-        // User without stats has no entry in leaderboard
+        // Diana is not in top 4 entries, but userEntry should still be populated via GetStatsByUserIdAsync
+        Assert.Equal(4, leaderboardResult.Entries.Count);
         Assert.NotNull(leaderboardResult.UserEntry);
-        Assert.Equal(300, leaderboardResult.UserEntry.RankPoints);
+        Assert.Equal(300m, leaderboardResult.UserEntry.RankPoints);
+        Assert.Equal("diana_p", leaderboardResult.UserEntry.DisplayName);
     }
 
     #endregion
@@ -247,7 +252,7 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         // Assert
         Assert.NotNull(result);
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1001, AuthSystem.Tg, CancellationToken.None);
-        Assert.Equal(5, leaderboardResult.Entries.Count); // All 4 users with stats are in top 15
+        Assert.Equal(5, leaderboardResult.Entries.Count); // All 5 users with stats are in top 15
     }
 
     /// <summary>
@@ -352,6 +357,82 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
     #region HandleAsync - Different Users
 
     /// <summary>
+    /// Verifies that HandleAsync returns correct rank for user with highest points (Alice).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_TopRankUser_ReturnsCorrectRank()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Leaderboard);
+        var leaderboardHandler = _currentScope.ServiceProvider.GetRequiredService<Mint.App.Services.UserInteractive.Leaderboards.ILeaderboardHandler>();
+        var tgUser = new Telegram.Bot.Types.User { Id = 1001, IsBot = false, FirstName = "Alice" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1001, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(leaderboardResult.UserEntry);
+        Assert.Equal(1, leaderboardResult.UserRank);
+        Assert.Equal(1500m, leaderboardResult.UserEntry.RankPoints);
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync returns correct rank for user with second highest points (Eve).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_SecondRankUser_ReturnsCorrectRank()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Leaderboard);
+        var leaderboardHandler = _currentScope.ServiceProvider.GetRequiredService<Mint.App.Services.UserInteractive.Leaderboards.ILeaderboardHandler>();
+        var tgUser = new Telegram.Bot.Types.User { Id = 1005, IsBot = false, FirstName = "Eve" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1005, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(leaderboardResult.UserEntry);
+        Assert.Equal("eve_d", leaderboardResult.UserEntry.DisplayName);
+        Assert.Equal(1300m, leaderboardResult.UserEntry.RankPoints);
+        Assert.NotNull(leaderboardResult.UserRank);
+        Assert.Equal(2, leaderboardResult.UserRank); // Eve is 2nd (Alice=1500, Eve=1300)
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync returns correct rank for user with third highest points.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_ThirdRankUser_ReturnsCorrectRank()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Leaderboard);
+        var leaderboardHandler = _currentScope.ServiceProvider.GetRequiredService<Mint.App.Services.UserInteractive.Leaderboards.ILeaderboardHandler>();
+        var tgUser = new Telegram.Bot.Types.User { Id = 1003, IsBot = false, FirstName = "Charlie" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1003, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(leaderboardResult.UserEntry);
+        Assert.Equal("charlie_b", leaderboardResult.UserEntry.DisplayName);
+        Assert.Equal(1200m, leaderboardResult.UserEntry.RankPoints);
+        Assert.NotNull(leaderboardResult.UserRank);
+        Assert.Equal(3, leaderboardResult.UserRank); // Charlie is 3rd (Alice=1500, Eve=1300, Charlie=1200)
+    }
+
+    /// <summary>
     /// Verifies that HandleAsync returns correct rank for user with lowest points.
     /// </summary>
     [Fact]
@@ -372,35 +453,9 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1004, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(leaderboardResult.UserEntry);
         Assert.Equal(300m, leaderboardResult.UserEntry.RankPoints);
-        // Diana should have a valid rank (last among 4 users with stats)
+        // Diana should have a valid rank (last among 5 users with stats)
         Assert.NotNull(leaderboardResult.UserRank);
-        Assert.True(leaderboardResult.UserRank >= 1);
-    }
-
-    /// <summary>
-    /// Verifies that HandleAsync returns correct rank for user with second highest points.
-    /// </summary>
-    [Fact]
-    public async Task HandleAsync_SecondRankUser_ReturnsCorrectRank()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Leaderboard);
-        var leaderboardHandler = _currentScope.ServiceProvider.GetRequiredService<Mint.App.Services.UserInteractive.Leaderboards.ILeaderboardHandler>();
-        var tgUser = new Telegram.Bot.Types.User { Id = 1003, IsBot = false, FirstName = "Charlie" };
-
-        // Act
-        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1003, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
-        Assert.NotNull(leaderboardResult.UserEntry);
-        Assert.Equal("charlie_b", leaderboardResult.UserEntry.DisplayName);
-        Assert.Equal(1200m, leaderboardResult.UserEntry.RankPoints);
-        Assert.NotNull(leaderboardResult.UserRank);
-        Assert.True(leaderboardResult.UserRank >= 1);
+        Assert.Equal(5, leaderboardResult.UserRank);
     }
 
     #endregion

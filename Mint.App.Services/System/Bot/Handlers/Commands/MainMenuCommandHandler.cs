@@ -64,7 +64,7 @@ public class MainMenuCommandHandler(
         var buttons = await _scenarioRepository.GetButtonsByStepIdAsync(step.Id, cancellationToken);
         var profile = await _profileHandler.GetProfileAsync(tgUser.Id, AuthSystem.Tg, cancellationToken);
 
-        var text = await _messageFormatter.FormatAsync(step.Message, profile, cancellationToken);
+        var text = await _messageFormatter.FormatProfileAsync(step.Message, profile, cancellationToken);
 
         var isNewMessage = inputData == "start";
 

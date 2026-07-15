@@ -316,7 +316,8 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
             DuelId = duelId,
             AccountId = 1,
             ChosenOptionId = 1,
-            BetAmount = 10.00m
+            BetAmount = 10.00m,
+            CreatedAt = DateTimeOffset.UtcNow
         }, CancellationToken.None);
 
         await Task.Delay(10); // Ensure different timestamps
@@ -326,7 +327,8 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
             DuelId = duelId,
             AccountId = 2,
             ChosenOptionId = 2,
-            BetAmount = 20.00m
+            BetAmount = 20.00m,
+            CreatedAt = DateTimeOffset.UtcNow
         }, CancellationToken.None);
 
         // Act
@@ -337,6 +339,72 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         Assert.Equal(2, result.Count);
         Assert.Equal(2, result[0].AccountId);
         Assert.Equal(1, result[1].AccountId);
+    }
+
+    /// <summary>
+    /// Verifies that HasUserVotedInDuelAsync returns true when user has voted.
+    /// </summary>
+    [Fact]
+    public async Task HasUserVotedInDuelAsync_UserHasVoted_ReturnsTrue()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
+        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Вопрос",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        }, CancellationToken.None);
+
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = duelId,
+            AccountId = 1,
+            ChosenOptionId = 1,
+            BetAmount = 10.00m
+        }, CancellationToken.None);
+
+        // Act
+        var result = await voteRepository.HasUserVotedInDuelAsync(1001, duelId, CancellationToken.None);
+
+        // Assert
+        Assert.True(result);
+    }
+
+    /// <summary>
+    /// Verifies that HasUserVotedInDuelAsync returns false when user has not voted.
+    /// </summary>
+    [Fact]
+    public async Task HasUserVotedInDuelAsync_UserHasNotVoted_ReturnsFalse()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var voteRepository = scope.ServiceProvider.GetRequiredService<IVoteRepository>();
+        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Вопрос",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        }, CancellationToken.None);
+
+        // Act
+        var result = await voteRepository.HasUserVotedInDuelAsync(1001, duelId, CancellationToken.None);
+
+        // Assert
+        Assert.False(result);
     }
 }
 

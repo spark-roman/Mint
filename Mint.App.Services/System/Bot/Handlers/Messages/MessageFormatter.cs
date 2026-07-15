@@ -1,6 +1,9 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text;
+using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
 
@@ -11,7 +14,7 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
-    public async Task<string> FormatAsync(string messageTemplate, UserProfileDto userProfileDto, CancellationToken cancellationToken)
+    public async Task<string> FormatProfileAsync(string messageTemplate, UserProfileDto userProfileDto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(userProfileDto);
 
@@ -101,5 +104,69 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         }
 
         return $"👤 **Ваше место в рейтинге:** #{userRank.Value} ({userEntry.RankPoints:N0} RP)";
+    }
+
+        /// <inheritdoc />
+    public Task<string> FormatDuelAsync(string messageTemplate, DuelCardDto duelCard, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(duelCard);
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{duel_id}}"] = duelCard.DuelId.ToString(CultureInfo.InvariantCulture),
+            ["{{category_name}}"] = duelCard.CategoryName,
+            ["{{question}}"] = duelCard.Question,
+            ["{{description}}"] = duelCard.Description,
+            ["{{time_left}}"] = duelCard.TimeLeft
+        };
+
+        var formattedMessage = replacements.Aggregate(messageTemplate, (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+
+        return Task.FromResult(formattedMessage);
+    }
+
+    /// <inheritdoc />
+    public Task<string> FormatBetAsync(string messageTemplate, BetDataDto betData, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(betData);
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{selected_option}}"] = betData.SelectedOption,
+            ["{{balance}}"] = betData.Balance.ToString("N0", CultureInfo.InvariantCulture)
+        };
+
+        var formattedMessage = replacements.Aggregate(messageTemplate, (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+
+        return Task.FromResult(formattedMessage);
+    }
+
+    /// <inheritdoc />
+    public Task<string> FormatSuccessAsync(string messageTemplate, SuccessDataDto successData, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(successData);
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{selected_option}}"] = successData.SelectedOption,
+            ["{{bet_amount}}"] = successData.BetAmount.ToString("N0", CultureInfo.InvariantCulture),
+            ["{{time_left}}"] = successData.TimeLeft
+        };
+
+        var formattedMessage = replacements.Aggregate(messageTemplate, (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+
+        return Task.FromResult(formattedMessage);
+    }
+
+    /// <inheritdoc />
+    public Task<string> FormatCategoriesAsync(string messageTemplate, Collection<CategoryDto> categories, CancellationToken cancellationToken)
+    {
+        ArgumentException.ThrowIfNullOrWhiteSpace(messageTemplate);
+
+        var categoriesList = categories
+            .Select(c => $"• {c.Name}")
+            .Aggregate((a, b) => $"{a}\n{b}");
+
+        return Task.FromResult(messageTemplate.Replace("{{categories_list}}", categoriesList, StringComparison.InvariantCultureIgnoreCase));
     }
 }

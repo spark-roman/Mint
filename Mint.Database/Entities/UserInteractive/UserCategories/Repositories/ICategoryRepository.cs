@@ -31,6 +31,14 @@ public interface ICategoryRepository
     Task<CategoryDto?> GetByNameAsync(string name, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Get category by code
+    /// </summary>
+    /// <param name="code">Category code</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns></returns>
+    Task<CategoryDto?> GetByCodeAsync(string code, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Create a new category
     /// </summary>
     /// <param name="dto">Category DTO</param>

@@ -17,7 +17,8 @@ public class DbVoteCreateMapper : IDbEntityMapper<VoteCreateDto, VoteEntity>
             AccountId = entity.AccountId,
             ChosenOptionId = entity.ChosenOptionId,
             BetAmount = entity.BetAmount,
-            CreatedAt = DateTimeOffset.UtcNow
+            TransactionId = entity.TransactionId,
+            CreatedAt = entity.CreatedAt
         };
     }
 }

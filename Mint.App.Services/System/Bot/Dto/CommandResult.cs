@@ -32,4 +32,13 @@ public record CommandResult
     /// Notification text to show in a toast (callback answer).
     /// </summary>
     public string? Notification { get; init; }
+
+    /// <summary>Creates an error result.</summary>
+    public static CommandResult Error(string message)
+        => new()
+        {
+            Message = $"❌ {message}",
+            IsFinal = true,
+            IsNewMessage = true
+        };
 }

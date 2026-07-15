@@ -1,3 +1,4 @@
+using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
@@ -36,52 +37,61 @@ public sealed class CommandRouter(
     /// <summary>
     /// Determines the command type based on the incoming update.
     /// </summary>
-    private static TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
+private static TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
+{
+    // === Обработка Callback-запросов ===
+    if (!string.IsNullOrEmpty(updateCommand.CallbackData))
     {
-        if (!string.IsNullOrEmpty(updateCommand.CallbackData))
+        return updateCommand.CallbackData switch
         {
-            return updateCommand.CallbackData switch
+            ActionConstants.MainMenu => TgCommandType.MainMenu,
+            ActionConstants.Profile => TgCommandType.Profile,
+            ActionConstants.Duels => TgCommandType.Duels,
+            ActionConstants.Referral => TgCommandType.Referral,
+            ActionConstants.BackToProfile => TgCommandType.BackToProfile,
+            
+            ActionConstants.ClaimBonus => TgCommandType.ClaimBonus,
+            ActionConstants.BonusUnavailable => TgCommandType.BonusUnavailable,
+            
+            ActionConstants.Leaderboard => TgCommandType.Leaderboard,
+            
+            var action when action.StartsWith(ActionConstants.CategoryPrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.CategorySelection,
+            var action when action.StartsWith(ActionConstants.VotePrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.Vote,
+            var action when action.StartsWith(ActionConstants.BetPrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.BetPlacement,
+            var action when action.StartsWith(ActionConstants.CancelPrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.Cancel,
+            var action when action.StartsWith(ActionConstants.SharePrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.Share,
+            
+            _ => TgCommandType.CallbackNavigation
+        };
+    }
+
+    if (!string.IsNullOrEmpty(updateCommand.CommandText))
+    {
+        if (updateCommand.CommandText.StartsWith('/'))
+        {
+            return updateCommand.CommandText.ToUpperInvariant() switch
             {
-                "profile" => TgCommandType.Profile,
-                "duels" => TgCommandType.Duels,
-                "referral" => TgCommandType.Referral,
-                "main_menu" => TgCommandType.MainMenu,
-                "claim_bonus" => TgCommandType.ClaimBonus,
-                "bonus_unavailable" => TgCommandType.BonusUnavailable,
-                "leaderboard" => TgCommandType.Leaderboard,
-                var action when action.StartsWith("category_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.CategorySelection,
-                var action when action.StartsWith("duel_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.DuelSelection,
-                var action when action.StartsWith("bet_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.BetPlacement,
-                var action when action.StartsWith("step_", StringComparison.InvariantCultureIgnoreCase) => TgCommandType.CallbackNavigation,
-                _ => TgCommandType.Callback
+                "/START" => TgCommandType.Start,
+                "/HELP" => TgCommandType.Help,
+                "/PROFILE" => TgCommandType.Profile,
+                "/DUELS" => TgCommandType.Duels,
+                "/REFERRAL" => TgCommandType.Referral,
+                "/LEADERBOARD" => TgCommandType.Leaderboard,
+                "/ADMIN" => TgCommandType.Admin,
+                _ => TgCommandType.None
             };
         }
 
-        if (!string.IsNullOrEmpty(updateCommand.CommandText))
+        if (decimal.TryParse(updateCommand.CommandText, out _))
         {
-            if (updateCommand.CommandText.StartsWith('/'))
-            {
-                return updateCommand.CommandText.ToUpperInvariant() switch
-                {
-                    "/START" => TgCommandType.Start,
-                    "/PROFILE" => TgCommandType.Profile,
-                    "/DUELS" => TgCommandType.Duels,
-                    "/REFERRAL" => TgCommandType.Referral,
-                    "/HELP" => TgCommandType.Help,
-                    _ => TgCommandType.None
-                };
-            }
-
-            if (decimal.TryParse(updateCommand.CommandText, out _))
-            {
-                return TgCommandType.TextInput;
-            }
-
-            return TgCommandType.None;
+            return TgCommandType.NumberInput;
         }
 
-        return TgCommandType.None;
+        return TgCommandType.TextInput;
     }
+
+    return TgCommandType.None;
+}
 
     /// <summary>
     /// Extracts input data from the update.

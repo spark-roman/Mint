@@ -1,8 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI;
-using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.UserInteractive.Bonuses.Handlers;
+using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
@@ -11,30 +10,27 @@ using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 
 /// <summary>
-/// Fixture for <see cref="ClaimBonusCommandHandler"/> tests with EF Core and DI.
+/// Fixture for button click handler tests with EF Core and DI.
 /// </summary>
-public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
+public sealed class ButtonClickHandlerFixtures : IDisposable
 {
     private readonly ServiceProvider _serviceProvider;
+    private readonly string _databaseName;
     private bool _disposed;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="ClaimBonusCommandHandlerFixtures"/> class.
+    /// Initializes a new instance of the <see cref="ButtonClickHandlerFixtures"/> class.
     /// </summary>
-    public ClaimBonusCommandHandlerFixtures()
+    public ButtonClickHandlerFixtures()
     {
-        var databaseName = "TestDatabaseClaimBonus" + Guid.NewGuid();
+        _databaseName = "TestDatabaseButtonClick" + Guid.NewGuid();
 
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
         services.RegisterAppServices();
         services.AddEntityFrameworkInMemoryDatabase();
-        services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
-
-        services.AddSingleton(TimeProvider.System);
-        services.AddScoped<ProfileCommandHandler>();
-        services.AddScoped<ClaimBonusCommandHandler>();
+        services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 
         _serviceProvider = services.BuildServiceProvider();
 
@@ -55,7 +51,7 @@ public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
 
         using var context = dbContextFactory.CreateDbContextAsync().GetAwaiter().GetResult();
-        ClaimBonusCommandHandlerSeeder.Seed(context);
+        ButtonClickHandlerSeeder.Seed(context);
         context.SaveChangesAsync().GetAwaiter().GetResult();
     }
 
@@ -69,19 +65,19 @@ public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
 
         using var context = dbContextFactory.CreateDbContextAsync(cancellationToken).GetAwaiter().GetResult();
-        context.UserBonusStats.RemoveRange(context.UserBonusStats);
-        context.Transactions.RemoveRange(context.Transactions);
+        context.Duels.RemoveRange(context.Duels);
+        context.DuelOptions.RemoveRange(context.DuelOptions);
+        context.UserCategories.RemoveRange(context.UserCategories);
         context.UserSessions.RemoveRange(context.UserSessions);
         context.Users.RemoveRange(context.Users);
         context.Accounts.RemoveRange(context.Accounts);
-        context.BonusTypes.RemoveRange(context.BonusTypes);
-        context.Scenarios.RemoveRange(context.Scenarios);
         context.Steps.RemoveRange(context.Steps);
+        context.Scenarios.RemoveRange(context.Scenarios);
         context.StepTypes.RemoveRange(context.StepTypes);
         context.Buttons.RemoveRange(context.Buttons);
         await context.SaveChangesAsync(cancellationToken);
 
-        ClaimBonusCommandHandlerSeeder.Seed(context);
+        ButtonClickHandlerSeeder.Seed(context);
         await context.SaveChangesAsync(cancellationToken);
     }
 

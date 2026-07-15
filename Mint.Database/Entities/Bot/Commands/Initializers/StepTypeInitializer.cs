@@ -129,6 +129,72 @@ public sealed class BotInitializer
                 {{user_rank_info}}
                 """,
             IsFinal = false
+        },
+        // ========== SCENARIO: duels (Id = 3) ==========
+        // Шаг 1: Выбор категории
+        new StepEntity
+        {
+            Id = 7,
+            ScenarioId = 3,
+            OrderNum = 1,
+            StepTypeId = 3,
+            Message = "📊 **ДУЭЛИ ДНЯ**\n\nВыберите категорию для спора:{{categories_list}}",
+            IsFinal = false
+        },
+        // Шаг 2: Карточка дуэли (динамический, будет заполняться из кода)
+        new StepEntity
+        {
+            Id = 8,
+            ScenarioId = 3,
+            OrderNum = 2,
+            StepTypeId = 4,
+            Message = """
+                🤖 **ДУЭЛЬ №{{duel_id}}** (Категория: {{category_name}})
+                ───────────────────────
+                ❓ **Вопрос:** {{question}}
+                
+                📝 **Контекст:** {{description}}
+                
+                ───────────────────────
+                ⏱ До закрытия спора: {{time_left}}
+                👇 **Сделай свой прогноз:**
+                """,
+            IsFinal = false
+        },
+        // Шаг 3: Ввод ставки
+        new StepEntity
+        {
+            Id = 9,
+            ScenarioId = 3,
+            OrderNum = 3,
+            StepTypeId = 2, // number
+            Message = """
+                💰 **ВАШ ПРОГНОЗ: "{{selected_option}}"**
+
+                💳 Ваш текущий баланс: {{balance}} 🪙
+
+                Выберите сумму ставки из шаблонов ниже или введите любое число вручную:
+                """,
+            IsFinal = false
+        },
+        // Шаг 4: Успешная ставка
+        new StepEntity
+        {
+            Id = 10,
+            ScenarioId = 3,
+            OrderNum = 4,
+            StepTypeId = 4, // info
+            Message = """
+                ✅ **СТАВКА УСПЕШНО ПРИНЯТА!**
+
+                🎯 Ваш выбор: "{{selected_option}}"
+                📉 Сумма спора: {{bet_amount}} 🪙
+                ⏳ Расчет дуэли: через {{time_left}}
+
+                Считаешь, что твои друзья в чатах думают иначе?
+                Отправь им этот спор, и пускай они попробуют переубедить ИИ.
+                """,
+            IsFinal = true
         }
     ];
 

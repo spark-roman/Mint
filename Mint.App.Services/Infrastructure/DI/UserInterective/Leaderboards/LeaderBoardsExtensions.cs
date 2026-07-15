@@ -12,7 +12,7 @@ public static class LeaderBoardsExtensions
     /// Register bonus validators.
     /// </summary>
     /// <param name="services"></param>
-    public static void RegisterLeaderboardServices(this IServiceCollection services)
+    public static void RegisterLeaderboardHandlers(this IServiceCollection services)
     {
         services.AddScoped<ILeaderboardHandler, LeaderboardHandler>();
     }

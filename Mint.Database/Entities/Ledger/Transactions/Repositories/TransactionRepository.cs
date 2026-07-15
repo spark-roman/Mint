@@ -46,6 +46,11 @@ public class TransactionRepository(
 
             try
             {
+                if (entity.DebitAccountId == entity.CreditAccountId)
+                {
+                    throw new InvalidOperationException($"Debit account and credit account are the same: {entity.DebitAccountId}");
+                }
+
                 var firstId = Math.Min(entity.DebitAccountId, entity.CreditAccountId);
                 var secondId = Math.Max(entity.DebitAccountId, entity.CreditAccountId);
 

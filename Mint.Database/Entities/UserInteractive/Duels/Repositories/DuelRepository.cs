@@ -9,17 +9,25 @@ namespace Mint.Database.Entities.UserInteractive.Duels.Repositories;
 /// </summary>
 /// <param name="duelCreateMapper">Mapper for creating duel</param>
 /// <param name="duelMapper">Mapper for duel entity</param>
+/// <param name="duelOptionMapper">Mapper for duel option entity</param>
 /// <param name="dbContextFactory">Database context factory</param>
+/// <param name="timeProvider">Time provider</param>
 public class DuelRepository(
     IDbEntityMapper<DuelCreateDto, DuelEntity> duelCreateMapper,
     IDbEntityMapper<DuelEntity, DuelDto> duelMapper,
-    IDbContextFactory<MintDbContext> dbContextFactory) : IDuelRepository
+    IDbEntityMapper<DuelOptionEntity, DuelOptionDto> duelOptionMapper,
+    IDbContextFactory<MintDbContext> dbContextFactory,
+    TimeProvider timeProvider) : IDuelRepository
 {
     private readonly IDbEntityMapper<DuelCreateDto, DuelEntity> _duelCreateMapper = duelCreateMapper ?? throw new ArgumentNullException(nameof(duelCreateMapper));
 
     private readonly IDbEntityMapper<DuelEntity, DuelDto> _duelMapper = duelMapper ?? throw new ArgumentNullException(nameof(duelMapper));
 
+    private readonly IDbEntityMapper<DuelOptionEntity, DuelOptionDto> _optionMapper = duelOptionMapper ?? throw new ArgumentNullException(nameof(duelOptionMapper));
+
     private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc/>
     public async Task<long> CreateDuelAsync(DuelCreateDto dto, CancellationToken cancellationToken)
@@ -52,7 +60,7 @@ public class DuelRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var now = DateTimeOffset.UtcNow;
+        var now = _timeProvider.GetUtcNow();
 
         var entities = await context.Duels
             .Include(d => d.Options)
@@ -61,5 +69,32 @@ public class DuelRepository(
             .ToListAsync(cancellationToken);
 
         return entities.Select(_duelMapper.Map).ToList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var now = _timeProvider.GetUtcNow();
+
+        var duel = await context.Duels
+            .Include(d => d.Options)
+            .Include(d => d.Category)
+            .FirstOrDefaultAsync(d => d.CategoryId == categoryId && d.IsClosed == false && d.ExpiresAt > now, cancellationToken);
+
+        return duel is null ? null : _duelMapper.Map(duel);
+    }
+
+    /// <inheritdoc/>
+    public async Task<DuelOptionDto?> GetOptionByIdAsync(long optionId, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var entity = await context.DuelOptions
+            .AsNoTracking()
+            .FirstOrDefaultAsync(o => o.Id == optionId, cancellationToken);
+
+        return entity != null ? _optionMapper.Map(entity) : null;
     }
 }

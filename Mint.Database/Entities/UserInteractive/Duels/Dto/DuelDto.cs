@@ -46,4 +46,9 @@ public record DuelDto
     /// Options for the duel
     /// </summary>
     public required IEnumerable<DuelOptionDto> Options { get; init; } = [];
+
+    /// <summary>
+    /// Category name
+    /// </summary>
+    public string CategoryName { get; init; } = string.Empty;
 }
