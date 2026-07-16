@@ -21,11 +21,12 @@ public sealed class UserSessionRepository(
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         
         var entity = await context.UserSessions
+            .OrderBy(s => s.StartedAt)
             .Include(us => us.Scenario)
             .Include(us => us.CurrentStep)
                 .ThenInclude(st => st!.Buttons)
             .AsNoTracking()
-            .FirstOrDefaultAsync(us => 
+            .LastOrDefaultAsync(us => 
                 us.CompletedAt == null &&
                 us.User.ExternalUserId == externalUserId, cancellationToken);
 
