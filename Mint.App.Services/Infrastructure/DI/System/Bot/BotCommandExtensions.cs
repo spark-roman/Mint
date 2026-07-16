@@ -29,6 +29,7 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<ICommandHandler, MainMenuCommandHandler>(TgCommandType.MainMenu);
         services.AddKeyedScoped<ICommandHandler, BonusUnavailableHandler>(TgCommandType.BonusUnavailable);
         services.AddKeyedScoped<ICommandHandler, LeaderboardCommandHandler>(TgCommandType.Leaderboard);
+        services.AddKeyedScoped<ICommandHandler, NumberInputCommandHandler>(TgCommandType.NumberInput);
 
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CategorySelection);
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.DuelSelection);
@@ -37,7 +38,6 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Cancel);
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Share);
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CallbackNavigation);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.NumberInput);
 
         services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
         services.AddScoped<IButtonHandlerFactory, ButtonHandlerFactory>();
