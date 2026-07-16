@@ -5,6 +5,7 @@ using Mint.App.Services.System.Bot.Handlers.Buttons;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 using Mint.Common.Contracts.Bot.Commands;
+using Telegram.Bot.Types.Enums;
 
 namespace Mint.App.Services.System.Bot.Handlers.Router;
 
@@ -125,6 +126,8 @@ private TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
     /// </summary>
     private static string ExtractInputData(UpdateCommandDto updateCommand)
     {
-        return updateCommand.CallbackData ?? updateCommand.CommandText ?? string.Empty;
+        return updateCommand.Type == UpdateType.CallbackQuery
+            ? updateCommand!.CallbackData!
+            : updateCommand!.CommandText!;
     }
 }
