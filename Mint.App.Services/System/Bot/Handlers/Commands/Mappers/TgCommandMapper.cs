@@ -20,7 +20,8 @@ public class TgCommandMapper : IDtoMapper<Update, UpdateCommandDto>
                 CallbackId = dto.CallbackQuery.Id,
                 ChatId = dto.CallbackQuery.Message!.Chat.Id,
                 User = dto.CallbackQuery.From,
-                MessageId = dto.CallbackQuery.Message.MessageId
+                MessageId = dto.CallbackQuery.Message.MessageId,
+                Type = dto.Type
             }
             : new UpdateCommandDto
             {
@@ -29,7 +30,8 @@ public class TgCommandMapper : IDtoMapper<Update, UpdateCommandDto>
                 CallbackId = string.Empty,
                 ChatId = dto.Message.Chat.Id,
                 User = dto.Message.From,
-                MessageId = dto.Message.MessageId
+                MessageId = dto.Message.MessageId,
+                Type = dto.Type
             };
             
         return updateCommand;

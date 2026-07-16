@@ -1,4 +1,5 @@
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 
 namespace Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 
@@ -36,4 +37,10 @@ public record UpdateCommandDto
     /// Message id
     /// </summary>
     public int MessageId { get; set; }
+
+    /// <summary>
+    /// Command type
+    /// </summary>
+
+    public UpdateType Type { get; init; }
 }

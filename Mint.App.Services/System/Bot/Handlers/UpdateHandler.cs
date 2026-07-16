@@ -20,14 +20,14 @@ namespace Mint.App.Services.System.Bot.Handlers;
 /// </summary>
 public class UpdateHandler(
     IServiceScopeFactory serviceScopeFactory,
-    IDtoMapper<Update, UpdateCommandDto> userMapper,
+    IDtoMapper<Update, UpdateCommandDto> commandMapper,
     ILogger<UpdateHandler> logger) : IUpdateHandler
 {
     private readonly IServiceScopeFactory _serviceScopeFactory = serviceScopeFactory
         ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
 
-    private readonly IDtoMapper<Update, UpdateCommandDto> _userMapper = userMapper
-        ?? throw new ArgumentNullException(nameof(userMapper));
+    private readonly IDtoMapper<Update, UpdateCommandDto> _commandMapper = commandMapper
+        ?? throw new ArgumentNullException(nameof(commandMapper));
 
     private readonly ILogger<UpdateHandler> _logger = logger 
         ?? throw new ArgumentNullException(nameof(logger));
@@ -46,7 +46,7 @@ public class UpdateHandler(
 
         _logger.LogInformation("Update received: {UpdateType}", update.Type);
 
-        var updateCommand = _userMapper.Map(update);
+        var updateCommand = _commandMapper.Map(update);
 
         if (!string.IsNullOrEmpty(updateCommand.CallbackId))
         {
