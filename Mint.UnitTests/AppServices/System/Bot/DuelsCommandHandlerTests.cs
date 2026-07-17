@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Messages;
@@ -48,7 +49,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         Assert.NotNull(result);
         Assert.NotNull(result.Message);
         Assert.NotNull(result.Keyboard);
-        Assert.True(result.IsNewMessage);
+        Assert.False(result.IsNewMessage);
         Assert.Contains("📊", result.Message);
         Assert.Contains("ДУЭЛИ ДНЯ", result.Message);
         Assert.Contains("Криптовалюта", result.Message);
@@ -73,13 +74,15 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(3, result.Keyboard.Count);
+        Assert.Equal(4, result.Keyboard.Count);
         Assert.Equal("📂 Криптовалюта", result.Keyboard[0].Caption);
         Assert.Equal("category_crypto", result.Keyboard[0].Action);
         Assert.Equal("📂 Спорт", result.Keyboard[1].Caption);
         Assert.Equal("category_sports", result.Keyboard[1].Action);
         Assert.Equal("📂 Технологии", result.Keyboard[2].Caption);
         Assert.Equal("category_tech", result.Keyboard[2].Action);
+        Assert.Equal("🔙 Вернуться к дуэлям", result.Keyboard[3].Caption);
+        Assert.Equal("duels", result.Keyboard[3].Action);
     }
 
     /// <summary>
@@ -186,7 +189,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(categories.Count, result.Keyboard.Count);
+        Assert.Equal(categories.Count + 1, result.Keyboard.Count);
     }
 
     /// <summary>
@@ -206,10 +209,8 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        foreach (var button in result.Keyboard)
-        {
-            Assert.StartsWith("📂 ", button.Caption);
-        }
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 "));
+        Assert.Equal(3, categoryButtons.Count());
     }
 
     #endregion

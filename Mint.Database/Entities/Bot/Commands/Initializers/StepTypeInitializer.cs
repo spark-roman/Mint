@@ -214,7 +214,9 @@ public sealed class BotInitializer
         new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" },
 
         // ========== leaderboard (ParentStepId = 5) ==========
-        new ButtonEntity { Id = 8, ParentStepId = 6, OrderNum = 1, Caption = "🔙 Вернуться в профиль", Action = "profile" }
+        new ButtonEntity { Id = 8, ParentStepId = 6, OrderNum = 1, Caption = "🔙 Вернуться в профиль", Action = "profile" },
+
+        new ButtonEntity { Id = 9, ParentStepId = 8, OrderNum = 1, Caption = "🔙 Вернуться к дуэлям", Action = "duels" }
     ];
 
     /// <summary>

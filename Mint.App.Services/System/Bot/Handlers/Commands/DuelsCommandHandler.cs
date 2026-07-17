@@ -68,6 +68,8 @@ public sealed class DuelsCommandHandler(
             OrderNum = (short)categories.ToList().IndexOf(c)
         }).ToList();
 
+        var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
+
         await _sessionRepository.CreateOrUpdateSessionAsync(
             tgUser.Id,
             scenario.Id,
@@ -80,9 +82,9 @@ public sealed class DuelsCommandHandler(
         return new CommandResult
         {
             Message = stepMessage,
-            Keyboard = new Collection<ButtonDto>(categoryButtons),
+            Keyboard = new Collection<ButtonDto>([..categoryButtons, backToDuelsButton!]),
             IsFinal = step.IsFinal,
-            IsNewMessage = true
+            IsNewMessage = false
         };
     }
 }
