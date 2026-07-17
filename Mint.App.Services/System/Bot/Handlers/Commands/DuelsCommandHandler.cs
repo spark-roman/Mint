@@ -61,14 +61,17 @@ public sealed class DuelsCommandHandler(
             return CommandResult.Error("Нет доступных категорий");
         }
 
-        var categoryButtons = categories.Select(c => new ButtonDto
+        var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
+
+        var categoryButtons = categories.Select((c, index) => new ButtonDto
         {
+            Id = index + 1,
             Caption = $"📂 {c.Name}",
             Action = $"{ActionConstants.CategoryPrefix}{c.Code}",
             OrderNum = (short)categories.ToList().IndexOf(c)
-        }).ToList();
-
-        var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
+        })
+        .OrderBy(b => b.Id)
+        .ToList();
 
         await _sessionRepository.CreateOrUpdateSessionAsync(
             tgUser.Id,

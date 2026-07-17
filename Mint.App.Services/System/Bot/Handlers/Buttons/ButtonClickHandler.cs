@@ -63,7 +63,7 @@ public sealed class ButtonClickHandler(
             return await NavigateToScenarioAsync(externalUserId, ScenarioConstants.Profile, false, cancellationToken);
 
         if (callbackData == ActionConstants.Duels)
-            return await NavigateToScenarioAsync(externalUserId, ScenarioConstants.Duels, true, cancellationToken);
+            return await NavigateToScenarioAsync(externalUserId, ScenarioConstants.Duels, false, cancellationToken);
 
         if (callbackData == ActionConstants.Referral)
             return await NavigateToScenarioAsync(externalUserId, ScenarioConstants.Referral, false, cancellationToken);
