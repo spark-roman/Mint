@@ -11,6 +11,7 @@ using Telegram.Bot;
 using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
+using Telegram.Bot.Types.Enums;
 using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Mint.App.Services.System.Bot.Handlers;
@@ -31,13 +32,6 @@ public class UpdateHandler(
 
     private readonly ILogger<UpdateHandler> _logger = logger 
         ?? throw new ArgumentNullException(nameof(logger));
-
-    /// <inheritdoc/>
-    public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
-    {
-        _logger.LogError(exception, "Polling error");
-        return Task.CompletedTask;
-    }
 
     /// <inheritdoc/>
     public async Task HandleUpdateAsync(ITelegramBotClient botClient, Update update, CancellationToken cancellationToken)
@@ -62,7 +56,7 @@ public class UpdateHandler(
 
             if (!string.IsNullOrEmpty(commandResult.Notification))
             {
-                await botClient.AnswerCallbackQueryAsync(
+                await botClient.AnswerCallbackQuery(
                     updateCommand.CallbackId!,
                     commandResult.Notification,
                     cancellationToken: cancellationToken);
@@ -87,7 +81,7 @@ public class UpdateHandler(
     {
         try
         {
-            await botClient.AnswerCallbackQueryAsync(callbackId, cancellationToken: ct);
+            await botClient.AnswerCallbackQuery(callbackId, cancellationToken: ct);
         }
         catch (ApiRequestException ex)
         {
@@ -99,28 +93,42 @@ public class UpdateHandler(
         ITelegramBotClient botClient, 
         UpdateCommandDto updateCommand, 
         CommandResult result, 
-        CancellationToken ct)
+        CancellationToken cancellationToken)
     {
         try
         {
             if (result.IsNewMessage)
             {
-                await botClient.SendTextMessageAsync(
+                await botClient.SendMessage(
                     chatId: updateCommand.ChatId,
                     text: result.Message,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                    parseMode: ParseMode.Markdown,
                     replyMarkup: BuildKeyboard(result.Keyboard),
-                    cancellationToken: ct);
+                    cancellationToken: cancellationToken);
             }
             else
             {
-                await botClient.EditMessageTextAsync(
+                await botClient.EditMessageText(
                     chatId: updateCommand.ChatId,
                     messageId: updateCommand.MessageId,
                     text: result.Message,
-                    parseMode: Telegram.Bot.Types.Enums.ParseMode.Markdown,
+                    parseMode: ParseMode.Markdown,
                     replyMarkup: BuildKeyboard(result.Keyboard),
-                    cancellationToken: ct);
+                    cancellationToken: cancellationToken);
+
+                if (!string.IsNullOrWhiteSpace(result.Emoji))
+                {
+                    await botClient.SetMessageReaction(
+                        chatId: updateCommand.ChatId,
+                        messageId: updateCommand.MessageId,
+                        reaction:
+                        [
+                            new ReactionTypeEmoji { Emoji = result.Emoji }
+                        ],
+                        isBig: true,
+                        cancellationToken: cancellationToken
+                    );
+                }
             }
         }
         catch (ApiRequestException ex)
@@ -143,5 +151,19 @@ public class UpdateHandler(
             .ToArray();
 
         return new InlineKeyboardMarkup(rows);
+    }
+
+    /// <inheritdoc/>
+    public Task HandleErrorAsync(ITelegramBotClient botClient, Exception exception, HandleErrorSource source, CancellationToken cancellationToken)
+    {
+        _logger.LogError(exception, "Polling error");
+        return Task.CompletedTask;
+    }
+
+    /// <inheritdoc/>
+    public Task HandlePollingErrorAsync(ITelegramBotClient botClient, Exception exception, CancellationToken cancellationToken)
+    {
+        _logger.LogError(exception, "Polling error");
+        return Task.CompletedTask;
     }
 }

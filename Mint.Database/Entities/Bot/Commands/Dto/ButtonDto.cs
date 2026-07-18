@@ -12,7 +12,7 @@ public record ButtonDto
     public long StepId { get; init; }
     
     /// <summary>Button order number within the step</summary>
-    public short OrderNum { get; init; }
+    public short OrderNum { get; set; }
     
     /// <summary>Button caption displayed to the user</summary>
     public string Caption { get; init; } = string.Empty;

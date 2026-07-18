@@ -43,6 +43,11 @@ public static class DuelsCommandHandlerSeeder
 
         foreach (var button in buttons)
         {
+            if (button.Id == 9)
+            {
+                button.OrderNum = 3;
+            }
+
             context.Buttons.Add(button);
         }
 
