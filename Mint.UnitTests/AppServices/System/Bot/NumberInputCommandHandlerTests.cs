@@ -1,4 +1,5 @@
 using System.Globalization;
+using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.Extensions.DependencyInjection;
@@ -434,9 +435,31 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(2, result.Keyboard.Count);
+        Assert.Equal(3, result.Keyboard.Count);
         Assert.Contains("✉️ Переслать друзьям", result.Keyboard[0].Caption);
         Assert.Contains("📊 Следующая дуэль", result.Keyboard[1].Caption);
+        Assert.Contains("⬅️ Назад в меню", result.Keyboard[2].Caption);
+    }
+
+    /// <summary>
+    /// Verifies that the back to menu button has the correct action.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BackToMenuButton_HasCorrectAction()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.NumberInput);
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "100", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var backButton = result.Keyboard.First(b => b.Caption == "⬅️ Назад в меню");
+        Assert.Equal("main_menu", backButton.Action);
     }
 
     /// <summary>

@@ -1,18 +1,12 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using Mint.App.Services.System.Bot.Dto;
-using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
+using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.System.Bot.Handlers.Router;
-using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.Bot.Commands.Dto;
 using Telegram.Bot;
-using Telegram.Bot.Exceptions;
 using Telegram.Bot.Polling;
 using Telegram.Bot.Types;
-using Telegram.Bot.Types.Enums;
-using Telegram.Bot.Types.ReplyMarkups;
 
 namespace Mint.App.Services.System.Bot.Handlers;
 
@@ -42,24 +36,26 @@ public class UpdateHandler(
 
         var updateCommand = _commandMapper.Map(update);
 
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        
+        var messageSender = scope.ServiceProvider.GetRequiredService<IBotMessageSender>();
+        var router = scope.ServiceProvider.GetRequiredService<ICommandRouter>();
+
         if (!string.IsNullOrEmpty(updateCommand.CallbackId))
         {
-            await AnswerCallbackAsync(botClient, updateCommand.CallbackId, cancellationToken);
+            await messageSender.AnswerCallbackAsync(updateCommand.CallbackId, null, cancellationToken);
         }
-        
-        #pragma warning disable CA1031 // Do not catch general exception types
+
         try
         {
-            await using var scope = _serviceScopeFactory.CreateAsyncScope();
-            var router = scope.ServiceProvider.GetRequiredService<ICommandRouter>();
             var commandResult = await router.RouteAsync(updateCommand, cancellationToken);
 
             if (!string.IsNullOrEmpty(commandResult.Notification))
             {
-                await botClient.AnswerCallbackQuery(
+                await messageSender.AnswerCallbackAsync(
                     updateCommand.CallbackId!,
                     commandResult.Notification,
-                    cancellationToken: cancellationToken);
+                    cancellationToken);
             }
 
             if (string.IsNullOrEmpty(commandResult.Message))
@@ -68,89 +64,13 @@ public class UpdateHandler(
                 return;
             }
 
-            await SendResponseAsync(botClient, updateCommand, commandResult, cancellationToken);
-        } 
+            await messageSender.SendOrEditMessageAsync(updateCommand, commandResult, cancellationToken);
+        }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error while handling update");
+            throw;
         }
-        #pragma warning restore CA1031 // Do not catch general exception types  
-    }
-
-    private async Task AnswerCallbackAsync(ITelegramBotClient botClient, string callbackId, CancellationToken ct)
-    {
-        try
-        {
-            await botClient.AnswerCallbackQuery(callbackId, cancellationToken: ct);
-        }
-        catch (ApiRequestException ex)
-        {
-            _logger.LogError("Error while answering callback query: {CallbackId}, message: {Message}", callbackId, ex.Message);
-        }
-    }
-
-    private async Task SendResponseAsync(
-        ITelegramBotClient botClient, 
-        UpdateCommandDto updateCommand, 
-        CommandResult result, 
-        CancellationToken cancellationToken)
-    {
-        try
-        {
-            if (result.IsNewMessage)
-            {
-                await botClient.SendMessage(
-                    chatId: updateCommand.ChatId,
-                    text: result.Message,
-                    parseMode: ParseMode.Markdown,
-                    replyMarkup: BuildKeyboard(result.Keyboard),
-                    cancellationToken: cancellationToken);
-            }
-            else
-            {
-                await botClient.EditMessageText(
-                    chatId: updateCommand.ChatId,
-                    messageId: updateCommand.MessageId,
-                    text: result.Message,
-                    parseMode: ParseMode.Markdown,
-                    replyMarkup: BuildKeyboard(result.Keyboard),
-                    cancellationToken: cancellationToken);
-
-                if (!string.IsNullOrWhiteSpace(result.Emoji))
-                {
-                    await botClient.SetMessageReaction(
-                        chatId: updateCommand.ChatId,
-                        messageId: updateCommand.MessageId,
-                        reaction:
-                        [
-                            new ReactionTypeEmoji { Emoji = result.Emoji }
-                        ],
-                        isBig: true,
-                        cancellationToken: cancellationToken
-                    );
-                }
-            }
-        }
-        catch (ApiRequestException ex)
-        {
-            _logger.LogError(ex, "Error sending message to user {UserId}", updateCommand.User?.Id);
-        }
-    }
-
-    private static InlineKeyboardMarkup? BuildKeyboard(IReadOnlyCollection<ButtonDto>? buttons)
-    {
-        if (buttons == null || buttons.Count == 0)
-            return null;
-
-        var rows = buttons
-            .OrderBy(b => b.OrderNum)
-            .Select(b => new[]
-            {
-                InlineKeyboardButton.WithCallbackData(b.Caption, b.Action)
-            })
-            .ToArray();
-
-        return new InlineKeyboardMarkup(rows);
     }
 
     /// <inheritdoc/>

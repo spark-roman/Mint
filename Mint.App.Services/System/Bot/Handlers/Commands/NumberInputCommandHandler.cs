@@ -150,7 +150,8 @@ public class NumberInputCommandHandler(
         var buttons = new List<ButtonDto>
         {
             new() { Caption = "✉️ Переслать друзьям", Action = $"{ActionConstants.SharePrefix}duel_{duelId}" },
-            new() { Caption = "📊 Следующая дуэль", Action = ActionConstants.Duels }
+            new() { Caption = "📊 Следующая дуэль", Action = ActionConstants.Duels },
+            new() { Caption = "⬅️ Назад в меню", Action = ActionConstants.MainMenu }
         };
 
         await _sessionRepository.UpdateCurrentStepAsync(session.Id, step.Id, cancellationToken);
