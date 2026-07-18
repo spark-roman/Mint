@@ -65,7 +65,7 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
         {
             await SendMessageAsync(
                 command.ChatId,
-                command.CommandText!,
+                commandResult.Message,
                 ParseMode.Markdown,
                 BuildKeyboard(commandResult.Keyboard),
                 cancellationToken);
@@ -75,7 +75,7 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
             await EditMessageAsync(
                 command.ChatId,
                 command.MessageId,
-                command.CommandText!,
+                commandResult.Message,
                 ParseMode.Markdown,
                 BuildKeyboard(commandResult.Keyboard),
                 cancellationToken);
