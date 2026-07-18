@@ -62,7 +62,7 @@ public sealed class ClaimBonusCommandHandler(
             };
         }
 
-        var profileHandler = _serviceProvider.GetRequiredKeyedService<ProfileCommandHandler>(TgCommandType.Profile);
+        var profileHandler = _serviceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Profile);
         return await profileHandler.HandleAsync(tgUser, "refresh", cancellationToken);
     }
 }
