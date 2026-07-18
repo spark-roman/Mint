@@ -75,6 +75,7 @@ public sealed class ButtonClickHandlerFixtures : IDisposable
         context.Scenarios.RemoveRange(context.Scenarios);
         context.StepTypes.RemoveRange(context.StepTypes);
         context.Buttons.RemoveRange(context.Buttons);
+        context.Votes.RemoveRange(context.Votes);
         await context.SaveChangesAsync(cancellationToken);
 
         ButtonClickHandlerSeeder.Seed(context);

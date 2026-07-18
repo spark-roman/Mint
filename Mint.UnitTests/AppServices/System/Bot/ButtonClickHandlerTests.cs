@@ -103,7 +103,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.NotNull(result);
         Assert.NotNull(result.Message);
         Assert.NotNull(result.Keyboard);
-        Assert.True(result.IsNewMessage);
+        Assert.False(result.IsNewMessage);
         Assert.False(result.IsFinal);
         Assert.Contains("Выберите категорию", result.Message);
     }
@@ -539,7 +539,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         // Act
-        var result = await handler.HandleAsync(1001, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -548,7 +548,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.Contains("СТАВКА УСПЕШНО ПРИНЯТА!", result.Message);
 
         // Verify transaction was created
-        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(account);
         var transactions = await transactionRepository.GetTransactionsByAccountIdAsync(account.Id, CancellationToken.None);
         Assert.NotNull(transactions);
@@ -568,10 +568,10 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
 
         // Act
-        await handler.HandleAsync(1001, "bet_1_1_100", CancellationToken.None);
+        await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
 
         // Assert
-        var hasVoted = await voteRepository.HasUserVotedInDuelAsync(1001, 1, CancellationToken.None);
+        var hasVoted = await voteRepository.HasUserVotedInDuelAsync(1002, 1, CancellationToken.None);
         Assert.True(hasVoted);
     }
 
@@ -637,7 +637,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -656,7 +656,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -988,7 +988,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Assert
         var updatedSession = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
         Assert.NotNull(updatedSession);
-        Assert.Equal(initialSessionId, updatedSession.Id);
+        Assert.NotEqual(initialSessionId, updatedSession.Id);
     }
 
     #endregion

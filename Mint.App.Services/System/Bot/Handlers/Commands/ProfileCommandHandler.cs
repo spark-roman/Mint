@@ -101,6 +101,7 @@ public sealed class ProfileCommandHandler(
         return new CommandResult
         {
             Message = message,
+            Emoji = inputData == "refresh" ? "🎉" : string.Empty,
             Keyboard = [..buttons],
             IsFinal = step.IsFinal,
             IsNewMessage = isNewMessage

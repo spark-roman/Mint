@@ -14,6 +14,11 @@ public record CommandResult
     public required string Message { get; init; }
 
     /// <summary>
+    /// Emoji to display on the message.
+    /// </summary>
+    public string? Emoji { get; init; }
+
+    /// <summary>
     /// Keyboard buttons to display (optional).
     /// </summary>
     public Collection<ButtonDto>? Keyboard { get; init; }

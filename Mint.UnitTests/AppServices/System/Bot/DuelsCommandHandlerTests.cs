@@ -81,8 +81,8 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         Assert.Equal("category_sports", result.Keyboard[1].Action);
         Assert.Equal("📂 Технологии", result.Keyboard[2].Caption);
         Assert.Equal("category_tech", result.Keyboard[2].Action);
-        Assert.Equal("🔙 Вернуться к дуэлям", result.Keyboard[3].Caption);
-        Assert.Equal("duels", result.Keyboard[3].Action);
+        Assert.Equal("⬅️ Назад в меню", result.Keyboard[3].Caption);
+        Assert.Equal("main_menu", result.Keyboard[3].Action);
     }
 
     /// <summary>
@@ -211,6 +211,82 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         Assert.NotNull(result.Keyboard);
         var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 "));
         Assert.Equal(3, categoryButtons.Count());
+    }
+
+    #endregion
+
+    #region HandleAsync - Back Button OrderNum
+
+    /// <summary>
+    /// Verifies that the back button OrderNum is set to the number of categories,
+    /// ensuring it appears last after sorting by OrderNum.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BackButton_OrderNumEqualsCategoryCount()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Duels);
+        var categoryRepository = _currentScope.ServiceProvider.GetRequiredService<ICategoryRepository>();
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Test" };
+
+        var categories = await categoryRepository.GetAllActiveAsync(CancellationToken.None);
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var backButton = result.Keyboard.First(b => b.Action == "main_menu");
+        Assert.Equal((short)categories.Count, backButton.OrderNum);
+    }
+
+    /// <summary>
+    /// Verifies that the back button appears as the last button in the keyboard
+    /// after sorting by OrderNum.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BackButton_AppearsLastInKeyboard()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Duels);
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Test" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var lastButton = result.Keyboard.Last();
+        Assert.Equal("main_menu", lastButton.Action);
+    }
+
+    /// <summary>
+    /// Verifies that category buttons have OrderNum values from 0 to N-1,
+    /// ensuring they appear before the back button.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_CategoryButtons_OrderNumInRange()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Duels);
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Test" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 ")).ToList();
+        for (int i = 0; i < categoryButtons.Count; i++)
+        {
+            Assert.Equal((short)i, categoryButtons[i].OrderNum);
+        }
     }
 
     #endregion

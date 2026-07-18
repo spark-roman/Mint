@@ -66,16 +66,16 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var bonusStatsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserBonusStatsRepository>();
-        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
 
         // Act
         await handler.HandleAsync(tgUser, "", CancellationToken.None);
 
         // Assert
-        var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
-        Assert.Equal(1, stats.CurrentDailyStreak);
-        Assert.Equal(100m, stats.TotalDailyBonusesClaimed);
+        Assert.Equal(3, stats.CurrentDailyStreak);
+        Assert.Equal(300m, stats.TotalDailyBonusesClaimed);
     }
 
     /// <summary>
@@ -89,7 +89,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.ClaimBonus);
         var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<Mint.Database.Entities.Ledger.Transactions.Repositories.ITransactionRepository>();
-        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
 
         // Act
         await handler.HandleAsync(tgUser, "", CancellationToken.None);

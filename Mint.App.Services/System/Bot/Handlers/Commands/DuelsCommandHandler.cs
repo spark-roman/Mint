@@ -62,6 +62,7 @@ public sealed class DuelsCommandHandler(
         }
 
         var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
+        backToDuelsButton!.OrderNum = (short)categories.Count;
 
         var categoryButtons = categories.Select((c, index) => new ButtonDto
         {

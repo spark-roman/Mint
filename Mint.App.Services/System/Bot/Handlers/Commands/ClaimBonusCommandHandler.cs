@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
+using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
 using Telegram.Bot.Types;
@@ -61,7 +62,7 @@ public sealed class ClaimBonusCommandHandler(
             };
         }
 
-        var profileHandler = _serviceProvider.GetRequiredService<ProfileCommandHandler>();
+        var profileHandler = _serviceProvider.GetRequiredKeyedService<ProfileCommandHandler>(TgCommandType.Profile);
         return await profileHandler.HandleAsync(tgUser, "refresh", cancellationToken);
     }
 }
