@@ -21,6 +21,7 @@ public static class BotCommandExtensions
         services.AddScoped<ICommandRouter, CommandRouter>();
 
         services.AddSingleton<IMessageFormatter, MessageFormatter>();
+        services.AddSingleton<IBotMessageSender, BotMessageSender>();
 
         services.AddKeyedScoped<ICommandHandler, DuelsCommandHandler>(TgCommandType.Duels);
         services.AddKeyedScoped<ICommandHandler, StartCommandHandler>(TgCommandType.Start);
