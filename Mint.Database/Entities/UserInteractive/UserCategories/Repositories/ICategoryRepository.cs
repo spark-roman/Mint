@@ -62,4 +62,13 @@ public interface ICategoryRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if category was deleted</returns>
     Task<bool> DeleteAsync(int id, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get categories for user
+    /// </summary>
+    /// <param name="externalUserId">External user id</param>
+    /// <param name="expireDate">Date to filter expired categories</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of categories status DTOs</returns>
+    Task<List<CategoryStatusDto>> GetCategoriesWithDuelStatusAsync(long externalUserId, DateTimeOffset expireDate, CancellationToken cancellationToken);
 }

@@ -7,8 +7,6 @@ namespace Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 /// <summary>
 /// Repository for user categories
 /// </summary>
-/// <param name="categoryMapper">Mapper for category entity</param>
-/// <param name="dbContextFactory">Database context factory</param>
 public sealed class CategoryRepository(
     IDbEntityMapper<CategoryEntity, CategoryDto> categoryMapper,
     IDbContextFactory<MintDbContext> dbContextFactory) : ICategoryRepository
@@ -136,5 +134,30 @@ public sealed class CategoryRepository(
             .FirstOrDefaultAsync(c => c.Code == code, cancellationToken);
 
         return category is null ? null : _categoryMapper.Map(category);
+    }
+
+
+    /// <inheritdoc/>
+    public async Task<List<CategoryStatusDto>> GetCategoriesWithDuelStatusAsync(long externalUserId, DateTimeOffset expireDate, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var categories = await context.UserCategories
+            .AsNoTracking()
+            .Where(c => c.IsActiveForAI)
+            .Select(c => new CategoryStatusDto
+            {
+                CategoryId = c.Id,
+                CategoryName = c.Name,
+                CategoryCode = c.Code,
+                IsActive = c.IsActiveForAI,
+                CategoryEmoji = "📂",
+                HasAvailableDuels = c.Duels.Any(d => !d.IsClosed
+                    && d.ExpiresAt > expireDate
+                    && !d.Votes.Any(v => v.Account.User.ExternalUserId == externalUserId))
+            })
+            .ToListAsync(cancellationToken);
+            
+        return categories;
     }
 }

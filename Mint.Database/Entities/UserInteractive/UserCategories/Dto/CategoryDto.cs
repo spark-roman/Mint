@@ -1,3 +1,5 @@
+using Mint.Database.Entities.UserInteractive.Duels.Dto;
+
 namespace Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 /// <summary>
@@ -34,4 +36,9 @@ public record CategoryDto
     /// AI search keywords
     /// </summary>
     public string? SearchKeywords { get; init; }
+
+    /// <summary>
+    /// Duels associated with this category
+    /// </summary>
+    public ICollection<DuelDto> Duels { get; init; } = [];
 }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Database.Entities.System;
+using Mint.Database.Entities.UserInteractive.Duels;
 
 namespace Mint.Database.Entities.UserInteractive.UserCategories;
 
@@ -61,4 +62,9 @@ public class CategoryEntity
     /// Unique identifier of the category
     /// </summary>
     public required string Code { get; set; }
+
+    /// <summary>
+    /// Duels in category
+    /// </summary>
+    public virtual ICollection<DuelEntity> Duels { get; init; } = [];
 }

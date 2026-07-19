@@ -1,7 +1,9 @@
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.UserInteractive;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Stats.Initializers;
 using Mint.Database.Entities.UserInteractive.UserCategories.Initializers;
 using Mint.Database.Entities.Users;
@@ -84,6 +86,22 @@ public static class UsersSeeder
                 LastTransactionDate = new DateTimeOffset(2024, 5, 18, 12, 0, 0, TimeSpan.Zero),
                 Status = AccountStatus.Active
             });
+
+        context.Duels.AddRange(new DuelEntity
+        {
+            Id = 100500,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "ИИ заменит программистов к 2025?",
+            Description = "Серьёзный вопрос о будущем профессии",
+            ExpiresAt = DateTimeOffset.MaxValue,
+            IsClosed = false,
+            Options =
+            [
+                new DuelOptionEntity { Id = 100501, OptionText = "Да", OptionCode = "yes" },
+                new DuelOptionEntity { Id = 100502, OptionText = "Нет", OptionCode = "no" }
+            ]
+        });
 
         context.RankConfigs.AddRange(new RankConfigInitializer().Get());
         context.UserCategories.AddRange(new CategoryInitializer().Get());
