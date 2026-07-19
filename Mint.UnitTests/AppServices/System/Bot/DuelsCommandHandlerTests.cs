@@ -75,12 +75,12 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         // Assert
         Assert.NotNull(result.Keyboard);
         Assert.Equal(4, result.Keyboard.Count);
-        Assert.Equal("📂 Криптовалюта", result.Keyboard[0].Caption);
+        Assert.Contains("Криптовалюта", result.Keyboard[0].Caption);
         Assert.Equal("category_crypto", result.Keyboard[0].Action);
-        Assert.Equal("📂 Спорт", result.Keyboard[1].Caption);
-        Assert.Equal("category_sports", result.Keyboard[1].Action);
-        Assert.Equal("📂 Технологии", result.Keyboard[2].Caption);
-        Assert.Equal("category_tech", result.Keyboard[2].Action);
+        Assert.Contains("Технологии", result.Keyboard[1].Caption);
+        Assert.Equal("category_tech", result.Keyboard[1].Action);
+        Assert.Contains("Спорт", result.Keyboard[2].Caption);
+        Assert.Equal("category_sports", result.Keyboard[2].Action);
         Assert.Equal("⬅️ Назад в меню", result.Keyboard[3].Caption);
         Assert.Equal("main_menu", result.Keyboard[3].Action);
     }
@@ -181,7 +181,8 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         var categoryRepository = _currentScope.ServiceProvider.GetRequiredService<ICategoryRepository>();
         var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Test" };
 
-        var categories = await categoryRepository.GetAllActiveAsync(CancellationToken.None);
+        var categoryStatuses = await categoryRepository.GetCategoriesWithDuelStatusAsync(
+            tgUser.Id, DateTimeOffset.UtcNow, CancellationToken.None);
 
         // Act
         var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
@@ -189,14 +190,14 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         // Assert
         Assert.NotNull(result);
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(categories.Count + 1, result.Keyboard.Count);
+        Assert.Equal(categoryStatuses.Count + 1, result.Keyboard.Count);
     }
 
     /// <summary>
-    /// Verifies that HandleAsync formats categories with emoji prefix.
+    /// Verifies that HandleAsync formats categories with status emoji prefix.
     /// </summary>
     [Fact]
-    public async Task HandleAsync_FormatsCategoriesWithEmojiPrefix()
+    public async Task HandleAsync_FormatsCategoriesWithStatusEmoji()
     {
         // Arrange
         await _fixture.ResetAsync();
@@ -209,7 +210,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 "));
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("🔴 ") || b.Caption.StartsWith("🟢 "));
         Assert.Equal(3, categoryButtons.Count());
     }
 
@@ -218,7 +219,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
     #region HandleAsync - Back Button OrderNum
 
     /// <summary>
-    /// Verifies that the back button OrderNum is set to the number of categories,
+    /// Verifies that the back button OrderNum is set to the number of category buttons,
     /// ensuring it appears last after sorting by OrderNum.
     /// </summary>
     [Fact]
@@ -231,7 +232,8 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         var categoryRepository = _currentScope.ServiceProvider.GetRequiredService<ICategoryRepository>();
         var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Test" };
 
-        var categories = await categoryRepository.GetAllActiveAsync(CancellationToken.None);
+        var categoryStatuses = await categoryRepository.GetCategoriesWithDuelStatusAsync(
+            tgUser.Id, DateTimeOffset.UtcNow, CancellationToken.None);
 
         // Act
         var result = await handler.HandleAsync(tgUser, "", CancellationToken.None);
@@ -239,7 +241,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         // Assert
         Assert.NotNull(result.Keyboard);
         var backButton = result.Keyboard.First(b => b.Action == "main_menu");
-        Assert.Equal((short)categories.Count, backButton.OrderNum);
+        Assert.Equal((short)categoryStatuses.Count, backButton.OrderNum);
     }
 
     /// <summary>
@@ -282,7 +284,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 ")).ToList();
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("🔴 ") || b.Caption.StartsWith("🟢 ")).ToList();
         for (int i = 0; i < categoryButtons.Count; i++)
         {
             Assert.Equal((short)i, categoryButtons[i].OrderNum);

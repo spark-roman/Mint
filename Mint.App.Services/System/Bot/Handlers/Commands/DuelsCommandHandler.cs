@@ -16,7 +16,8 @@ public sealed class DuelsCommandHandler(
     IScenarioRepository scenarioRepository,
     IUserSessionRepository sessionRepository,
     ICategoryRepository categoryRepository,
-    IMessageFormatter messageFormatter) : ICommandHandler
+    IMessageFormatter messageFormatter,
+    TimeProvider timeProvider) : ICommandHandler
 {
     private readonly IScenarioRepository _scenarioRepository = scenarioRepository
         ?? throw new ArgumentNullException(nameof(scenarioRepository));
@@ -30,6 +31,9 @@ public sealed class DuelsCommandHandler(
     private readonly IMessageFormatter _messageFormatter = messageFormatter
         ?? throw new ArgumentNullException(nameof(messageFormatter));
 
+    private readonly TimeProvider _timeProvider = timeProvider
+        ?? throw new ArgumentNullException(nameof(timeProvider));
+
     /// <inheritdoc />
     public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
@@ -38,21 +42,13 @@ public sealed class DuelsCommandHandler(
         var scenario = await _scenarioRepository.GetScenarioByNameAsync(ScenarioConstants.Duels, cancellationToken);
         if (scenario == null)
         {
-            return new CommandResult
-            {
-                Message = "❌ Сценарий не найден",
-                IsFinal = true
-            };
+            return CommandResult.Error("Сценарий не найден");
         }
 
         var step = await _scenarioRepository.GetFirstStepByScenarioIdAsync(scenario.Id, cancellationToken);
         if (step == null)
         {
-            return new CommandResult
-            {
-                Message = "❌ Шаг не найден",
-                IsFinal = true
-            };
+            return CommandResult.Error("Шаг не найден");
         }
 
         var categories = await _categoryRepository.GetAllActiveAsync(cancellationToken);
@@ -61,18 +57,22 @@ public sealed class DuelsCommandHandler(
             return CommandResult.Error("Нет доступных категорий");
         }
 
-        var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
-        backToDuelsButton!.OrderNum = (short)categories.Count;
+        var categoryStatuses = await _categoryRepository.GetCategoriesWithDuelStatusAsync(tgUser.Id, _timeProvider.GetUtcNow(), cancellationToken);
 
-        var categoryButtons = categories.Select((c, index) => new ButtonDto
+        var categoryButtons = categoryStatuses.Select((cs, index) => new ButtonDto
         {
             Id = index + 1,
-            Caption = $"📂 {c.Name}",
-            Action = $"{ActionConstants.CategoryPrefix}{c.Code}",
-            OrderNum = (short)categories.ToList().IndexOf(c)
-        })
-        .OrderBy(b => b.Id)
-        .ToList();
+            Caption = $"{cs.StatusEmoji} {cs.CategoryName}",
+            Action = $"{ActionConstants.CategoryPrefix}{cs.CategoryCode}",
+            OrderNum = (short)index
+        }).ToList();
+
+        var backToMenuButton = await _scenarioRepository.GetButtonByIdAsync(9, cancellationToken);
+        if (backToMenuButton != null)
+        {
+            backToMenuButton.OrderNum = (short)categoryButtons.Count;
+            categoryButtons.Add(backToMenuButton);
+        }
 
         await _sessionRepository.CreateOrUpdateSessionAsync(
             tgUser.Id,
@@ -86,7 +86,7 @@ public sealed class DuelsCommandHandler(
         return new CommandResult
         {
             Message = stepMessage,
-            Keyboard = new Collection<ButtonDto>([..categoryButtons, backToDuelsButton!]),
+            Keyboard = new Collection<ButtonDto>(categoryButtons),
             IsFinal = step.IsFinal,
             IsNewMessage = false
         };

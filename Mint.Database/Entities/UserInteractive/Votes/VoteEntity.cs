@@ -23,7 +23,7 @@ public class VoteEntity
     /// Account entity
     /// </summary>
     [ForeignKey(nameof(AccountId))]
-    public AccountEntity Account { get; set; } = null!;
+    public virtual AccountEntity Account { get; set; } = null!;
 
     /// <summary>
     /// Duel ID (part of composite key)

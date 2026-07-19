@@ -70,10 +70,10 @@ public class DuelEntity
     /// <summary>
     /// Available options for this duel
     /// </summary>
-    public virtual ICollection<DuelOptionEntity> Options { get; init; } = new List<DuelOptionEntity>();
+    public virtual ICollection<DuelOptionEntity> Options { get; init; } = [];
 
     /// <summary>
     /// Votes for this duel
     /// </summary>
-    public virtual ICollection<VoteEntity> Votes { get; init; } = new List<VoteEntity>();
+    public virtual ICollection<VoteEntity> Votes { get; init; } = [];
 }

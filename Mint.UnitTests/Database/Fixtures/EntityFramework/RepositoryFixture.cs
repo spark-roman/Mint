@@ -63,10 +63,22 @@ public class RepositoryFixture
 
         using var context = await dbContextFactory.CreateDbContextAsync(cancellationToken);
         context.Duels.RemoveRange(context.Duels);
+        context.DuelOptions.RemoveRange(context.DuelOptions);
+        context.Users.RemoveRange(context.Users);
+        context.Accounts.RemoveRange(context.Accounts);
         context.UserStats.RemoveRange(context.UserStats);
+        context.UserCategories.RemoveRange(context.UserCategories);
         context.UserBonusStats.RemoveRange(context.UserBonusStats);
         context.RankConfigs.RemoveRange(context.RankConfigs);
         context.StepTypes.RemoveRange(context.StepTypes);
+        context.Scenarios.RemoveRange(context.Scenarios);
+        context.Steps.RemoveRange(context.Steps);
+        context.Buttons.RemoveRange(context.Buttons);
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        UsersSeeder.Seed(context);
+
         await context.SaveChangesAsync(cancellationToken);
     }
 }

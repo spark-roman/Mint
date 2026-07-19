@@ -157,7 +157,7 @@ public class MintDbContext : DbContext
 
         modelBuilder.Entity<DuelEntity>()
             .HasOne(d => d.Category)
-            .WithMany()
+            .WithMany(c => c.Duels)
             .HasForeignKey(d => d.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
 
