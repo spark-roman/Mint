@@ -319,6 +319,87 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.Contains("🔗 Поспорить с другом", result.Keyboard.Select(b => b.Caption));
     }
 
+    /// <summary>
+    /// Verifies that category selection returns the back-to-duels button (ID 10).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_CategorySelection_ReturnsBackToDuelsButton()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act
+        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        Assert.Contains("🔙 К дуэлям", result.Keyboard.Select(b => b.Caption));
+    }
+
+    /// <summary>
+    /// Verifies that the back-to-duels button has the correct action "duels".
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_CategorySelection_BackToDuelsButtonHasCorrectAction()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act
+        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var backToDuelsButton = result.Keyboard.FirstOrDefault(b => b.Caption == "🔙 К дуэлям");
+        Assert.NotNull(backToDuelsButton);
+        Assert.Equal("duels", backToDuelsButton.Action);
+    }
+
+    /// <summary>
+    /// Verifies that the back-to-duels button is the last button in the keyboard (after share button).
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_CategorySelection_BackToDuelsButtonIsLast()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act
+        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result.Keyboard);
+        var lastButton = result.Keyboard.Last();
+        Assert.Equal("🔙 К дуэлям", lastButton.Caption);
+    }
+
+    /// <summary>
+    /// Verifies that clicking the back-to-duels button navigates to duels scenario.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BackToDuelsButton_NavigatesToDuelsScenario()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act
+        var result = await handler.HandleAsync(1001, "duels", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.NotNull(result.Message);
+        Assert.NotNull(result.Keyboard);
+        Assert.Contains("Выберите категорию", result.Message);
+    }
+
     #endregion
 
     #region Category Selection - Invalid Categories

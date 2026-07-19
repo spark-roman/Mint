@@ -208,7 +208,7 @@ public sealed class BotInitializer
         // ========== profile (ParentStepId = 2) ==========
         new ButtonEntity { Id = 4, ParentStepId = 2, OrderNum = 1, Caption = "🎁 Забрать бонус", Action = "claim_bonus" },
         new ButtonEntity { Id = 5, ParentStepId = 2, OrderNum = 2, Caption = "📈 Таблица лидеров", Action = "leaderboard" },
-        new ButtonEntity { Id = 6, ParentStepId = 2, OrderNum = 3, Caption = "⬅️ Назад в меню", Action = "main_menu" },
+        new ButtonEntity { Id = 6, ParentStepId = 2, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
         // ========== referral (ParentStepId = 4) ==========
         new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" },
@@ -216,7 +216,9 @@ public sealed class BotInitializer
         // ========== leaderboard (ParentStepId = 5) ==========
         new ButtonEntity { Id = 8, ParentStepId = 6, OrderNum = 1, Caption = "🔙 Вернуться в профиль", Action = "profile" },
 
-        new ButtonEntity { Id = 9, ParentStepId = 8, OrderNum = 1, Caption = "⬅️ Назад в меню", Action = "main_menu" }
+        new ButtonEntity { Id = 9, ParentStepId = 7, OrderNum = 1, Caption = "🔙 Назад в меню", Action = "main_menu" },
+
+        new ButtonEntity { Id = 10, ParentStepId = 8, OrderNum = 1, Caption = "🔙 К дуэлям", Action = "duels" }
     ];
 
     /// <summary>
