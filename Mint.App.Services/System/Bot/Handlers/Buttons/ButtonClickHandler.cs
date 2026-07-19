@@ -229,6 +229,10 @@ public sealed class ButtonClickHandler(
             OrderNum = (short)optionButtons.Count
         });
 
+        var backToDuelsButton = await _scenarioRepository.GetButtonByIdAsync(10, cancellationToken);
+        backToDuelsButton!.OrderNum = (short)(optionButtons.Count + 1);
+        optionButtons.Add(backToDuelsButton);
+
         await _sessionRepository.CreateOrUpdateSessionAsync(
             externalUserId,
             scenario.Id,
