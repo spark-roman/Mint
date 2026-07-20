@@ -1,9 +1,10 @@
+```mermaid
 flowchart TD
-    subgraph Scheduler1["⏰ Расписание 1 (06:00 UTC)"]
+    subgraph Scheduler1["📅 Расписание 1 (06:00 UTC)"]
         A["Запуск сбора новостей"]
     end
 
-    subgraph Scheduler2["⏰ Расписание 2 (07:00 UTC)"]
+    subgraph Scheduler2["📅 Расписание 2 (07:00 UTC)"]
         M["Запуск генерации дуэлей"]
     end
 
@@ -43,3 +44,4 @@ flowchart TD
     class NewsProcess news
     class DuelProcess duel
     class Notification notify
+```
