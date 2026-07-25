@@ -1,6 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.Infrastructure.DI.System.Bot;
+using Mint.App.Services.Infrastructure.DI.System.News;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Leaderboards;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
@@ -34,5 +35,6 @@ public static class RegisterAppServicesExtensions
         services.RegisterBonusValidators();
         services.RegisterLeaderboardHandlers();
         services.RegisterDuelsHandlers();
+        services.RegisterNewsServices();
     }
 }

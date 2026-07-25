@@ -61,6 +61,7 @@ public class CategoryEntity
     /// <summary>
     /// Unique identifier of the category
     /// </summary>
+    [Column("code")]
     public required string Code { get; set; }
 
     /// <summary>

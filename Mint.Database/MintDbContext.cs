@@ -2,6 +2,8 @@ using Microsoft.EntityFrameworkCore;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.News;
+using Mint.Database.Entities.News.RSS;
 using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Duels;
@@ -103,6 +105,17 @@ public class MintDbContext : DbContext
     /// User sessions
     /// </summary>
     public DbSet<UserSessionEntity> UserSessions { get; set; }
+
+    /// <summary>
+    /// RSS sources
+    /// </summary>
+    /// <value></value>
+    public DbSet<RssSourceEntity> RssSources { get; set; }
+
+    /// <summary>
+    /// News
+    /// </summary>
+    public DbSet<NewsEntity> News { get; set; }
 
     /// <summary>
     /// Constructor with connection param
@@ -212,6 +225,93 @@ public class MintDbContext : DbContext
             .WithMany()
             .HasForeignKey(us => us.CurrentStepId)
             .OnDelete(DeleteBehavior.Cascade);
+
+        modelBuilder.Entity<RssSourceEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(200);
+
+            entity.Property(e => e.Url)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.CategoryCode)
+                .HasMaxLength(50);
+
+            entity.HasIndex(e => e.Url)
+                .IsUnique();
+
+            entity.HasIndex(e => e.CategoryCode)
+                .HasDatabaseName("idx_rss_sources_category");
+
+            entity.HasIndex(e => e.IsActive)
+                .HasDatabaseName("idx_rss_sources_active");
+
+            entity.HasIndex(e => e.Priority)
+                .HasDatabaseName("idx_rss_sources_priority"); 
+
+            entity.HasIndex(e => e.Language)
+                .HasDatabaseName("idx_rss_sources_language");
+        });
+
+        modelBuilder.Entity<NewsEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Title)
+                .IsRequired()
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Link)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            entity.Property(e => e.Description)
+                .HasColumnType("text");
+
+            entity.Property(e => e.Content)
+                .HasColumnType("text");
+
+            entity.Property(e => e.Author)
+                .HasMaxLength(200);
+
+            entity.Property(e => e.CategoryCode)
+                .HasMaxLength(50);
+
+            entity.HasIndex(e => e.Link)
+                .IsUnique()
+                .HasDatabaseName("idx_news_link_unique");
+
+            entity.HasIndex(e => e.PublishedAt)
+                .IsDescending()
+                .HasDatabaseName("idx_news_published_at_desc");
+
+            entity.HasIndex(e => e.IsProcessed)
+                .HasDatabaseName("idx_news_is_processed");
+
+            entity.HasIndex(e => e.CategoryCode)
+                .HasDatabaseName("idx_news_category");
+
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("idx_news_created_at");
+
+            entity.HasIndex(e => e.RssSourceId)
+                .HasDatabaseName("idx_news_rss_source");
+
+            entity.HasIndex(e => new { e.IsProcessed, e.PublishedAt })
+                .HasDatabaseName("idx_news_processed_published");
+
+            entity.HasIndex(e => new { e.CategoryCode, e.IsProcessed })
+                .HasDatabaseName("idx_news_category_processed");
+
+            entity.HasOne(e => e.RssSource)
+                .WithMany(s => s.News)
+                .HasForeignKey(e => e.RssSourceId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.InitData();
     }

@@ -6,6 +6,7 @@
   <ItemGroup>
     <PackageReference Include="Telegram.Bot" />
     <PackageReference Include="Microsoft.Extensions.Http" />
+    <PackageReference Include="Sagara.FeedReader" />
   </ItemGroup>
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
