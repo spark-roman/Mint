@@ -5,6 +5,7 @@ using Mint.Database.Infrastructure.DI.UserInteractive;
 using Mint.Database.Infrastructure.DI.Users;
 using Mint.Database.Infrastructure.DI.System;
 using Mint.Database.Infrastructure.DI.Bot;
+using Mint.Database.Infrastructure.DI.News;
 
 namespace Mint.Database.Infrastructure.DI;
 
@@ -41,5 +42,7 @@ public static class DatabseExtensions
         services.RegisterBotRepositories();
         services.RegisterCategoryMappers();
         services.RegisterCategoryRepositories();
+        services.RegisterNewaMappers();
+        services.RegisterNesRepositories();
     }
 }

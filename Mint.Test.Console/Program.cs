@@ -5,6 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Mint.App.Services.Infrastructure.DI;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.News.Handlers;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
 using Mint.Database.Infrastructure.DI.Design;
@@ -23,12 +24,13 @@ var host = Host.CreateDefaultBuilder(args)
 
         services.Configure<DeepSeekSettings>(context.Configuration.GetSection("DeepSeekSettings"));
         services.AddDbContextFactory<MintDbContext>(options => options.UseNpgsql(connectionString));
-        //services.AddMintDesignTimeDbContext();
 
         services.RegisterAppServices();
         services.RegisterDatabaseServices();
     })
     .Build();
 
-    var duelGenerationService = host.Services.GetRequiredService<IDuelGenerationService>();
-    var result = await duelGenerationService.GenerateDuelsForAllActiveCategoriesAsync(3, CancellationToken.None);
+    var newsCollector = host.Services.GetRequiredService<INewsCollector>();
+
+    var result = await newsCollector.CollectAllAsync(CancellationToken.None);
+    Console.ReadKey();

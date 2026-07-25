@@ -32,3 +32,5 @@ msbuild.wrn
 AddMigration.sh
 Mint.Database/Migrations/20260706230835_RenameToDebit.cs
 Migration.txt
+Mint.Database/catgories.sql
+Mint.Database/rss_sources.sql
