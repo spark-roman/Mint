@@ -79,12 +79,6 @@ public class VoteRepository(
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        /*return await context.Users
-            .AsNoTracking()
-            .Where(u => u.ExternalUserId == externalUserId && u.Account != null)
-            .SelectMany(u => u.Account.Votes)
-            .AnyAsync(v => v.DuelId == duelId, cancellationToken);*/
-
         return await context.Votes
             .Where(v => v.Account.User.ExternalUserId == externalUserId && v.DuelId == duelId)
             .AnyAsync(cancellationToken);
