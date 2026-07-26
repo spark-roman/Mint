@@ -16,12 +16,19 @@ public interface IAccountRepository
     Task<long> CreateAccountAsync(AccountCreateDto account, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get account by ID
+    /// Get account by id
     /// </summary>
     /// <param name="accountId">Account ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Account DTO or null if not found</returns>
     Task<AccountDto?> GetAccountByIdAsync(long accountId, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get system account
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Account DTO or null if not found</returns>
+    Task<AccountDto?> GetSystemAccountAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Get user account by external user ID and system type

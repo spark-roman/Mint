@@ -8,6 +8,13 @@ namespace Mint.Database.Entities.UserInteractive.Duels.Repositories;
 public interface IDuelRepository
 {
     /// <summary>
+    /// Close duel
+    /// </summary>
+    /// <param name="duelId">Duel id</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    Task CloseDuelAsync(long duelId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Create a new duel
     /// </summary>
     /// <param name="dto">DTO for creation</param>

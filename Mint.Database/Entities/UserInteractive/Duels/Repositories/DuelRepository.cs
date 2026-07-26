@@ -64,7 +64,7 @@ public class DuelRepository(
 
         var entities = await context.Duels
             .Include(d => d.Options)
-            .Where(d => d.IsClosed == false && d.ExpiresAt > now)
+            .Where(d => d.IsClosed == false && d.ExpiresAt < now)
             .OrderByDescending(d => d.Id)
             .ToListAsync(cancellationToken);
 
@@ -96,5 +96,22 @@ public class DuelRepository(
             .FirstOrDefaultAsync(o => o.Id == optionId, cancellationToken);
 
         return entity != null ? _optionMapper.Map(entity) : null;
+    }
+
+    /// <inheritdoc/>
+    public async Task CloseDuelAsync(long duelId, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var duel = await context.Duels.FirstOrDefaultAsync(d => d.Id == duelId, cancellationToken);
+
+        if (duel is null)
+        {
+            throw new InvalidOperationException("Duel not found");
+        }
+
+        duel.IsClosed = true;
+
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
