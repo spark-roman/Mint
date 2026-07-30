@@ -20,11 +20,7 @@ public sealed class LeaderboardHandler(
     private const int DefaultTop = 15;
 
     /// <inheritdoc/>
-    public async Task<LeaderboardResultDto> GetLeaderboardAsync(
-        int top,
-        long externalUserId,
-        AuthSystem authSystem,
-        CancellationToken cancellationToken)
+    public async Task<LeaderboardResultDto> GetLeaderboardAsync(int top, long externalUserId, AuthSystem authSystem, CancellationToken cancellationToken)
     {
         if (top <= 0)
         {

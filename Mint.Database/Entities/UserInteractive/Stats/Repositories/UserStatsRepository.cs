@@ -70,6 +70,21 @@ public class UserStatsRepository(
     }
 
     /// <inheritdoc/>
+    public async Task<UserStatsDto?> GetStatsByAccountIdAsync(long accountId, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var stats = context.Accounts
+            .Where(a => a.Id == accountId)
+            .Include(a => a.User)
+            .ThenInclude(u => u.Stats)
+            .Select(a => a.User.Stats)
+            .FirstOrDefault();
+
+        return stats is null ? null : _statsMapper.Map(stats);
+    }
+
+    /// <inheritdoc/>
     public async Task<List<UserStatsDto>> GetTopStatsByUserIdAsync(int top, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
@@ -88,14 +103,14 @@ public class UserStatsRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<bool> UpdateStatsAsync(long userId, UserStatsUpdateDto dto, CancellationToken cancellationToken)
+    public async Task<bool> UpdateStatsAsync(long externalUserId, UserStatsUpdateDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var stats = context.Users
-            .Where(u => u.ExternalUserId == userId)
+            .Where(u => u.ExternalUserId == externalUserId)
             .Include(u => u.Stats)
             .Select(u => u.Stats)
             .FirstOrDefault();
@@ -105,6 +120,35 @@ public class UserStatsRepository(
             return false;
         }
             
+        var updatedEntity = _statsUpdateMapper.Map(dto);
+        stats.RankPoints = updatedEntity.RankPoints;
+        stats.TotalWins = updatedEntity.TotalWins;
+        stats.TotalLosses = updatedEntity.TotalLosses;
+        stats.UpdatedAt = updatedEntity.UpdatedAt;
+
+        await context.SaveChangesAsync(cancellationToken);
+        return true;
+    }
+
+    /// <inheritdoc/>
+    public async Task<bool> UpdateStatsByAccountIdAsync(long accountId, UserStatsUpdateDto dto, CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(dto);
+
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var stats = context.Accounts
+            .Where(a => a.Id == accountId)
+            .Include(a => a.User)
+            .ThenInclude(u => u.Stats)
+            .Select(a => a.User.Stats)
+            .FirstOrDefault();
+
+        if (stats is null)
+        {
+            return false;
+        }
+
         var updatedEntity = _statsUpdateMapper.Map(dto);
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;

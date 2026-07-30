@@ -6,6 +6,8 @@ using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
+using Mint.Database.Entities.UserInteractive.Stats;
+using Mint.Database.Entities.Users;
 
 namespace Mint.UnitTests.AppServices.System.WinCalculation.Seeding;
 
@@ -52,17 +54,112 @@ public static class DuelSettlementHandlerSeeder
             {
                 Id = 4,
                 UserId = 4,
-                Balance = 50000m,
+                Balance = 10000m,
                 Status = AccountStatus.Active,
                 CreatedAt = DateTimeOffset.UtcNow
             },
             new AccountEntity
             {
                 Id = 100,
-                UserId = 100,
-                Balance = 1000000m,
+                UserId = 5,
+                Balance = 50000m,
                 Status = AccountStatus.Active,
+                CreatedAt = DateTimeOffset.UtcNow
+            });
+
+        context.SaveChanges();
+
+        // Seed test users
+        context.Users.AddRange(
+            new UserEntity
+            {
+                Id = 1,
+                ExternalUserId = 1001,
+                SystemType = 1,
+                FirstName = "System",
+                LastName = "Account",
+                UserName = "system",
                 CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            },
+            new UserEntity
+            {
+                Id = 2,
+                ExternalUserId = 1002,
+                SystemType = 1,
+                FirstName = "Alice",
+                LastName = "Johnson",
+                UserName = "alice_j",
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            },
+            new UserEntity
+            {
+                Id = 3,
+                ExternalUserId = 1003,
+                SystemType = 1,
+                FirstName = "Bob",
+                LastName = "Smith",
+                UserName = "bob_s",
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            },
+            new UserEntity
+            {
+                Id = 4,
+                ExternalUserId = 1004,
+                SystemType = 1,
+                FirstName = "Charlie",
+                LastName = "Brown",
+                UserName = "charlie_b",
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            },
+            new UserEntity
+            {
+                Id = 5,
+                ExternalUserId = 1005,
+                SystemType = 1,
+                FirstName = "Diana",
+                LastName = "Prince",
+                UserName = "diana_p",
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            });
+
+        context.SaveChanges();
+
+        // Seed user stats (only for accounts 2, 3, 4 — not for account 100/Diana)
+        context.UserStats.AddRange(
+            new UserStatsEntity
+            {
+                Id = 1,
+                UserId = 2,
+                RankPoints = 100,
+                TotalWins = 5,
+                TotalLosses = 2,
+                ReferralCount = 0,
+                UpdatedAt = DateTimeOffset.UtcNow
+            },
+            new UserStatsEntity
+            {
+                Id = 2,
+                UserId = 3,
+                RankPoints = 75,
+                TotalWins = 3,
+                TotalLosses = 3,
+                ReferralCount = 0,
+                UpdatedAt = DateTimeOffset.UtcNow
+            },
+            new UserStatsEntity
+            {
+                Id = 3,
+                UserId = 4,
+                RankPoints = 50,
+                TotalWins = 2,
+                TotalLosses = 4,
+                ReferralCount = 0,
+                UpdatedAt = DateTimeOffset.UtcNow
             });
 
         context.SaveChanges();
