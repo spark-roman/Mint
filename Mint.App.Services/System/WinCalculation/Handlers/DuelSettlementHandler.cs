@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
+using Mint.Database.Entities.UserInteractive.Stats.Dto;
+using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 
 namespace Mint.App.Services.System.WinCalculation.Handlers;
@@ -10,6 +12,7 @@ public sealed class DuelSettlementHandler(
     IDuelRepository duelRepository,
     IVoteRepository voteRepository,
     ITransactionRepository transactionRepository,
+    IUserStatsRepository userStatsRepository,
     IDuelCalculationHandler duelCalculator,
     ILogger<DuelSettlementHandler> logger) : IDuelSettlementHandler
 {
@@ -19,6 +22,9 @@ public sealed class DuelSettlementHandler(
 
     private readonly ITransactionRepository _transactionRepository = transactionRepository
         ?? throw new ArgumentNullException(nameof(transactionRepository));
+
+    private readonly IUserStatsRepository _userStatsRepository = userStatsRepository
+        ?? throw new ArgumentNullException(nameof(userStatsRepository));
 
     private readonly IDuelCalculationHandler _duelCalculator = duelCalculator
         ?? throw new ArgumentNullException(nameof(duelCalculator));
@@ -106,6 +112,23 @@ public sealed class DuelSettlementHandler(
         foreach (var instruction in result.PayoutInstructions)
         {
             await _transactionRepository.CreateTransactionAsync(instruction, cancellationToken);
+
+            var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(instruction.CreditAccountId, cancellationToken);
+
+            if (userStats is null)
+            {
+                throw new InvalidOperationException($"User stats not found for account {instruction.CreditAccountId}");
+            }
+
+            var statsUpdateDto = new UserStatsUpdateDto
+            {
+                RankPoints = userStats.RankPoints + instruction.Amount,
+                TotalWins = userStats.TotalWins + 1,
+                TotalLosses = userStats.TotalLosses,
+                ReferralCount = userStats.ReferralCount
+            };
+
+            await _userStatsRepository.UpdateStatsByAccountIdAsync(instruction.CreditAccountId, statsUpdateDto, cancellationToken);
 
             _logger.LogDebug(
                 "Payout: {Amount} to account {CreditAccountId}",

@@ -89,6 +89,8 @@ public sealed class DuelSettlementHandlerFixture : IDisposable
         context.DuelOptions.RemoveRange(context.DuelOptions);
         context.Duels.RemoveRange(context.Duels);
         context.Accounts.RemoveRange(context.Accounts);
+        context.UserStats.RemoveRange(context.UserStats);
+        context.Users.RemoveRange(context.Users);
         context.UserCategories.RemoveRange(context.UserCategories);
 
         await context.SaveChangesAsync(cancellationToken);

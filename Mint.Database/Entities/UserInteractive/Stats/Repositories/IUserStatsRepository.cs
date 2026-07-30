@@ -25,13 +25,30 @@ public interface IUserStatsRepository
     Task<UserStatsDto?> GetStatsByUserIdAsync(long externaUserId, byte systemType, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Get user stats by account ID
+    /// </summary>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>User stats DTO or null if not found</returns>
+    Task<UserStatsDto?> GetStatsByAccountIdAsync(long accountId, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Update user stats
     /// </summary>
-    /// <param name="userId">User ID</param>
+    /// <param name="externalUserId">External user id</param>
     /// <param name="dto">DTO with update data</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if stats were updated</returns>
-    Task<bool> UpdateStatsAsync(long userId, UserStatsUpdateDto dto, CancellationToken cancellationToken);
+    Task<bool> UpdateStatsAsync(long externalUserId, UserStatsUpdateDto dto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Update user stats by account ID
+    /// </summary>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="dto">DTO with update data</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>True if stats were updated</returns>
+    Task<bool> UpdateStatsByAccountIdAsync(long accountId, UserStatsUpdateDto dto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get top stats

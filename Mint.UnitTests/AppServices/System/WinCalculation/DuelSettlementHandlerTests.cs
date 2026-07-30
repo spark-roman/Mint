@@ -2,11 +2,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.WinCalculation.Handlers;
 using Mint.Database;
-using Mint.Database.Entities.Ledger.Transactions;
-using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
-using Mint.Database.Entities.UserInteractive.Votes;
+using Mint.Database.Entities.UserInteractive.Stats;
+using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.UnitTests.AppServices.System.WinCalculation.Fixtures;
 
 namespace Mint.UnitTests.AppServices.System.WinCalculation;
@@ -450,6 +449,144 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         Assert.True(duel1.IsClosed);
         Assert.NotNull(duel2);
         Assert.True(duel2.IsClosed);
+    }
+
+    #endregion
+
+    #region UpdateStatsByAccountIdAsync - Successful Updates
+
+    /// <summary>
+    /// Verifies that settling a duel updates stats for winning account.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_WinningAccount_UpdatesStats()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert - Account 2 (userId=2, Alice) voted for winning option and has stats
+        var stats = await statsRepository.GetStatsByAccountIdAsync(2, CancellationToken.None);
+        Assert.NotNull(stats);
+        Assert.Equal(693.75m, stats.RankPoints); // 100 + 10
+        Assert.Equal(6, stats.TotalWins);   // 5 + 1
+        Assert.Equal(2, stats.TotalLosses); // unchanged
+    }
+
+    /// <summary>
+    /// Verifies that settling a duel updates stats for all winning voters.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_MultipleWinningVoters_UpdatesAllStats()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert - Account 3 (userId=3, Bob) also voted for winning option
+        var stats3 = await statsRepository.GetStatsByAccountIdAsync(3, CancellationToken.None);
+        Assert.NotNull(stats3);
+        Assert.Equal(431.25m, stats3.RankPoints); // 75 + 10
+        Assert.Equal(4, stats3.TotalWins);   // 3 + 1
+    }
+
+    /// <summary>
+    /// Verifies that settling a duel updates stats for all payout recipients.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_PayoutRecipients_UpdatesStats()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert - Account 4 (userId=4, Charlie) receives payout, stats should be updated
+        var stats4 = await statsRepository.GetStatsByAccountIdAsync(4, CancellationToken.None);
+        Assert.NotNull(stats4);
+        Assert.Equal(50, stats4.RankPoints); // 50 + 10
+        Assert.Equal(2, stats4.TotalWins);   // 2 + 1
+    }
+
+    /// <summary>
+    /// Verifies that settling a duel without votes does not throw.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_NoVotes_DoesNotThrow()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        // Act - duel 2 has no votes
+        await handler.SettleDuelAsync(2, CancellationToken.None);
+
+        // Assert - duel should be closed without errors
+        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var duel = await duelRepository.GetDuelByIdAsync(2, CancellationToken.None);
+        Assert.NotNull(duel);
+        Assert.True(duel.IsClosed);
+    }
+
+    #endregion
+
+    #region GetStatsByAccountIdAsync - Successful Retrievals
+
+    /// <summary>
+    /// Verifies that stats are retrievable by account ID after settlement.
+    /// </summary>
+    [Fact]
+    public async Task GetStatsByAccountIdAsync_AfterSettlement_ReturnsUpdatedStats()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert
+        var stats = await statsRepository.GetStatsByAccountIdAsync(2, CancellationToken.None);
+        Assert.NotNull(stats);
+        Assert.Equal(693.75m, stats.RankPoints);
+        Assert.Equal(6, stats.TotalWins);
+    }
+
+    /// <summary>
+    /// Verifies that stats can be retrieved for account without prior stats after settlement.
+    /// </summary>
+    [Fact]
+    public async Task GetStatsByAccountIdAsync_AccountWithoutPriorStats_ReturnsNull()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert - Account 100 (userId=5, Diana) had no stats before
+        var stats = await statsRepository.GetStatsByAccountIdAsync(100, CancellationToken.None);
+        Assert.Null(stats);
     }
 
     #endregion
