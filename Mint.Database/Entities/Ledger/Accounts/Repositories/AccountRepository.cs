@@ -63,15 +63,13 @@ public class AccountRepository(
         return account is null ? null : _accountMapper.Map(account);
     }
 
-    private const long SYSTEM_ACCOUNT_ID = 1;
-
     /// <inheritdoc/>
     public async Task<AccountDto?> GetSystemAccountAsync(CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var account = await context.Accounts
-            .FirstOrDefaultAsync(a => a.Id == SYSTEM_ACCOUNT_ID, cancellationToken);
+            .FirstOrDefaultAsync(a => a.Id == AccountConsts.SystemAccountId, cancellationToken);
 
         return account is null ? null : _accountMapper.Map(account);
     }

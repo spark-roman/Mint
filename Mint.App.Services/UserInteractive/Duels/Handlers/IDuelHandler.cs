@@ -10,7 +10,7 @@ public interface IDuelHandler
     /// <summary>
     /// Gets the first available duel for a category.
     /// </summary>
-    Task<DuelCardDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken);
+    Task<DuelCardDto?> GetFirstAvailableDuelAsync(int categoryId, long accountId,CancellationToken cancellationToken);
 
     /// <summary>
     /// Checks if a user has already voted in a duel.

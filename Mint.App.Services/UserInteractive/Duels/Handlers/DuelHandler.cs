@@ -34,12 +34,15 @@ public class DuelHandler(
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     /// <inheritdoc />
-    public async Task<DuelCardDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken)
+    public async Task<DuelCardDto?> GetFirstAvailableDuelAsync(int categoryId, long accountId, CancellationToken cancellationToken)
     {
-        var duel = await _duelRepository.GetFirstAvailableDuelAsync(categoryId, cancellationToken);
+        var duel = await _duelRepository.GetFirstAvailableDuelAsync(categoryId, accountId, cancellationToken);
+        
         if (duel == null)
+        {
             return null;
-
+        }
+            
         return new DuelCardDto
         {
             DuelId = duel.Id,
