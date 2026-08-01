@@ -81,7 +81,11 @@ public class DuelRepository(
         var duel = await context.Duels
             .Include(d => d.Options)
             .Include(d => d.Category)
-            .FirstOrDefaultAsync(d => d.CategoryId == categoryId && d.IsClosed == false && d.ExpiresAt > now, cancellationToken);
+            .Include(d => d.Votes)
+            .FirstOrDefaultAsync(d => d.CategoryId == categoryId
+                && d.IsClosed == false
+                && d.ExpiresAt > now
+                && d.Votes.Count == 0, cancellationToken);
 
         return duel is null ? null : _duelMapper.Map(duel);
     }
