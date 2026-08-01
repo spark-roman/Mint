@@ -184,6 +184,7 @@ public sealed class ButtonClickHandler(
         }
 
         var duel = await _duelRepository.GetFirstAvailableDuelAsync(category.Id, cancellationToken);
+        
         if (duel == null)
         {
             return new CommandResult
@@ -304,7 +305,6 @@ public sealed class ButtonClickHandler(
             new() { Caption = "🪙 100", Action = $"{ActionConstants.BetPrefix}{duelId}_{optionId}_100" },
             new() { Caption = "🪙 500", Action = $"{ActionConstants.BetPrefix}{duelId}_{optionId}_500" },
             new() { Caption = "🪙 1000", Action = $"{ActionConstants.BetPrefix}{duelId}_{optionId}_1000" },
-            new() { Caption = "💰 ВСЁ", Action = $"{ActionConstants.BetPrefix}{duelId}_{optionId}_{balance}" },
             new() { Caption = "❌ Отмена", Action = $"{ActionConstants.CancelPrefix}{duelId}" }
         };
 
@@ -483,6 +483,13 @@ public sealed class ButtonClickHandler(
             Caption = "🔗 Поспорить с другом",
             Action = $"{ActionConstants.SharePrefix}{duel.Id}",
             OrderNum = (short)optionButtons.Count
+        });
+
+        optionButtons.Add(new ButtonDto
+        {
+            Caption = "🔙 К дуэлям",
+            Action = $"duels",
+            OrderNum = (short)(optionButtons.Count + 1)
         });
 
         return new CommandResult
