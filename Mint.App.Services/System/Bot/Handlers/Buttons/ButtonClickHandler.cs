@@ -9,12 +9,9 @@ using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Dto;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.Ledger.Accounts;
-using Mint.Database.Entities.Ledger.Transactions.Dto;
-using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
-using Mint.Database.Entities.UserInteractive.Votes.Dto;
 using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 
@@ -183,9 +180,14 @@ public sealed class ButtonClickHandler(
             return CommandResult.Error("Шаг дуэли не найден");
         }
 
-        var duel = await _duelRepository.GetFirstAvailableDuelAsync(category.Id, cancellationToken);
+        var userAccount = await _accountRepository.GetAccountByExternalUserIdAsync(
+            externalUserId,
+            (byte)AuthSystem.Tg,
+            cancellationToken) ?? throw new InvalidOperationException("User account not found");
+
+        var duelCard = await _duelHandler.GetFirstAvailableDuelAsync(category.Id, userAccount.Id, cancellationToken);
         
-        if (duel == null)
+        if (duelCard == null)
         {
             return new CommandResult
             {
@@ -199,34 +201,19 @@ public sealed class ButtonClickHandler(
             };
         }
 
-        var duelCard = new DuelCardDto
-        {
-            DuelId = duel.Id,
-            CategoryName = category.Name,
-            Question = duel.Question,
-            Description = duel.Description,
-            ExpiresAt = duel.ExpiresAt,
-            Options = [..duel.Options.Select(o => new DuelOptionDto
-            {
-                Id = o.Id,
-                OptionText = o.OptionText,
-                OptionCode = o.OptionCode
-            })]
-        };
-
         var message = await _messageFormatter.FormatDuelAsync(step.Message, duelCard, cancellationToken);
 
-        var optionButtons = duel.Options.Select(o => new ButtonDto
+        var optionButtons = duelCard.Options.Select(o => new ButtonDto
         {
             Caption = o.OptionText,
-            Action = $"{ActionConstants.VotePrefix}{duel.Id}_{o.Id}",
-            OrderNum = (short)duel.Options.ToList().IndexOf(o)
+            Action = $"{ActionConstants.VotePrefix}{duelCard.DuelId}_{o.Id}",
+            OrderNum = (short)duelCard.Options.ToList().IndexOf(o)
         }).ToList();
 
         optionButtons.Add(new ButtonDto
         {
             Caption = "🔗 Поспорить с другом",
-            Action = $"{ActionConstants.SharePrefix}{duel.Id}",
+            Action = $"{ActionConstants.SharePrefix}{duelCard.DuelId}",
             OrderNum = (short)optionButtons.Count
         });
 
@@ -238,7 +225,7 @@ public sealed class ButtonClickHandler(
             externalUserId,
             scenario.Id,
             step.Id,
-            $"{{\"step\":\"duel\",\"duel_id\":{duel.Id}}}",
+            $"{{\"step\":\"duel\",\"duel_id\":{duelCard.DuelId}}}",
             cancellationToken);
 
         return new CommandResult

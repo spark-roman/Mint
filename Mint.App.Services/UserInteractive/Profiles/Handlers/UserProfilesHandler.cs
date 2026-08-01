@@ -188,7 +188,7 @@ public class UserProfilesHandler(
 
         var transaction = new TransactionCreateDto
         {
-            DebitAccountId = 1,
+            DebitAccountId = AccountConsts.SystemAccountId,
             CreditAccountId = account.Id,
             Amount = dailyBonusAmount,
             Description = "Daily bonus",
@@ -218,7 +218,7 @@ public class UserProfilesHandler(
 
             transaction = new TransactionCreateDto
             {
-                DebitAccountId = 1,
+                DebitAccountId = AccountConsts.SystemAccountId,
                 CreditAccountId = account.Id,
                 Amount = streakBonusAmount,
                 Description = "Streak bonus",

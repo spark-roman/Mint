@@ -72,7 +72,7 @@ public class DuelRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken)
+    public async Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, long accountId, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -85,7 +85,7 @@ public class DuelRepository(
             .FirstOrDefaultAsync(d => d.CategoryId == categoryId
                 && d.IsClosed == false
                 && d.ExpiresAt > now
-                && d.Votes.Count == 0, cancellationToken);
+                && !d.Votes.Any(v => v.AccountId == accountId), cancellationToken);
 
         return duel is null ? null : _duelMapper.Map(duel);
     }

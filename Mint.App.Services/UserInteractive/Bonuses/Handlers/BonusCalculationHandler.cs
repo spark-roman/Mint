@@ -1,5 +1,6 @@
 using Mint.App.Services.UserInteractive.Bonuses.Dto;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
@@ -45,7 +46,7 @@ public class BonusCalculationHandler(
 
         var transaction = new TransactionCreateDto
         {
-            DebitAccountId = 1,
+            DebitAccountId = AccountConsts.SystemAccountId,
             CreditAccountId = accountId,
             Amount = startBonusAmount,
             Description = "Стартовый бонус",
@@ -130,7 +131,7 @@ public class BonusCalculationHandler(
 
         var dailyTransaction = new TransactionCreateDto
         {
-            DebitAccountId = 1,
+            DebitAccountId = AccountConsts.SystemAccountId,
             CreditAccountId = accountId,
             Amount = dailyBonusAmount,
             Description = $"Ежедневный бонус (День {bonusStats!.CurrentDailyStreak + 1})",
@@ -148,7 +149,7 @@ public class BonusCalculationHandler(
         {
             var streakTransaction = new TransactionCreateDto
             {
-                DebitAccountId = 1,
+                DebitAccountId = AccountConsts.SystemAccountId,
                 CreditAccountId = accountId,
                 Amount = streakBonusAmount,
                 Description = "🔥 Стрик-бонус за 7 дней подряд!",

@@ -41,9 +41,10 @@ public interface IDuelRepository
     /// Get first available duel for category
     /// </summary>
     /// <param name="categoryId">Category id</param>
+    /// <param name="accountId"></param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Duel DTO or null if not found</returns>
-    Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, CancellationToken cancellationToken);
+    Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, long accountId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a duel option by its identifier.
