@@ -21,12 +21,12 @@ public sealed class BotInitializer
         new ScenarioEntity { Id = 2, Name = "profile", IsActive = true },
         new ScenarioEntity { Id = 3, Name = "duels", IsActive = true },
         new ScenarioEntity { Id = 4, Name = "referral", IsActive = true },
-        new ScenarioEntity { Id = 5, Name = "leaderboard", IsActive = true } // ← добавляем
+        new ScenarioEntity { Id = 5, Name = "leaderboard", IsActive = true },
+        new ScenarioEntity { Id = 6, Name = "help", IsActive = true }
     ];
 
     private readonly List<StepEntity> _steps =
     [
-        // ========== SCENARIO: start (Id = 1) ==========
         new StepEntity
         {
             Id = 1,
@@ -44,8 +44,6 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
-
-        // ========== SCENARIO: profile (Id = 2) ==========
         new StepEntity
         {
             Id = 2,
@@ -78,8 +76,6 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
-
-        // ========== SCENARIO: duels (Id = 3) ==========
         new StepEntity
         {
             Id = 3,
@@ -89,8 +85,6 @@ public sealed class BotInitializer
             Message = "📊 **Выберите категорию споров:**",
             IsFinal = false
         },
-
-        // ========== SCENARIO: referral (Id = 4) ==========
         new StepEntity
         {
             Id = 4,
@@ -110,8 +104,44 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
+        new StepEntity
+        {
+            Id = 5,
+            ScenarioId = 6,
+            OrderNum = 1,
+            StepTypeId = 4,
+            Message = """
+                🆘 **Помощь по боту "Дуэль мнений"**
 
-        // ========== Шаг 2: Лидерборд (добавляем) ==========
+                **Как это работает?**
+
+                📊 **Дуэли дня**
+                Выберите категорию и сделайте прогноз на актуальный спор.
+                Победите, если ваше мнение совпадет с мнением большинства!
+
+                👤 **Мой профиль**
+                Следите за своей статистикой, балансом и рангом.
+                Забирайте **ежедневный бонус** — он доступен раз в 24 часа.
+                Чем дольше вы забираете бонус подряд, тем больше награда за серию!
+
+                👥 **Пригласить**
+                Приглашайте друзей по ссылке.
+                Когда друг сделает свои первые 3 ставки, вы оба получите бонус!
+
+                💰 **Бонусы:**
+                • **Ежедневный:** Доступен 1 раз в 24 часа.
+                • **За серию:** Начисляется за 7 дней подряд получения бонуса.
+                • **Реферальный:** За приглашенных друзей.
+
+                🏆 **Ранги:**
+                Ранг начисляется исходя из очков, полученных за все время игры.
+                Чем больше вы участвуете и выигрываете, тем выше ваш ранг.
+                Ранг отображается в профиле и дает уважение среди игроков!
+
+                Удачи в спорах! 🍀
+                """,
+            IsFinal = true
+        },
         new StepEntity
         {
             Id = 6,
@@ -130,8 +160,6 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
-        // ========== SCENARIO: duels (Id = 3) ==========
-        // Шаг 1: Выбор категории
         new StepEntity
         {
             Id = 7,
@@ -141,7 +169,6 @@ public sealed class BotInitializer
             Message = "📊 **ДУЭЛИ ДНЯ**\n\nВыберите категорию для спора:{{categories_list}}",
             IsFinal = false
         },
-        // Шаг 2: Карточка дуэли (динамический, будет заполняться из кода)
         new StepEntity
         {
             Id = 8,
@@ -161,13 +188,12 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
-        // Шаг 3: Ввод ставки
         new StepEntity
         {
             Id = 9,
             ScenarioId = 3,
             OrderNum = 3,
-            StepTypeId = 2, // number
+            StepTypeId = 2,
             Message = """
                 💰 **ВАШ ПРОГНОЗ: "{{selected_option}}"**
 
@@ -177,13 +203,12 @@ public sealed class BotInitializer
                 """,
             IsFinal = false
         },
-        // Шаг 4: Успешная ставка
         new StepEntity
         {
             Id = 10,
             ScenarioId = 3,
             OrderNum = 4,
-            StepTypeId = 4, // info
+            StepTypeId = 4,
             Message = """
                 ✅ **СТАВКА УСПЕШНО ПРИНЯТА!**
 
@@ -204,6 +229,7 @@ public sealed class BotInitializer
         new ButtonEntity { Id = 1, ParentStepId = 1, OrderNum = 1, Caption = "📊 Дуэли дня", Action = "duels" },
         new ButtonEntity { Id = 2, ParentStepId = 1, OrderNum = 2, Caption = "👤 Мой профиль", Action = "profile" },
         new ButtonEntity { Id = 3, ParentStepId = 1, OrderNum = 3, Caption = "👥 Пригласить", Action = "referral" },
+        new ButtonEntity { Id = 11, ParentStepId = 1, OrderNum = 4, Caption = "🆘 Помощь", Action = "help" },
 
         // ========== profile (ParentStepId = 2) ==========
         new ButtonEntity { Id = 4, ParentStepId = 2, OrderNum = 1, Caption = "🎁 Забрать бонус", Action = "claim_bonus" },

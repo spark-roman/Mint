@@ -19,4 +19,7 @@ public static class ScenarioConstants
 
     /// <summary>Represents the leaderboard scenario.</summary>
     public const string Leaderboard = "leaderboard";
+
+    /// <summary>Represents the help menu scenario.</summary>
+    public const string Help = "help";
 }
