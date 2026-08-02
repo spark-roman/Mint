@@ -236,7 +236,7 @@ public sealed class BotInitializer
         new ButtonEntity { Id = 5, ParentStepId = 2, OrderNum = 2, Caption = "📈 Таблица лидеров", Action = "leaderboard" },
         new ButtonEntity { Id = 6, ParentStepId = 2, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
-        new ButtonEntity { Id = 12, ParentStepId = 1, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },
+        new ButtonEntity { Id = 12, ParentStepId = 5, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
         // ========== referral (ParentStepId = 4) ==========
         new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" },
