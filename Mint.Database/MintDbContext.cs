@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
@@ -173,6 +174,10 @@ public class MintDbContext : DbContext
             .WithMany(c => c.Duels)
             .HasForeignKey(d => d.CategoryId)
             .OnDelete(DeleteBehavior.Restrict);
+
+        modelBuilder.Entity<DuelEntity>()
+            .Property(u => u.Status)
+            .HasDefaultValue(DuelStatus.Closed);
 
         modelBuilder.Entity<DuelOptionEntity>()
             .HasOne(o => o.Duel)

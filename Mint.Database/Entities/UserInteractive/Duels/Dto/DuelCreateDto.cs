@@ -1,4 +1,5 @@
 using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.Database.Entities.UserInteractive.Duels.Dto;
 

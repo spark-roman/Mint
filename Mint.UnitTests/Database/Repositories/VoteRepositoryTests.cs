@@ -6,6 +6,7 @@ using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 using System.Linq;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.UnitTests.Database.Repositories;
 

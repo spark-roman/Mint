@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 namespace Mint.Database.Entities.UserInteractive.Duels.Repositories;
@@ -64,7 +65,7 @@ public class DuelRepository(
 
         var entities = await context.Duels
             .Include(d => d.Options)
-            .Where(d => d.IsClosed == false && d.ExpiresAt < now)
+            .Where(d => d.Status == DuelStatus.Active && d.ExpiresAt < now)
             .OrderByDescending(d => d.Id)
             .ToListAsync(cancellationToken);
 
@@ -83,7 +84,7 @@ public class DuelRepository(
             .Include(d => d.Category)
             .Include(d => d.Votes)
             .FirstOrDefaultAsync(d => d.CategoryId == categoryId
-                && d.IsClosed == false
+                && d.Status == DuelStatus.Active
                 && d.ExpiresAt > now
                 && !d.Votes.Any(v => v.AccountId == accountId), cancellationToken);
 
@@ -114,7 +115,7 @@ public class DuelRepository(
             throw new InvalidOperationException("Duel not found");
         }
 
-        duel.IsClosed = true;
+        duel.Status = DuelStatus.Closed;
 
         await context.SaveChangesAsync(cancellationToken);
     }

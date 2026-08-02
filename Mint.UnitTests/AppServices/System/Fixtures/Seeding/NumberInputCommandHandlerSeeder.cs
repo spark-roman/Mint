@@ -1,6 +1,6 @@
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database;
-using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Duels;
@@ -169,7 +169,7 @@ public static class NumberInputCommandHandlerSeeder
                 Question = "ИИ улучшит общество?",
                 Description = "Обсудим влияние искусственного интеллекта",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-                IsClosed = false,
+                Status = DuelStatus.Active,
                 Options =
                 [
                     new DuelOptionEntity
@@ -195,7 +195,7 @@ public static class NumberInputCommandHandlerSeeder
                 Question = "Квантовые компьютеры изменят мир?",
                 Description = "Обсудим влияние квантовых вычислений",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(12),
-                IsClosed = false,
+                Status = DuelStatus.Active,
                 Options =
                 [
                     new DuelOptionEntity

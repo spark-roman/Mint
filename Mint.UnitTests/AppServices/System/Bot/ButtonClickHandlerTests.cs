@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Handlers.Buttons;
+using Mint.App.Services.UserInteractive.Duels.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Repositories;
@@ -484,7 +485,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.Contains("100", result.Keyboard[0].Caption);
         Assert.Contains("500", result.Keyboard[1].Caption);
         Assert.Contains("1000", result.Keyboard[2].Caption);
-        Assert.Contains("ВСЁ", result.Keyboard[3].Caption);
+        Assert.Contains("Отмена", result.Keyboard[3].Caption);
     }
 
     /// <summary>
@@ -1135,6 +1136,46 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Assert
         Assert.NotNull(result);
         Assert.Contains("Неизвестное действие", result.Message);
+    }
+
+    #endregion
+
+    #region Duel Handler - GetFirstAvailableDuelAsync
+
+    /// <summary>
+    /// Verifies that GetFirstAvailableDuelAsync returns null when user has already voted in a duel in the category.
+    /// </summary>
+    [Fact]
+    public async Task GetFirstAvailableDuelAsync_UserAlreadyVoted_ReturnsNull()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var duelHandler = _currentScope.ServiceProvider.GetRequiredService<IDuelHandler>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
+
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
+
+        // User 1001 votes in duel 1 (category 1)
+        var vote = new VoteCreateDto
+        {
+            DuelId = 1,
+            ChosenOptionId = 1,
+            AccountId = account.Id,
+            BetAmount = 100m,
+            TransactionId = 1,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        await voteRepository.CreateVoteAsync(vote, CancellationToken.None);
+
+        // Act
+        var result = await duelHandler.GetFirstAvailableDuelAsync(1, account.Id, CancellationToken.None);
+
+        // Assert
+        Assert.Null(result);
     }
 
     #endregion

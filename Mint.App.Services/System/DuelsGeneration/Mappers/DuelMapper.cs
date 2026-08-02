@@ -1,6 +1,6 @@
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.Common.Contracts.Mappers;
-using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 namespace Mint.App.Services.System.DuelsGeneration.Mappers;

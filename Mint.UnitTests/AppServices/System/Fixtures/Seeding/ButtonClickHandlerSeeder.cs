@@ -1,12 +1,11 @@
 using Mint.Database;
-using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.Users;
-using Mint.Common.Contracts.UserInteractive;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 

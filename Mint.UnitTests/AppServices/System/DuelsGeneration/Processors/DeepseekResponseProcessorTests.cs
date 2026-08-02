@@ -1,11 +1,11 @@
 using System.Collections.ObjectModel;
 using System.Text.Json;
-using System.Threading.Tasks;
 using FluentAssertions;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Validators;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Moq;
 using OptionDto = Mint.App.Services.System.DuelsGeneration.Dto.OptionGenerationDto;
@@ -57,7 +57,7 @@ public class DeepseekResponseProcessorTests
         var expectedDuel = new DuelCreateDto
         {
             CategoryId = 1,
-            DuelType = Mint.Common.Contracts.UserInteractive.DuelType.OpinionMatch,
+            DuelType = DuelType.OpinionMatch,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing rapidly in code generation.",
             ExpiresAt = DateTimeOffset.MaxValue,
@@ -136,7 +136,7 @@ public class DeepseekResponseProcessorTests
                         Description = "AI is advancing.",
                         ExpiresAt = DateTimeOffset.MaxValue,
                         Options = [],
-                        DuelType = Mint.Common.Contracts.UserInteractive.DuelType.OpinionMatch
+                        DuelType = DuelType.OpinionMatch
                     },
                     "Will Bitcoin hit $200k?" => new DuelCreateDto
                     {
@@ -145,7 +145,7 @@ public class DeepseekResponseProcessorTests
                         Description = "Institutional adoption is growing.",
                         ExpiresAt = DateTimeOffset.MaxValue,
                         Options = [],
-                        DuelType = Mint.Common.Contracts.UserInteractive.DuelType.FactPrediction
+                        DuelType = DuelType.FactPrediction
                     },
                     _ => new DuelCreateDto
                     {
@@ -154,7 +154,7 @@ public class DeepseekResponseProcessorTests
                         Description = dto.Description,
                         ExpiresAt = DateTimeOffset.MaxValue,
                         Options = [],
-                        DuelType = Mint.Common.Contracts.UserInteractive.DuelType.None
+                        DuelType = DuelType.None
                     }
                 };
             });
@@ -287,14 +287,14 @@ public class DeepseekResponseProcessorTests
                 Description = "Test",
                 ExpiresAt = DateTimeOffset.MaxValue,
                 Options = [],
-                DuelType = Mint.Common.Contracts.UserInteractive.DuelType.OpinionMatch
+                DuelType = DuelType.OpinionMatch
             });
 
         // Act
         var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
 
         // Assert
-        result.First().DuelType.Should().Be(Mint.Common.Contracts.UserInteractive.DuelType.OpinionMatch);
+        result.First().DuelType.Should().Be(DuelType.OpinionMatch);
     }
 
     /// <summary>
@@ -331,13 +331,13 @@ public class DeepseekResponseProcessorTests
                 Description = "Test",
                 ExpiresAt = DateTimeOffset.MaxValue,
                 Options = [],
-                DuelType = Mint.Common.Contracts.UserInteractive.DuelType.FactPrediction
+                DuelType = DuelType.FactPrediction
             });
 
         // Act
         var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
 
         // Assert
-        result.First().DuelType.Should().Be(Mint.Common.Contracts.UserInteractive.DuelType.FactPrediction);
+        result.First().DuelType.Should().Be(DuelType.FactPrediction);
     }
 }

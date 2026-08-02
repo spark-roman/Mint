@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
@@ -152,7 +153,7 @@ public sealed class CategoryRepository(
                 CategoryCode = c.Code,
                 IsActive = c.IsActiveForAI,
                 CategoryEmoji = "📂",
-                HasAvailableDuels = c.Duels.Any(d => !d.IsClosed
+                HasAvailableDuels = c.Duels.Any(d => d.Status == DuelStatus.Active
                     && d.ExpiresAt > expireDate
                     && !d.Votes.Any(v => v.Account.User.ExternalUserId == externalUserId))
             })

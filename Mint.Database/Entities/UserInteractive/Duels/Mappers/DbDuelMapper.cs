@@ -33,7 +33,7 @@ public class DbDuelMapper : IDbEntityMapper<DuelEntity, DuelDto>
             Question = entity.Question,
             Description = entity.Description,
             ExpiresAt = entity.ExpiresAt,
-            IsClosed = entity.IsClosed,
+            Status = entity.Status,
             Options = entity.Options.Select(_optionMapper.Map).ToList()
         };
     }
