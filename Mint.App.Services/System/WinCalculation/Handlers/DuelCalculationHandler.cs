@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.App.Services.System.WinCalculation.Dto;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
@@ -35,7 +36,7 @@ public sealed class DuelCalculationHandler(
             throw new InvalidOperationException($"Duel {duelId} not found");
         }
 
-        if (duel.IsClosed)
+        if (duel.Status == DuelStatus.Closed)
         {
             throw new InvalidOperationException($"Duel {duelId} is already closed");
         }

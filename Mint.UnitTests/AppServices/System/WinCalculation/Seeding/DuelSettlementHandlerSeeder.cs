@@ -8,6 +8,7 @@ using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.Users;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.UnitTests.AppServices.System.WinCalculation.Seeding;
 
@@ -197,7 +198,7 @@ public static class DuelSettlementHandlerSeeder
                 Question = "Bitcoin достигнет $100k?",
                 Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1), // expired
-                IsClosed = false
+                Status = DuelStatus.Closed
             });
 
         context.SaveChanges();
@@ -260,7 +261,7 @@ public static class DuelSettlementHandlerSeeder
                 Question = "Ethereum 2.0 изменит рынок?",
                 Description = "Изменит ли Ethereum 2.0 рынок?",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1), // expired
-                IsClosed = false
+                Status = DuelStatus.Active
             });
 
         context.SaveChanges();
@@ -293,7 +294,7 @@ public static class DuelSettlementHandlerSeeder
                 Question = "ИИ заменит программистов?",
                 Description = "Заменит ли ИИ программистов?",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(-24),
-                IsClosed = true
+                Status = DuelStatus.Closed
             });
 
         context.SaveChanges();
@@ -326,7 +327,7 @@ public static class DuelSettlementHandlerSeeder
                 Question = "Swift лучше Kotlin?",
                 Description = "Лучший язык для iOS разработки?",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(24), // not expired
-                IsClosed = false
+                Status = DuelStatus.Active
             });
 
         context.SaveChanges();

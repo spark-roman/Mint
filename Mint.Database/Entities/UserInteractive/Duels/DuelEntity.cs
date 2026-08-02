@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
 
@@ -62,10 +63,10 @@ public class DuelEntity
     public DateTimeOffset ExpiresAt { get; set; }
 
     /// <summary>
-    /// Whether the duel is closed
+    /// Duel status
     /// </summary>
-    [Column("is_closed")]
-    public bool IsClosed { get; set; } = false;
+    [Column("status")]
+    public DuelStatus Status { get; set; }
 
     /// <summary>
     /// Available options for this duel

@@ -1,4 +1,5 @@
 using Microsoft.Extensions.Logging;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
@@ -65,7 +66,7 @@ public sealed class DuelSettlementHandler(
             throw new InvalidOperationException($"Duel {duelId} not found");
         }
 
-        if (duel.IsClosed)
+        if (duel.Status == DuelStatus.Closed)
         {
             throw new InvalidOperationException($"Duel {duelId} is already closed");
         }

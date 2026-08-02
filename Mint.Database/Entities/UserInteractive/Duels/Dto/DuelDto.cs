@@ -1,4 +1,4 @@
-using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.Database.Entities.UserInteractive.Duels.Dto;
 
@@ -38,9 +38,9 @@ public record DuelDto
     public DateTimeOffset ExpiresAt { get; init; }
 
     /// <summary>
-    /// Whether the duel is closed
+    /// Duel status
     /// </summary>
-    public bool IsClosed { get; init; }
+    public DuelStatus Status { get; init; }
 
     /// <summary>
     /// Options for the duel

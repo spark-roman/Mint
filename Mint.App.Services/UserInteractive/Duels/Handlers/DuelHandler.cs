@@ -1,6 +1,7 @@
 using AdvApplication.Auth.Users;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
@@ -79,7 +80,7 @@ public class DuelHandler(
             return new BetResultDto { Success = false, Message = "Дуэль не найдена" };
         }
 
-        if (duel.IsClosed || duel.ExpiresAt < _timeProvider.GetUtcNow())
+        if (duel.Status == DuelStatus.Closed || duel.ExpiresAt < _timeProvider.GetUtcNow())
         {
             return new BetResultDto { Success = false, Message = "Дуэль уже закрыта" };
         }

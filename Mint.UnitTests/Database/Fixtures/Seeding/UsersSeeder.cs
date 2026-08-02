@@ -1,6 +1,5 @@
 using Mint.Common.Contracts.Ledger.Accounts;
-using Mint.Common.Contracts.UserInteractive;
-using Mint.Database.Entities.Bot.Commands;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.UserInteractive.Duels;
@@ -95,7 +94,7 @@ public static class UsersSeeder
             Question = "ИИ заменит программистов к 2025?",
             Description = "Серьёзный вопрос о будущем профессии",
             ExpiresAt = DateTimeOffset.MaxValue,
-            IsClosed = false,
+            Status = DuelStatus.Active,
             Options =
             [
                 new DuelOptionEntity { Id = 100501, OptionText = "Да", OptionCode = "yes" },

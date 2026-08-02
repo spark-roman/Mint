@@ -1,4 +1,5 @@
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 namespace Mint.Database.Entities.UserInteractive.Duels.Mappers;
@@ -32,7 +33,7 @@ public class DbDuelCreateMapper : IDbEntityMapper<DuelCreateDto, DuelEntity>
             Question = entity.Question,
             Description = entity.Description,
             ExpiresAt = entity.ExpiresAt,
-            IsClosed = false,
+            Status = DuelStatus.Active,
             Options = entity.Options.Select(_optionMapper.Map).ToList()
         };
 

@@ -1,10 +1,10 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.WinCalculation.Handlers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
-using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.UnitTests.AppServices.System.WinCalculation.Fixtures;
 
@@ -50,7 +50,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
         var duel = await context.Duels.FirstAsync(d => d.Id == 1);
         Assert.NotNull(duel);
-        Assert.True(duel.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel.Status);
     }
 
     /// <summary>
@@ -129,7 +129,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
         // Assert
         Assert.NotNull(duel);
-        Assert.True(duel.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel.Status);
     }
 
     #endregion
@@ -186,7 +186,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
         // Assert
         Assert.NotNull(duel);
-        Assert.True(duel.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel.Status);
 
         using var scope = _fixture.ServiceProvider.CreateScope();
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
@@ -239,9 +239,9 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
 
         context.Duels.UpdateRange(
-            new DuelEntity { Id = 1, IsClosed = true, Question = "", Description = "" },
-            new DuelEntity { Id = 2, IsClosed = true, Question = "", Description = "" },
-            new DuelEntity { Id = 4, IsClosed = true, Question = "", Description = "" });
+            new DuelEntity { Id = 1, Status = DuelStatus.Closed, Question = "", Description = "" },
+            new DuelEntity { Id = 2, Status = DuelStatus.Closed, Question = "", Description = "" },
+            new DuelEntity { Id = 4, Status = DuelStatus.Closed, Question = "", Description = "" });
 
         await context.SaveChangesAsync(CancellationToken.None);
 
@@ -270,7 +270,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         // Assert - duel 3 was already closed, should remain closed (unchanged)
         var duel3 = await duelRepository.GetDuelByIdAsync(3, CancellationToken.None);
         Assert.NotNull(duel3);
-        Assert.True(duel3.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel3.Status);
     }
 
     /// <summary>
@@ -291,7 +291,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         // Assert - duel 4 is not expired, should remain open
         var duel4 = await duelRepository.GetDuelByIdAsync(4, CancellationToken.None);
         Assert.NotNull(duel4);
-        Assert.False(duel4.IsClosed);
+        Assert.Equal(DuelStatus.Active, duel4.Status);
     }
 
     /// <summary>
@@ -312,7 +312,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         // Assert - duel 2 has no votes, should be closed
         var duel2 = await duelRepository.GetDuelByIdAsync(2, CancellationToken.None);
         Assert.NotNull(duel2);
-        Assert.True(duel2.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel2.Status);
     }
 
     #endregion
@@ -446,9 +446,9 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         var duel2 = await duelRepository.GetDuelByIdAsync(2, CancellationToken.None);
 
         Assert.NotNull(duel1);
-        Assert.True(duel1.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel1.Status);
         Assert.NotNull(duel2);
-        Assert.True(duel2.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel2.Status);
     }
 
     #endregion
@@ -540,7 +540,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
         var duel = await duelRepository.GetDuelByIdAsync(2, CancellationToken.None);
         Assert.NotNull(duel);
-        Assert.True(duel.IsClosed);
+        Assert.Equal(DuelStatus.Closed, duel.Status);
     }
 
     #endregion

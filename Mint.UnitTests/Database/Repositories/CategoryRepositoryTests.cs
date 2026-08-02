@@ -4,6 +4,7 @@ using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Duels;
 
 namespace Mint.UnitTests.Database.Repositories;
 
@@ -473,7 +474,7 @@ namespace Mint.UnitTests.Database.Repositories;
             Question = "Вопрос из прошлого",
             Description = "Устаревший вопрос",
             ExpiresAt = pastDate,
-            IsClosed = false,
+            Status = DuelStatus.Active,
             Options =
             [
                 new DuelOptionEntity { Id = 1, OptionText = "Да", OptionCode = "yes" },
@@ -516,7 +517,7 @@ namespace Mint.UnitTests.Database.Repositories;
             Question = "Закрытый спор",
             Description = "Завершённый спор",
             ExpiresAt = futureDate,
-            IsClosed = true,
+            Status = DuelStatus.Closed,
             Options =
             [
                 new DuelOptionEntity { Id = 1, OptionText = "Да", OptionCode = "yes" },

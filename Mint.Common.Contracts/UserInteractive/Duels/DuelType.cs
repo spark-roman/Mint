@@ -1,4 +1,4 @@
-namespace Mint.Common.Contracts.UserInteractive;
+namespace Mint.Common.Contracts.UserInteractive.Duels;
 
 /// <summary>
 /// Duel type
