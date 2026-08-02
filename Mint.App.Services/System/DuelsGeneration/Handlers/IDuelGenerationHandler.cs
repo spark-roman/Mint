@@ -21,4 +21,12 @@ public interface IDuelGenerationHandler
     /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns></returns>
     Task HandleAsync(DuelCreateDto duelCreateDto,CancellationToken cancellationToken);
+
+
+    /// <summary>
+    /// Publishes all duels that are ready to be played.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Count of published duels</returns>
+    Task<int> PublishDuelsAsync(CancellationToken cancellationToken);
 }

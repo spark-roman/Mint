@@ -1,5 +1,6 @@
 using Mint.Common.Contracts.UserInteractive;
 using Mint.Database;
+using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Votes.Dto;
@@ -136,7 +137,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that retrieving active duels returns only active ones.
     /// </summary>
     [Fact]
-    public async Task GetActiveDuelsAsync_ReturnsOnlyActiveDuels()
+    public async Task GetActiveDuelsForCloseAsync_ReturnsOnlyActiveDuels()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -164,7 +165,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         }, CancellationToken.None);
 
         // Act
-        var result = await repository.GetActiveDuelsAsync(CancellationToken.None);
+        var result = await repository.GetActiveDuelsForCloseAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -175,7 +176,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that retrieving active duels excludes expired duels.
     /// </summary>
     [Fact]
-    public async Task GetActiveDuelsAsync_ExcludesExpiredDuels()
+    public async Task GetActiveDuelsForCloseAsync_ExcludesExpiredDuels()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -203,7 +204,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         }, CancellationToken.None);
 
         // Act
-        var result = await repository.GetActiveDuelsAsync(CancellationToken.None);
+        var result = await repository.GetActiveDuelsForCloseAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -215,7 +216,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that retrieving active duels excludes closed duels.
     /// </summary>
     [Fact]
-    public async Task GetActiveDuelsAsync_ExcludesClosedDuels()
+    public async Task GetActiveDuelsForCloseAsync_ExcludesClosedDuels()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -255,7 +256,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         }
 
         // Act
-        var result = await repository.GetActiveDuelsAsync(CancellationToken.None);
+        var result = await repository.GetActiveDuelsForCloseAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -267,7 +268,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that active duels are ordered by ID descending.
     /// </summary>
     [Fact]
-    public async Task GetActiveDuelsAsync_ReturnsOrderedByIdDescending()
+    public async Task GetActiveDuelsForCloseAsync_ReturnsOrderedByIdDescending()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -295,7 +296,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         }, CancellationToken.None);
 
         // Act
-        var result = await repository.GetActiveDuelsAsync(CancellationToken.None);
+        var result = await repository.GetActiveDuelsForCloseAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -308,7 +309,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
     /// Verifies that retrieving active duels when none exist returns empty list.
     /// </summary>
     [Fact]
-    public async Task GetActiveDuelsAsync_NoActiveDuels_ReturnsEmptyList()
+    public async Task GetActiveDuelsForCloseAsync_NoActiveDuels_ReturnsEmptyList()
     {
         // Arrange
         using var scope = _fixture.ServiceProvider.CreateScope();
@@ -327,7 +328,7 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         }, CancellationToken.None);
 
         // Act
-        var result = await repository.GetActiveDuelsAsync(CancellationToken.None);
+        var result = await repository.GetActiveDuelsForCloseAsync(CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -437,4 +438,198 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.Equal(100500, result!.Id);
     }
+
+    #region PublishDuelsAsync
+
+    /// <summary>
+    /// Verifies that PublishDuelsAsync returns 0 when no planned duels exist.
+    /// </summary>
+    [Fact]
+    public async Task PublishDuelsAsync_NoPlannedDuels_ReturnsZero()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var expiresAt = DateTimeOffset.UtcNow.AddHours(24);
+
+        // Act
+        var result = await repository.PublishDuelsAsync(expiresAt, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(0, result);
+    }
+
+    /// <summary>
+    /// Verifies that PublishDuelsAsync publishes planned duels and returns correct count.
+    /// </summary>
+    [Fact]
+    public async Task PublishDuelsAsync_PlannedDuels_ReturnsCount()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var expiresAt = DateTimeOffset.UtcNow.AddHours(48);
+
+        // Create active duel (should be ignored)
+        await repository.CreateDuelAsync(new DuelCreateDto
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Активная дуэль",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        }, CancellationToken.None);
+
+        // Create planned duels manually
+        await using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+        var plannedDuel1 = new DuelEntity
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Планируемая дуэль 1",
+            Description = "Описание 1",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+            Status = DuelStatus.Planned,
+            Options = [new() { OptionText = "Опция", OptionCode = "opt1" }]
+        };
+        var plannedDuel2 = new DuelEntity
+        {
+            CategoryId = 2,
+            DuelType = DuelType.FactPrediction,
+            Question = "Планируемая дуэль 2",
+            Description = "Описание 2",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-2),
+            Status = DuelStatus.Planned,
+            Options = [new() { OptionText = "Опция", OptionCode = "opt2" }]
+        };
+
+        context.Duels.AddRange(plannedDuel1, plannedDuel2);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.PublishDuelsAsync(expiresAt, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, result);
+
+        // Verify duels were updated
+        var updatedDuel1 = await repository.GetDuelByIdAsync(plannedDuel1.Id, CancellationToken.None);
+        var updatedDuel2 = await repository.GetDuelByIdAsync(plannedDuel2.Id, CancellationToken.None);
+
+        Assert.NotNull(updatedDuel1);
+        Assert.NotNull(updatedDuel2);
+        Assert.Equal(DuelStatus.Closed, updatedDuel1.Status);
+        Assert.Equal(DuelStatus.Closed, updatedDuel2.Status);
+        Assert.Equal(expiresAt, updatedDuel1.ExpiresAt);
+        Assert.Equal(expiresAt, updatedDuel2.ExpiresAt);
+    }
+
+    /// <summary>
+    /// Verifies that PublishDuelsAsync does not affect active duels.
+    /// </summary>
+    [Fact]
+    public async Task PublishDuelsAsync_ActiveDuels_NotAffected()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var duelId = await repository.CreateDuelAsync(new DuelCreateDto
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Активная дуэль",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        }, CancellationToken.None);
+
+        var originalExpiresAt = (await repository.GetDuelByIdAsync(duelId, CancellationToken.None))!.ExpiresAt;
+
+        // Create a planned duel
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        await using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+        var plannedDuel = new DuelEntity
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Планируемая",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+            Status = DuelStatus.Planned,
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        };
+        context.Duels.Add(plannedDuel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var expiresAt = DateTimeOffset.UtcNow.AddHours(48);
+
+        // Act
+        await repository.PublishDuelsAsync(expiresAt, CancellationToken.None);
+
+        // Assert
+        var activeDuel = await repository.GetDuelByIdAsync(duelId, CancellationToken.None);
+        Assert.NotNull(activeDuel);
+        Assert.Equal(DuelStatus.Active, activeDuel.Status);
+        Assert.Equal(originalExpiresAt, activeDuel.ExpiresAt);
+    }
+
+    /// <summary>
+    /// Verifies that PublishDuelsAsync does not affect closed duels.
+    /// </summary>
+    [Fact]
+    public async Task PublishDuelsAsync_ClosedDuels_NotAffected()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var expiresAt = DateTimeOffset.UtcNow.AddHours(48);
+
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+        var closedDuel = new DuelEntity
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Закрытая дуэль",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-24),
+            Status = DuelStatus.Closed,
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        };
+        var plannedDuel = new DuelEntity
+        {
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Планируемая",
+            Description = "Описание",
+            ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+            Status = DuelStatus.Planned,
+            Options = [new() { OptionText = "Опция", OptionCode = "opt" }]
+        };
+
+        context.Duels.AddRange(closedDuel, plannedDuel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.PublishDuelsAsync(expiresAt, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(1, result);
+
+        var updatedClosedDuel = await repository.GetDuelByIdAsync(closedDuel.Id, CancellationToken.None);
+        Assert.NotNull(updatedClosedDuel);
+        Assert.Equal(DuelStatus.Closed, updatedClosedDuel.Status);
+    }
+
+    #endregion
 }

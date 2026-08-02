@@ -35,7 +35,7 @@ public sealed class DuelSettlementHandler(
     /// <inheritdoc />
     public async Task<int> SettleExpiredDuelsAsync(CancellationToken cancellationToken)
     {
-        var expiredDuels = await _duelRepository.GetActiveDuelsAsync(cancellationToken);
+        var expiredDuels = await _duelRepository.GetActiveDuelsForCloseAsync(cancellationToken);
 
         if (expiredDuels is null || expiredDuels.Count == 0)
         {

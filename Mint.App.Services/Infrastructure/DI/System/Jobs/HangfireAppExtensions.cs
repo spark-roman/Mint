@@ -1,6 +1,7 @@
 using Hangfire;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.System.DuelsGeneration.Jobs;
 using Mint.App.Services.System.WinCalculation.Jobs;
 
 namespace Mint.App.Services.Infrastructure.DI.System.Jobs;
@@ -22,6 +23,15 @@ public static class HangfireAppExtensions
             "duel-payout-job",
             () => serviceProvider.GetRequiredService<DuelPayoutJob>().ExecuteAsync(),
             "0 4 * * *",
+            new RecurringJobOptions
+            {
+                TimeZone = TimeZoneInfo.Utc
+            });
+
+        jobManager.AddOrUpdate(
+            "duel-publish-job",
+            () => serviceProvider.GetRequiredService<DuelPublishJob>().ExecuteAsync(),
+            "30 4 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc
