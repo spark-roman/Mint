@@ -80,6 +80,7 @@ private TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
             ActionConstants.BonusUnavailable => TgCommandType.BonusUnavailable,
             
             ActionConstants.Leaderboard => TgCommandType.Leaderboard,
+            ActionConstants.Help => TgCommandType.Help,
             
             var action when action.StartsWith(ActionConstants.CategoryPrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.CategorySelection,
             var action when action.StartsWith(ActionConstants.VotePrefix, StringComparison.InvariantCultureIgnoreCase) => TgCommandType.Vote,

@@ -26,6 +26,9 @@ public static class ActionConstants
     /// <summary>Action for displaying the leaderboard.</summary>
     public const string Leaderboard = "leaderboard";
 
+    /// <summary>Action for displaying the help menu.</summary>
+    public const string Help = "help";
+
     /// <summary>Action for navigating back to the user profile.</summary>
     public const string BackToProfile = "back_to_profile";
 
