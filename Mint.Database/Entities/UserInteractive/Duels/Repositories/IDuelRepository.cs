@@ -15,6 +15,14 @@ public interface IDuelRepository
     Task CloseDuelAsync(long duelId, CancellationToken cancellationToken);
 
     /// <summary>
+    /// Publish duel
+    /// </summary>
+    /// <param name="expiresAt">Expired at</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Count of published duels</returns>
+    Task<int> PublishDuelsAsync(DateTimeOffset expiresAt, CancellationToken cancellationToken);
+
+    /// <summary>
     /// Create a new duel
     /// </summary>
     /// <param name="dto">DTO for creation</param>
@@ -35,7 +43,7 @@ public interface IDuelRepository
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of active duels</returns>
-    Task<List<DuelDto>?> GetActiveDuelsAsync(CancellationToken cancellationToken);
+    Task<List<DuelDto>?> GetActiveDuelsForCloseAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Get first available duel for category

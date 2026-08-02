@@ -57,7 +57,7 @@ public class DuelRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<List<DuelDto>?> GetActiveDuelsAsync(CancellationToken cancellationToken)
+    public async Task<List<DuelDto>?> GetActiveDuelsForCloseAsync(CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
@@ -118,5 +118,28 @@ public class DuelRepository(
         duel.Status = DuelStatus.Closed;
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    /// <inheritdoc/>
+    public async Task<int> PublishDuelsAsync(DateTimeOffset expiresAt, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var duels = await context.Duels.Where(d => d.Status == DuelStatus.Planned).ToListAsync(cancellationToken);
+
+        if (duels is null || duels.Count == 0)
+        {
+            return 0;
+        }
+
+        foreach(var duel in duels)
+        {
+            duel.Status = DuelStatus.Closed;
+            duel.ExpiresAt = expiresAt;
+        }
+
+        await context.SaveChangesAsync(cancellationToken);
+
+        return duels.Count;
     }
 }
