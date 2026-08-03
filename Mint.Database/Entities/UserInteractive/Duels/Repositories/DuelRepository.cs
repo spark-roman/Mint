@@ -134,7 +134,7 @@ public class DuelRepository(
 
         foreach(var duel in duels)
         {
-            duel.Status = DuelStatus.Closed;
+            duel.Status = DuelStatus.Active;
             duel.ExpiresAt = expiresAt;
         }
 
