@@ -1,3 +1,4 @@
+using System.Transactions;
 using AdvApplication.Auth.Users;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
@@ -77,30 +78,30 @@ public class DuelHandler(
         var duel = await _duelRepository.GetDuelByIdAsync(duelId, cancellationToken);
         if (duel == null)
         {
-            return new BetResultDto { Success = false, Message = "Дуэль не найдена" };
+            return new BetResultDto { Success = false, Message = "Дуэль не найдена", TransactionId = 0 };
         }
 
         if (duel.Status == DuelStatus.Closed || duel.ExpiresAt < _timeProvider.GetUtcNow())
         {
-            return new BetResultDto { Success = false, Message = "Дуэль уже закрыта" };
+            return new BetResultDto { Success = false, Message = "Дуэль уже закрыта", TransactionId = 0 };
         }
 
         var hasVoted = await _voteRepository.HasUserVotedInDuelAsync(externalUserId, duelId, cancellationToken);
         if (hasVoted)
         {
-            return new BetResultDto { Success = false, Message = "Вы уже сделали ставку" };
+            return new BetResultDto { Success = false, Message = "Вы уже сделали ставку", TransactionId = 0 };
         }
         
         var option = await _duelRepository.GetOptionByIdAsync(optionId, cancellationToken);
         if (option == null)
         {
-            return new BetResultDto { Success = false, Message = "Вариант ответа не найден" };
+            return new BetResultDto { Success = false, Message = "Вариант ответа не найден", TransactionId = 0 };
         }
 
         var user = await _userRepository.GetUserAsync(externalUserId, (byte)AuthSystem.Tg, cancellationToken);
         if (user == null)
         {
-            return new BetResultDto { Success = false, Message = "Пользователь не найден" };
+            return new BetResultDto { Success = false, Message = "Пользователь не найден", TransactionId = 0 };
         }
 
         var account = await _accountRepository.GetAccountByExternalUserIdAsync(
@@ -110,13 +111,18 @@ public class DuelHandler(
 
         if (account == null)
         {
-            return new BetResultDto { Success = false, Message = "Аккаунт не найден" };
+            return new BetResultDto { Success = false, Message = "Аккаунт не найден", TransactionId = 0 };
         }
 
         if (account.Balance < amount)
         {
-            return new BetResultDto { Success = false, Message = $"Недостаточно средств. Баланс: {account.Balance:N0} 🪙" };
+            return new BetResultDto { Success = false, Message = $"Недостаточно средств. Баланс: {account.Balance:N0} 🪙", TransactionId = 0 };
         }
+
+        using var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
+            TransactionScopeAsyncFlowOption.Enabled);
 
         var transaction = new TransactionCreateDto
         {
@@ -142,12 +148,15 @@ public class DuelHandler(
 
         var voteId = await _voteRepository.CreateVoteAsync(vote, cancellationToken);
 
+        scope.Complete();
+
         return new BetResultDto
         {
             Success = true,
             Message = "Ставка успешно принята!",
             NewBalance = account.Balance,
-            VoteId = voteId
+            VoteId = voteId,
+            TransactionId = betTransactionId
         };
     }
 }

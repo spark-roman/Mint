@@ -73,12 +73,6 @@ public record UserProfileDto
     /// <summary>Total duels participated.</summary>
     public int TotalDuels { get; set; }
 
-    /// <summary>Wins count.</summary>
-    public int Wins { get; set; }
-
-    /// <summary>Losses count.</summary>
-    public int Losses { get; set; }
-
     /// <summary>Winrate percentage.</summary>
     public double Winrate { get; set; }
 

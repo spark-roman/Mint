@@ -24,4 +24,9 @@ public sealed record BetResultDto
     /// Optional vote id for the placed bet.
     /// </summary>
     public long VoteId { get; init; }
+
+    /// <summary>
+    /// Transaction id for the placed bet.
+    /// </summary>
+    public required long TransactionId { get; init; }
 }

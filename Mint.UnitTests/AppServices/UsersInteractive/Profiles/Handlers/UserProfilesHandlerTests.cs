@@ -61,8 +61,8 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         
         // Assert - Stats fields
         Assert.Equal(15, result.TotalDuels);
-        Assert.Equal(10, result.Wins);
-        Assert.Equal(5, result.Losses);
+        Assert.Equal(10, result.TotalWins);
+        Assert.Equal(5, result.TotalLosses);
         Assert.Equal(66.7, result.Winrate); // 10 / (10 + 5) * 100 = 66.7
         
         // Assert - Referral fields
@@ -127,8 +127,8 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal(75, result.RankPoints);
         // User 1002 has 13 total duels (5 wins + 8 losses) from seed data
         Assert.Equal(13, result.TotalDuels);
-        Assert.Equal(5, result.Wins);
-        Assert.Equal(8, result.Losses);
+        Assert.Equal(5, result.TotalWins);
+        Assert.Equal(8, result.TotalLosses);
         Assert.Equal(38.5, result.Winrate); // 5/13 * 100 = 38.5
         
         // Assert - Bonus stats fields (Bob has IsStartBonusClaimed = false, streak = 0)
