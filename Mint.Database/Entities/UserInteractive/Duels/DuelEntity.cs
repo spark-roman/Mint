@@ -18,6 +18,7 @@ public class DuelEntity
     /// </summary>
     [Key]
     [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
     public long Id { get; set; }
 
     /// <summary>
@@ -30,7 +31,7 @@ public class DuelEntity
     /// <summary>
     /// Parent category
     /// </summary>
-    public CategoryEntity Category { get; set; } = null!;
+    public virtual CategoryEntity Category { get; set; } = null!;
 
     /// <summary>
     /// Duel type

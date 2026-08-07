@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -31,94 +32,77 @@ public class TransactionRepository(
     {
         ArgumentNullException.ThrowIfNull(transaction);
 
-        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entity = _transactionCreateMapper.Map(transaction);
 
-        var strategy = context.Database.CreateExecutionStrategy();
+        using var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            new TransactionOptions
+            {
+                IsolationLevel = IsolationLevel.ReadCommitted
+            },
+            TransactionScopeAsyncFlowOption.Enabled);
 
-        return await strategy.ExecuteAsync(async () =>
+        if (entity.DebitAccountId == entity.CreditAccountId)
         {
-            IDbContextTransaction? dbTransaction = null;
-            if (!context.Database.IsInMemory())
-            {
-                dbTransaction = await context.Database.BeginTransactionAsync(cancellationToken);
-            }
+            throw new InvalidOperationException($"Debit account and credit account are the same: {entity.DebitAccountId}");
+        }
 
-            try
-            {
-                if (entity.DebitAccountId == entity.CreditAccountId)
-                {
-                    throw new InvalidOperationException($"Debit account and credit account are the same: {entity.DebitAccountId}");
-                }
+        Dictionary<long, AccountEntity> accounts;
 
-                var firstId = Math.Min(entity.DebitAccountId, entity.CreditAccountId);
-                var secondId = Math.Max(entity.DebitAccountId, entity.CreditAccountId);
+        if (context.Database.IsInMemory())
+        {
+            accounts = await context.Accounts
+                .Where(a => a.Id == entity.DebitAccountId || a.Id == entity.CreditAccountId)
+                .ToDictionaryAsync(a => a.Id, cancellationToken);
+        }
+        else
+        {
+            var firstId = Math.Min(entity.DebitAccountId, entity.CreditAccountId);
+            var secondId = Math.Max(entity.DebitAccountId, entity.CreditAccountId);
 
-                Dictionary<long, AccountEntity> accounts;
+            accounts = await context.Accounts
+                .FromSqlRaw("SELECT * FROM \"accounts\" WHERE \"id\" IN ({0}, {1}) FOR UPDATE", firstId, secondId)
+                .ToDictionaryAsync(a => a.Id, cancellationToken);
+        }
 
-                if (context.Database.IsInMemory())
-                {
-                    accounts = await context.Accounts
-                        .Where(a => a.Id == firstId || a.Id == secondId)
-                        .ToDictionaryAsync(a => a.Id, cancellationToken);
-                }
-                else
-                {
-                    accounts = await context.Accounts
-                        .FromSqlRaw("SELECT * FROM \"accounts\" WHERE \"id\" IN ({0}, {1}) FOR UPDATE", firstId, secondId)
-                        .ToDictionaryAsync(a => a.Id, cancellationToken);
-                }
+        if (!accounts.TryGetValue(entity.DebitAccountId, out var debitAccount))
+        {
+            throw new InvalidOperationException($"Debit account not found: {entity.DebitAccountId}");
+        }
 
-                if (!accounts.TryGetValue(entity.DebitAccountId, out var debitAccount))
-                {
-                    throw new InvalidOperationException($"Debit account not found: {entity.DebitAccountId}");
-                }
+        if (!accounts.TryGetValue(entity.CreditAccountId, out var creditAccount))
+        {
+            throw new InvalidOperationException($"Credit account not found: {entity.CreditAccountId}");
+        }
 
-                if (!accounts.TryGetValue(entity.CreditAccountId, out var creditAccount))
-                {
-                    throw new InvalidOperationException($"Credit account not found: {entity.CreditAccountId}");
-                }
+        if (debitAccount.Balance < entity.Amount)
+        {
+            throw new InvalidOperationException($"Debit account balance is not enough for transaction: {entity.DebitAccountId}");
+        }
 
-                if (debitAccount.Balance < entity.Amount)
-                {
-                    throw new InvalidOperationException($"Debit account balance is not enough for transaction: {entity.DebitAccountId}");
-                }
+        if (debitAccount.Status != AccountStatus.Active)
+        {
+            throw new InvalidOperationException($"Debit account is not active: {entity.DebitAccountId}");
+        }
 
-                if (debitAccount.Status != AccountStatus.Active)
-                {
-                    throw new InvalidOperationException($"Debit account is not active: {entity.DebitAccountId}");
-                }
+        if (creditAccount.Status != AccountStatus.Active)
+        {
+            throw new InvalidOperationException($"Credit account is not active: {entity.CreditAccountId}");
+        }
 
-                if (creditAccount.Status != AccountStatus.Active)
-                {
-                    throw new InvalidOperationException($"Credit account is not active: {entity.CreditAccountId}");
-                }
+        debitAccount.Balance -= entity.Amount;
+        debitAccount.LastTransactionDate = _timeProvider.GetUtcNow();
+        creditAccount.Balance += entity.Amount;
+        creditAccount.LastTransactionDate = _timeProvider.GetUtcNow();
 
-                debitAccount.Balance -= entity.Amount;
-                debitAccount.LastTransactionDate = _timeProvider.GetUtcNow();
-                creditAccount.Balance += entity.Amount;
-                creditAccount.LastTransactionDate = _timeProvider.GetUtcNow();
+        await context.Transactions.AddAsync(entity, cancellationToken);
 
-                await context.Transactions.AddAsync(entity, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-                await context.SaveChangesAsync(cancellationToken);
+        scope.Complete();
 
-                if (dbTransaction is not null)
-                {
-                    await dbTransaction.CommitAsync(cancellationToken);
-                }
-            }
-            catch
-            {
-                if (dbTransaction is not null)
-                {
-                    await dbTransaction.RollbackAsync(cancellationToken);
-                }
-                throw;
-            }
-
-            return entity.Id;
-        });
+        return entity.Id;
     }
 
     /// <inheritdoc/>
