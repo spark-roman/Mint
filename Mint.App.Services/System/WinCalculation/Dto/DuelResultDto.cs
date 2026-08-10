@@ -25,12 +25,9 @@ public sealed record DuelResultDto
     /// <summary>Prize pool (total pot - house cut).</summary>
     public decimal PrizePool => TotalPot - HouseCut;
 
-    /// <summary>List of payout transactions.</summary>
-    public required ICollection<TransactionCreateDto> PayoutInstructions { get; init; }
+    /// <summary>List of duel votes</summary>
+    public required ICollection<DuelVoteResultDto> VoteResults { get; init; }
 
     /// <summary>House cut (commission) taken by the bot.</summary>
-    public decimal HouseCutPercent { get; init; } = 0.05m; // 5% комиссии
-
-    /// <summary>Whether the duel is finalized.</summary>
-    public bool IsFinalized { get; init; }
+    public decimal HouseCutPercent { get; init; } = 0.05m;
 }

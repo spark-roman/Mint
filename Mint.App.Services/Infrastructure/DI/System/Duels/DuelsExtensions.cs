@@ -1,5 +1,4 @@
-using Hangfire;
-using Hangfire.PostgreSql;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Jobs;
@@ -7,6 +6,7 @@ using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.WinCalculation.Handlers;
 using Mint.App.Services.System.WinCalculation.Jobs;
 using Mint.App.Services.System.WinCalculation.Services;
+using Mint.App.Services.System.WinCalculation.WinCalculationRules;
 
 namespace Mint.App.Services.Infrastructure.DI.System.Duels;
 
@@ -28,5 +28,7 @@ public static class DuelsExtensions
         services.AddScoped<IDuelPublishService, DuelPublishService>();
         services.AddScoped<DuelPayoutJob>();
         services.AddScoped<DuelPublishJob>();
+
+        services.RegisterCalculationRulesServices();
     }
 }
