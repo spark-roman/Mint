@@ -1,9 +1,10 @@
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.System.Dto;
+using Mint.Database.Entities.Prompts.System;
+using Mint.Database.Entities.System.Prompts.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
-namespace Mint.Database.Entities.System.Mappers;
+namespace Mint.Database.Entities.System.Prompts.Mappers;
 
 /// <summary>
 /// Mapper for AI prompt entity

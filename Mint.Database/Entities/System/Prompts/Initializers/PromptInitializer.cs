@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
+using Mint.Database.Entities.Prompts.System;
 
-namespace Mint.Database.Entities.System.Initializers;
+namespace Mint.Database.Entities.System.Prompts.Initializers;
 
 /// <summary>
 /// This class is responsible for seeding the prompts table.

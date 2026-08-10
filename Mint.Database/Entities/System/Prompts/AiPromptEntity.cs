@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 
-namespace Mint.Database.Entities.System;
+namespace Mint.Database.Entities.Prompts.System;
 
 /// <summary>
 /// AI generation settings and system prompts

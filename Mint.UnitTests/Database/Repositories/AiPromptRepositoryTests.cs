@@ -1,10 +1,10 @@
 using Mint.Database;
-using Mint.Database.Entities.System.Dto;
-using Mint.Database.Entities.System.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Database.Entities.UserInteractive.UserCategories;
+using Mint.Database.Entities.System.Prompts.Dto;
+using Mint.Database.Entities.System.Prompts.Repositories;
 
 namespace Mint.UnitTests.Database.Repositories;
 

@@ -1,4 +1,4 @@
-using Mint.Database.Entities.System.Dto;
+using Mint.Database.Entities.System.Prompts.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.DuelsGeneration.Prompts;

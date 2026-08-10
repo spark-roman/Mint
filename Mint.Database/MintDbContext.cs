@@ -5,6 +5,7 @@ using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.News;
 using Mint.Database.Entities.News.RSS;
+using Mint.Database.Entities.Prompts.System;
 using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Duels;

@@ -1,6 +1,6 @@
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
-namespace Mint.Database.Entities.System.Dto;
+namespace Mint.Database.Entities.System.Prompts.Dto;
 
 /// <summary>
 /// DTO for AI prompt
