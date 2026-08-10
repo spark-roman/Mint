@@ -1,25 +1,22 @@
 using Microsoft.Extensions.Logging;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
+using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
-using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 
 namespace Mint.App.Services.System.WinCalculation.Handlers;
 
 /// <inheritdoc cref="IDuelSettlementHandler"/>
 public sealed class DuelSettlementHandler(
     IDuelRepository duelRepository,
-    IVoteRepository voteRepository,
     ITransactionRepository transactionRepository,
     IUserStatsRepository userStatsRepository,
     IDuelCalculationHandler duelCalculator,
     ILogger<DuelSettlementHandler> logger) : IDuelSettlementHandler
 {
     private readonly IDuelRepository _duelRepository = duelRepository ?? throw new ArgumentNullException(nameof(duelRepository));
-
-    private readonly IVoteRepository _voteRepository = voteRepository ?? throw new ArgumentNullException(nameof(voteRepository));
 
     private readonly ITransactionRepository _transactionRepository = transactionRepository
         ?? throw new ArgumentNullException(nameof(transactionRepository));
@@ -49,7 +46,7 @@ public sealed class DuelSettlementHandler(
 
         foreach (var duel in expiredDuels)
         {
-            await SettleDuelByVotesAsync(duel.Id, cancellationToken);
+            await SettleDuelByVotesAsync(duel, cancellationToken);
             settledCount++;
         }
 
@@ -71,78 +68,107 @@ public sealed class DuelSettlementHandler(
             throw new InvalidOperationException($"Duel {duelId} is already closed");
         }
         
-        await SettleDuelByVotesAsync(duel.Id, cancellationToken);
+        await SettleDuelByVotesAsync(duel, cancellationToken);
     }
 
-    private async Task SettleDuelByVotesAsync(long duelId, CancellationToken cancellationToken)
+    private async Task SettleDuelByVotesAsync(DuelDto duel, CancellationToken cancellationToken)
     {
-        var votes = await _voteRepository.GetVotesByDuelIdAsync(duelId, cancellationToken);
-
-        if (votes is null || votes.Count == 0)
+        var winningOptionIds = await _duelCalculator.CalculateWinningOptionIdAsync(duel.Id, DuelType.OpinionMatch, cancellationToken);
+        
+        if (winningOptionIds is null || winningOptionIds.Count == 0)
         {
-            _logger.LogWarning("No votes found for duel {DuelId}, closing without settlement", duelId);
-            await _duelRepository.CloseDuelAsync(duelId, cancellationToken);
+            _logger.LogWarning("No winners found for duel {DuelId}, closing without settlement", duel.Id);
+            await _duelRepository.CloseDuelAsync(duel.Id, cancellationToken);
             return;
         }
+        
+        foreach (var winningOptionId in winningOptionIds)
+        {
+            await ProcessSettlementAsync(duel.Id, winningOptionId, cancellationToken);
 
-        var winningOptionId = votes
-            .GroupBy(v => v.ChosenOptionId)
-            .OrderByDescending(g => g.Sum(v => v.BetAmount))
-            .First()
-            .Key;
+            _logger.LogInformation(
+                "Duel {DuelId} settled with winning option {WinningOptionId} by majority vote",
+                duel.Id,
+                winningOptionId);
+        }
 
-        await ProcessSettlementAsync(duelId, winningOptionId, cancellationToken);
-
-        _logger.LogInformation(
-            "Duel {DuelId} settled with winning option {WinningOptionId} by majority vote",
-            duelId,
-            winningOptionId);
+        await _duelRepository.CloseDuelAsync(duel.Id, cancellationToken);
     }
 
     private async Task ProcessSettlementAsync(long duelId, long winningOptionId, CancellationToken cancellationToken)
     {
         var result = await _duelCalculator.CalculateResultAsync(duelId, winningOptionId, cancellationToken);
 
-        if (result.PayoutInstructions.Count == 0)
+        foreach (var voteResult in result.VoteResults)
+        {
+            if (voteResult.PayoutInstruction is null)
+            {
+                var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(voteResult.VoteAccountId, cancellationToken);
+
+                if (userStats is null)
+                {
+                    throw new InvalidOperationException($"User stats not found for account {voteResult.VoteAccountId}");
+                }
+
+                var statsUpdateDto = new UserStatsUpdateDto
+                {
+                    RankPoints = userStats.RankPoints,
+                    TotalWins = userStats.TotalWins,
+                    TotalLosses = userStats.TotalLosses + 1,
+                    ReferralCount = userStats.ReferralCount
+                };
+
+                await _userStatsRepository.UpdateStatsByAccountIdAsync(voteResult.VoteAccountId, statsUpdateDto, cancellationToken);
+            }
+            else
+            {
+                await _transactionRepository.CreateTransactionAsync(voteResult.PayoutInstruction, cancellationToken);
+
+                var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(voteResult.PayoutInstruction.CreditAccountId, cancellationToken);
+
+                if (userStats is null)
+                {
+                    throw new InvalidOperationException($"User stats not found for account {voteResult.PayoutInstruction.CreditAccountId}");
+                }
+
+                var statsUpdateDto = new UserStatsUpdateDto
+                {
+                    RankPoints = userStats.RankPoints + voteResult.PayoutInstruction.Amount,
+                    TotalWins = userStats.TotalWins + 1,
+                    TotalLosses = userStats.TotalLosses,
+                    ReferralCount = userStats.ReferralCount
+                };
+
+                await _userStatsRepository.UpdateStatsByAccountIdAsync(voteResult.VoteAccountId, statsUpdateDto, cancellationToken);
+
+                _logger.LogDebug(
+                    "Payout: {Amount} to account {CreditAccountId}",
+                    voteResult.PayoutInstruction.Amount,
+                    voteResult.VoteAccountId);
+            }
+        }
+
+        var (totalPayout, payoutCount)  = result.VoteResults
+            .Where(v => v.PayoutInstruction is not null)
+            .Aggregate(
+                (Total: 0m, Count: 0),
+                (acc, v) => (
+                    Total: acc.Total + v.PayoutInstruction!.Amount,
+                    Count: acc.Count + 1
+                )
+            );
+
+        if (payoutCount == 0)
         {
             _logger.LogWarning("No payout instructions for duel {DuelId}", duelId);
-            await _duelRepository.CloseDuelAsync(duelId, cancellationToken);
-            return;
         }
-
-        foreach (var instruction in result.PayoutInstructions)
+        else
         {
-            await _transactionRepository.CreateTransactionAsync(instruction, cancellationToken);
-
-            var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(instruction.CreditAccountId, cancellationToken);
-
-            if (userStats is null)
-            {
-                throw new InvalidOperationException($"User stats not found for account {instruction.CreditAccountId}");
-            }
-
-            var statsUpdateDto = new UserStatsUpdateDto
-            {
-                RankPoints = userStats.RankPoints + instruction.Amount,
-                TotalWins = userStats.TotalWins + 1,
-                TotalLosses = userStats.TotalLosses,
-                ReferralCount = userStats.ReferralCount
-            };
-
-            await _userStatsRepository.UpdateStatsByAccountIdAsync(instruction.CreditAccountId, statsUpdateDto, cancellationToken);
-
-            _logger.LogDebug(
-                "Payout: {Amount} to account {CreditAccountId}",
-                instruction.Amount,
-                instruction.CreditAccountId);
+            _logger.LogInformation(
+                "Duel {DuelId} settled: {PayoutCount} payouts, total {TotalPayout}",
+                duelId,
+                payoutCount,
+                totalPayout);
         }
-
-        await _duelRepository.CloseDuelAsync(duelId, cancellationToken);
-
-        _logger.LogInformation(
-            "Duel {DuelId} settled: {PayoutCount} payouts, total {TotalPayout}",
-            duelId,
-            result.PayoutInstructions.Count,
-            result.PayoutInstructions.Sum(i => i.Amount));
     }
 }

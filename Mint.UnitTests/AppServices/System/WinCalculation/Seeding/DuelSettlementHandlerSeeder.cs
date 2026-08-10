@@ -198,7 +198,7 @@ public static class DuelSettlementHandlerSeeder
                 Question = "Bitcoin достигнет $100k?",
                 Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
                 ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1), // expired
-                Status = DuelStatus.Closed
+                Status = DuelStatus.Active
             });
 
         context.SaveChanges();

@@ -35,3 +35,4 @@ Migration.txt
 Mint.Database/catgories.sql
 Mint.Database/rss_sources.sql
 Mint.Database/job_scheduling.sql
+Mint.Database/create_transaction.sql
