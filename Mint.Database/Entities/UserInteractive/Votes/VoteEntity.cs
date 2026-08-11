@@ -13,6 +13,14 @@ namespace Mint.Database.Entities.UserInteractive.Votes;
 public class VoteEntity
 {
     /// <summary>
+    /// Vote id
+    /// </summary>
+    [Key]
+    [Column("id")]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
+
+    /// <summary>
     /// Account ID (part of composite key)
     /// </summary>
     [Required]
