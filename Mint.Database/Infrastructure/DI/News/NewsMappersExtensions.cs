@@ -18,7 +18,7 @@ public static class NewsMappersExtensions
     /// Register news mappers
     /// </summary>
     /// <param name="services">Service collection</param>
-    public static void RegisterNewaMappers(this IServiceCollection services)
+    public static void RegisterNewsMappers(this IServiceCollection services)
     {
         services.AddScoped<IDbEntityMapper<RssSourceEntity, RssSourceDto>, DbRssSourceMapper>();
         services.AddScoped<IDbEntityMapper<RssSourceCreateDto, RssSourceEntity>, DbRssSourceCreateMapper>();

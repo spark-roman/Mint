@@ -161,6 +161,7 @@ public static class ButtonClickHandlerSeeder
             Question = "Bitcoin достигнет $150K в 2025?",
             Description = "Достижит ли Bitcoin цены в 150 тысяч долларов до конца 2025 года?",
             ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
             Options = new List<DuelOptionEntity>
             {
                 new() { Id = 1, OptionText = "Да, конечно!", OptionCode = "yes" },
@@ -176,6 +177,7 @@ public static class ButtonClickHandlerSeeder
             Question = "Заменят ли нейросети программистов?",
             Description = "Станут ли нейросети полноценной заменой разработчиков к 2030 году?",
             ExpiresAt = now.AddHours(72),
+            Status = DuelStatus.Active,
             Options = new List<DuelOptionEntity>
             {
                 new() { Id = 3, OptionText = "Да, это неизбежно", OptionCode = "yes" },
@@ -191,6 +193,7 @@ public static class ButtonClickHandlerSeeder
             Question = "Россия выиграет ЧМ-2026?",
             Description = "Сможет ли сборная России выйти в финал Чемпионата Мира по футболу 2026?",
             ExpiresAt = now.AddHours(96),
+            Status = DuelStatus.Active,
             Options = new List<DuelOptionEntity>
             {
                 new() { Id = 5, OptionText = "Обязательно!", OptionCode = "yes" },

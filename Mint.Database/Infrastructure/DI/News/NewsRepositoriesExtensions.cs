@@ -13,7 +13,7 @@ public static class NewsRepositoriesExtensions
     /// Register news repositories
     /// </summary>
     /// <param name="services">Service collection</param>
-    public static void RegisterNesRepositories(this IServiceCollection services)
+    public static void RegisterNewsRepositories(this IServiceCollection services)
     {
         services.AddScoped<IRssSourceRepository, RssSourceRepository>();
         services.AddScoped<INewsRepository, NewsRepository>();

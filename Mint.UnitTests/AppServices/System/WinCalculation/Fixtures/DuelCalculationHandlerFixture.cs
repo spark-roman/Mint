@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI;
 using Mint.App.Services.Infrastructure.DI.System.Duels;
+using Mint.App.Services.Infrastructure.DI.System.Settings;
 using Mint.App.Services.System.WinCalculation.Handlers;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
@@ -29,6 +30,8 @@ public sealed class DuelCalculationHandlerFixture : IDisposable
 
         services.RegisterDatabaseServices();
         services.RegisterDuelsServices();
+        services.RegisterSettingsServices();
+        services.AddLogging();
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 

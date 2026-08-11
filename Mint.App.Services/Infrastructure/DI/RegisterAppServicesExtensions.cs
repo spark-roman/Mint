@@ -3,6 +3,7 @@ using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.Infrastructure.DI.System.Bot;
 using Mint.App.Services.Infrastructure.DI.System.Duels;
 using Mint.App.Services.Infrastructure.DI.System.News;
+using Mint.App.Services.Infrastructure.DI.System.Settings;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Leaderboards;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
@@ -38,5 +39,6 @@ public static class RegisterAppServicesExtensions
         services.RegisterDuelsHandlers();
         services.RegisterNewsServices();
         services.RegisterDuelsServices();
+        services.RegisterSettingsServices();
     }
 }

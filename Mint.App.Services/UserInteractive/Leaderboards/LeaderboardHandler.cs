@@ -1,5 +1,7 @@
 using AdvApplication.Auth.Users;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 
@@ -9,22 +11,23 @@ namespace Mint.App.Services.UserInteractive.Leaderboards;
 public sealed class LeaderboardHandler(
     IUserStatsRepository statsRepository,
     IRankConfigRepository rankRepository,
+    ISystemSettingHandler systemSettingHandler,
     IUserRepository userRepository) : ILeaderboardHandler
 {
     private readonly IUserStatsRepository _statsRepository = statsRepository ?? throw new ArgumentNullException(nameof(statsRepository));
 
     private readonly IRankConfigRepository _rankRepository = rankRepository ?? throw new ArgumentNullException(nameof(rankRepository));
 
-    private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
-    private const int DefaultTop = 15;
+    private readonly IUserRepository _userRepository = userRepository ?? throw new ArgumentNullException(nameof(userRepository));
 
     /// <inheritdoc/>
     public async Task<LeaderboardResultDto> GetLeaderboardAsync(int top, long externalUserId, AuthSystem authSystem, CancellationToken cancellationToken)
     {
         if (top <= 0)
         {
-            top = DefaultTop;
+            top = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.LeaderboardSize, 15, cancellationToken);
         }
         
         var topStats = await _statsRepository.GetTopStatsByUserIdAsync(top, cancellationToken);

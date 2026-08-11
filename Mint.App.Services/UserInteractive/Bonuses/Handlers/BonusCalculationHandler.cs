@@ -1,6 +1,8 @@
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Dto;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Database.Entities.Ledger.Transactions.Dto;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
@@ -14,6 +16,7 @@ public class BonusCalculationHandler(
     IBonusValidator bonusValidator,
     ITransactionRepository transactionRepository,
     IUserBonusStatsRepository bonusStatsRepository,
+    ISystemSettingHandler settingHandler,
     TimeProvider timeProvider) : IBonusCalculationHandler
 {
     private readonly IBonusValidator _bonusValidator = bonusValidator ?? throw new ArgumentNullException(nameof(bonusValidator));
@@ -23,6 +26,10 @@ public class BonusCalculationHandler(
     
     private readonly IUserBonusStatsRepository _bonusStatsRepository = bonusStatsRepository
         ?? throw new ArgumentNullException(nameof(bonusStatsRepository));
+
+    private readonly ISystemSettingHandler _settingHandler = settingHandler
+        ?? throw new ArgumentNullException(nameof(settingHandler));
+
     private readonly TimeProvider _timeProvider = timeProvider
         ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -42,7 +49,7 @@ public class BonusCalculationHandler(
             };
         }
 
-        const decimal startBonusAmount = 1000.00m;
+        var startBonusAmount = await _settingHandler.GetDecimalAsync(SettingKeysConstants.StartBonus, 0.0m, cancellationToken);
 
         var transaction = new TransactionCreateDto
         {
@@ -126,8 +133,8 @@ public class BonusCalculationHandler(
             };
         }
 
-        const decimal dailyBonusAmount = 100m;
-        const decimal streakBonusAmount = 1000m;
+        var dailyBonusAmount = await _settingHandler.GetDecimalAsync(SettingKeysConstants.DailyBonus, 0.0m, cancellationToken);
+        var streakBonusAmount = await _settingHandler.GetDecimalAsync(SettingKeysConstants.StreakBonus, 0.0m, cancellationToken);
 
         var dailyTransaction = new TransactionCreateDto
         {

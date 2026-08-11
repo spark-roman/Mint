@@ -1,9 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.News.Handlers;
 using Mint.App.Services.System.News.RSS.Handlers;
-using Sagara.FeedReader;
 using Sagara.FeedReader.Extensions;
-using Sagara.FeedReader.Http;
 
 namespace Mint.App.Services.Infrastructure.DI.System.News;
 

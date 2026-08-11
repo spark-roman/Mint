@@ -1,11 +1,9 @@
-using System.Linq;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
-using Mint.Database.Entities.Ledger.Accounts.Repositories;
 using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 using Telegram.Bot.Types;
@@ -75,7 +73,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(3, stats.CurrentDailyStreak);
-        Assert.Equal(300m, stats.TotalDailyBonusesClaimed);
+        Assert.Equal(1200m, stats.TotalDailyBonusesClaimed);
     }
 
     /// <summary>
@@ -100,7 +98,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         Assert.NotNull(transactions);
         Assert.NotEmpty(transactions);
         var transaction = transactions.First(t => t.BounusType == BonusType.Daily);
-        Assert.Equal(100m, transaction.Amount);
+        Assert.Equal(1000m, transaction.Amount);
     }
 
     /// <summary>
@@ -121,7 +119,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
 
         // Assert
         var balance = await accountRepository.GetUserBalanceAsync(1002, CancellationToken.None);
-        Assert.Equal(1500.50m + 100.00m, balance); // 10000000 + 100
+        Assert.Equal(1500.50m + 1000.00m, balance);
     }
 
     #endregion
@@ -222,7 +220,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         Assert.NotNull(result);
         Assert.False(result.IsFinal);
         Assert.Contains("Стрик 7 дней", result.Message);
-        Assert.Contains("1,100", result.Message); // 100 daily + 1000 streak
+        Assert.Contains("11,000", result.Message); // 1000 daily + 10000 streak
     }
 
     /// <summary>
@@ -252,10 +250,10 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         var streakTransaction = transactions.FirstOrDefault(t => t.BounusType == Mint.Common.Contracts.UserInteractive.Bonuses.BonusType.Streak);
         
         Assert.NotNull(dailyTransaction);
-        Assert.Equal(100m, dailyTransaction.Amount);
+        Assert.Equal(1000m, dailyTransaction.Amount);
         
         Assert.NotNull(streakTransaction);
-        Assert.Equal(1000m, streakTransaction.Amount);
+        Assert.Equal(10000m, streakTransaction.Amount);
     }
 
     /// <summary>
@@ -276,7 +274,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
 
         // Assert
         var balance = await accountRepository.GetUserBalanceAsync(1004, CancellationToken.None);
-        Assert.Equal(4300.00m, balance); // 3200 + 100 daily + 1000 streak
+        Assert.Equal(14200.00m, balance); // 3200 + 1000 daily + 10000 streak
     }
 
     /// <summary>
@@ -299,8 +297,8 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1004, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(0, stats.CurrentDailyStreak); // Streak resets to 0 after day 7
-        Assert.Equal(700m, stats.TotalDailyBonusesClaimed); // 600 + 100
-        Assert.Equal(1000m, stats.TotalStreakBonusesClaimed); // 0 + 1000
+        Assert.Equal(1600m, stats.TotalDailyBonusesClaimed); // 600 + 1000
+        Assert.Equal(10000m, stats.TotalStreakBonusesClaimed); // 0 + 1000
     }
 
     #endregion
