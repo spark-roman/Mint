@@ -46,5 +46,7 @@ public static class DatabseExtensions
         services.RegisterNewsRepositories();
         services.RegisterSettingMappers();
         services.RegisterSettingRepositories();
+        services.RegisterPayoutMappers();
+        services.RegisterPayoutRepositories();
     }
 }

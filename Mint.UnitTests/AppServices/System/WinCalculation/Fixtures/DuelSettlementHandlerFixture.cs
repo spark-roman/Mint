@@ -84,6 +84,7 @@ public sealed class DuelSettlementHandlerFixture : IDisposable
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
 
         using var context = dbContextFactory.CreateDbContextAsync(cancellationToken).GetAwaiter().GetResult();
+        context.Payouts.RemoveRange(context.Payouts);
         context.Transactions.RemoveRange(context.Transactions);
         context.Votes.RemoveRange(context.Votes);
         context.DuelOptions.RemoveRange(context.DuelOptions);

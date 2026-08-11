@@ -6,7 +6,7 @@ using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.News;
 using Mint.Database.Entities.News.RSS;
 using Mint.Database.Entities.Prompts.System;
-using Mint.Database.Entities.System;
+using Mint.Database.Entities.System.Payouts;
 using Mint.Database.Entities.System.Settings;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Duels;
@@ -126,6 +126,11 @@ public class MintDbContext : DbContext
     public DbSet<SystemSettingEntity> SystemSettings { get; set; }
 
     /// <summary>
+    /// Payouts
+    /// </summary>
+    public DbSet<PayoutEntity> Payouts { get; set; }
+
+    /// <summary>
     /// Constructor with connection param
     /// </summary>
     /// <param name="options">Db context options</param>
@@ -150,31 +155,30 @@ public class MintDbContext : DbContext
         modelBuilder.Entity<UserEntity>()
             .HasQueryFilter(u => u.ExternalUserId != _godUserExternalId);
 
-        modelBuilder.Entity<VoteEntity>()
-            .HasKey(v => new { v.AccountId, v.DuelId });
+        modelBuilder.Entity<VoteEntity>(entity =>
+        {
+            entity.HasKey(v => v.Id);
 
-        modelBuilder.Entity<VoteEntity>()
-            .HasIndex(v => new { v.DuelId, v.AccountId })
-            .IsUnique()
-            .HasDatabaseName("IX_votes_duel_id_account_id");
+            entity.HasIndex(v => new { v.AccountId, v.DuelId })
+                .IsUnique()
+                .HasDatabaseName("IX_votes_account_duel_unique");
 
-        modelBuilder.Entity<VoteEntity>()
-            .HasOne(v => v.Duel)
-            .WithMany(d => d.Votes)
-            .HasForeignKey(v => v.DuelId)
-            .OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne(v => v.Account)
+                .WithMany(a => a.Votes)
+                .HasForeignKey(v => v.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        modelBuilder.Entity<VoteEntity>()
-            .HasOne(v => v.Account)
-            .WithMany()
-            .HasForeignKey(v => v.AccountId)
-            .OnDelete(DeleteBehavior.Cascade);
-
-        modelBuilder.Entity<VoteEntity>()
-            .HasOne(v => v.ChosenOption)
-            .WithMany(o => o.Votes)
-            .HasForeignKey(v => v.ChosenOptionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(v => v.Duel)
+                .WithMany(d => d.Votes)
+                .HasForeignKey(v => v.DuelId)
+                .OnDelete(DeleteBehavior.Restrict);
+            
+            modelBuilder.Entity<VoteEntity>()
+                .HasOne(v => v.ChosenOption)
+                .WithMany(o => o.Votes)
+                .HasForeignKey(v => v.ChosenOptionId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
         modelBuilder.Entity<DuelEntity>()
             .HasOne(d => d.Category)
@@ -325,6 +329,65 @@ public class MintDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<PayoutEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Amount)
+                .IsRequired()
+                .HasPrecision(15, 2);
+
+            entity.Property(e => e.Status)
+                .IsRequired();
+
+            entity.Property(e => e.ProcessedAt)
+                .IsRequired();
+
+            entity.Property(e => e.CreatedAt)
+                .IsRequired();
+
+            entity.HasIndex(e => e.VoteId)
+                .HasDatabaseName("idx_payouts_vote_id");
+
+            entity.HasIndex(e => e.DuelId)
+                .HasDatabaseName("idx_payouts_duel_id");
+
+            entity.HasIndex(e => e.AccountId)
+                .HasDatabaseName("idx_payouts_account_id");
+
+            entity.HasIndex(e => e.Status)
+                .HasDatabaseName("idx_payouts_status");
+
+            entity.HasIndex(e => e.CreatedAt)
+                .HasDatabaseName("idx_payouts_created_at");
+
+            entity.HasIndex(e => new { e.DuelId, e.Status })
+                .HasDatabaseName("idx_payouts_duel_status");
+
+            entity.HasIndex(e => new { e.AccountId, e.Status })
+                .HasDatabaseName("idx_payouts_account_status");
+
+            entity.HasOne(e => e.Vote)
+                .WithMany()
+                .HasForeignKey(e => e.VoteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Duel)
+                .WithMany()
+                .HasForeignKey(e => e.DuelId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Account)
+                .WithMany()
+                .HasForeignKey(e => e.AccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.Transaction)
+                .WithMany()
+                .HasForeignKey(e => e.TransactionId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
+        
         modelBuilder.InitData();
     }
 }
