@@ -13,6 +13,7 @@ public class DbVoteMapper : IDbEntityMapper<VoteEntity, VoteDto>
 
         return new VoteDto
         {
+            VoteId = entity.Id,
             DuelId = entity.DuelId,
             AccountId = entity.AccountId,
             ChosenOptionId = entity.ChosenOptionId,

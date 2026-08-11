@@ -6,6 +6,10 @@ namespace Mint.Database.Entities.UserInteractive.Votes.Dto;
 public record VoteDto
 {
     /// <summary>
+    /// Vote id
+    /// </summary>
+    public long VoteId { get; set; }
+    /// <summary>
     /// Account ID
     /// </summary>
     public long AccountId { get; init; }

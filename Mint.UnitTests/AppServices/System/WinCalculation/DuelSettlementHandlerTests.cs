@@ -1176,6 +1176,107 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
     #endregion
 
+    #region SettleDuelAsync - Payout VoteId
+
+    /// <summary>
+    /// Verifies that payouts are created with the correct VoteId for each winning vote.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_WinningVotes_CreatePayoutsWithCorrectVoteId()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        // Get actual vote IDs from DB before settlement
+        using var initScope = _fixture.ServiceProvider.CreateScope();
+        var initDbContextFactory = initScope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var initContext = await initDbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var winningVotes = initContext.Votes
+            .Where(v => v.DuelId == 1 && v.ChosenOptionId == 1)
+            .OrderBy(v => v.AccountId)
+            .ToList();
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var payouts = context.Payouts
+            .Where(p => p.DuelId == 1)
+            .OrderBy(p => p.AccountId)
+            .ToList();
+
+        // Account 2 and 3 voted for winning option 1
+        Assert.Equal(2, payouts.Count);
+        Assert.Equal(winningVotes[0].Id, payouts[0].VoteId);
+        Assert.Equal(2, payouts[0].AccountId);
+        Assert.Equal(winningVotes[1].Id, payouts[1].VoteId);
+        Assert.Equal(3, payouts[1].AccountId);
+    }
+
+    /// <summary>
+    /// Verifies that no payouts are created for losing votes.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_LosingVotes_NoPayoutsCreated()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        // Account 4 voted for losing option 2 - no payout should exist for it
+        var losingPayout = context.Payouts
+            .FirstOrDefault(p => p.DuelId == 1 && p.AccountId == 4);
+
+        Assert.Null(losingPayout);
+    }
+
+    /// <summary>
+    /// Verifies that a payout is created for every vote with a payout instruction.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_EachWinningVote_HasPayout()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        // Act
+        await handler.SettleDuelAsync(1, CancellationToken.None);
+
+        // Assert
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var payouts = context.Payouts
+            .Where(p => p.DuelId == 1)
+            .ToList();
+
+        // Winning votes have VoteId 1 (account 2) and 2 (account 3)
+        Assert.Equal(2, payouts.Count);
+        Assert.All(payouts, p => Assert.NotEqual(0, p.VoteId));
+        Assert.All(payouts, p => Assert.Equal(1, p.DuelId));
+    }
+
+    #endregion
+
     private bool _disposed;
 
     /// <inheritdoc />

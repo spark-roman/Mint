@@ -16,4 +16,9 @@ public sealed record DuelVoteResultDto
     /// Vote account id
     /// </summary>
     public long VoteAccountId { get; init; }
+
+    /// <summary>
+    /// Vote id
+    /// </summary>
+    public long VoteId { get; set; }
 }

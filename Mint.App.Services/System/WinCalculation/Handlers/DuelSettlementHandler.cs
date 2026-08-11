@@ -1,6 +1,8 @@
 using Microsoft.Extensions.Logging;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
+using Mint.Database.Entities.System.Payouts.Dto;
+using Mint.Database.Entities.System.Payouts.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
@@ -11,12 +13,18 @@ namespace Mint.App.Services.System.WinCalculation.Handlers;
 /// <inheritdoc cref="IDuelSettlementHandler"/>
 public sealed class DuelSettlementHandler(
     IDuelRepository duelRepository,
+    IPayoutRepository payoutRepository,
     ITransactionRepository transactionRepository,
     IUserStatsRepository userStatsRepository,
     IDuelCalculationHandler duelCalculator,
+    TimeProvider timeProvider,
     ILogger<DuelSettlementHandler> logger) : IDuelSettlementHandler
 {
-    private readonly IDuelRepository _duelRepository = duelRepository ?? throw new ArgumentNullException(nameof(duelRepository));
+    private readonly IDuelRepository _duelRepository = duelRepository
+        ?? throw new ArgumentNullException(nameof(duelRepository));
+
+    private readonly IPayoutRepository _payoutRepository = payoutRepository
+        ?? throw new ArgumentNullException(nameof(payoutRepository));
 
     private readonly ITransactionRepository _transactionRepository = transactionRepository
         ?? throw new ArgumentNullException(nameof(transactionRepository));
@@ -26,6 +34,9 @@ public sealed class DuelSettlementHandler(
 
     private readonly IDuelCalculationHandler _duelCalculator = duelCalculator
         ?? throw new ArgumentNullException(nameof(duelCalculator));
+
+    private readonly TimeProvider _timeProvider = timeProvider
+        ?? throw new ArgumentNullException(nameof(timeProvider));
 
     private readonly ILogger<DuelSettlementHandler> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
@@ -124,11 +135,11 @@ public sealed class DuelSettlementHandler(
             {
                 await _transactionRepository.CreateTransactionAsync(voteResult.PayoutInstruction, cancellationToken);
 
-                var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(voteResult.PayoutInstruction.CreditAccountId, cancellationToken);
+                var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(voteResult.VoteAccountId, cancellationToken);
 
                 if (userStats is null)
                 {
-                    throw new InvalidOperationException($"User stats not found for account {voteResult.PayoutInstruction.CreditAccountId}");
+                    throw new InvalidOperationException($"User stats not found for account {voteResult.VoteAccountId}");
                 }
 
                 var statsUpdateDto = new UserStatsUpdateDto
@@ -140,6 +151,17 @@ public sealed class DuelSettlementHandler(
                 };
 
                 await _userStatsRepository.UpdateStatsByAccountIdAsync(voteResult.VoteAccountId, statsUpdateDto, cancellationToken);
+
+                var payoutCreateDto = new PayoutCreateDto
+                {
+                    VoteId = voteResult.VoteId,
+                    DuelId = duelId,
+                    AccountId = voteResult.PayoutInstruction.CreditAccountId,
+                    Amount = voteResult.PayoutInstruction.Amount,
+                    ProcessedAt = _timeProvider.GetUtcNow()
+                };
+
+                await _payoutRepository.CreateAsync(payoutCreateDto, cancellationToken);
 
                 _logger.LogDebug(
                     "Payout: {Amount} to account {CreditAccountId}",

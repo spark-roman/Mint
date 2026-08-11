@@ -93,7 +93,8 @@ public sealed class DuelCalculationHandler(
                 BonusType = BonusType.Bet,
                 CreatedAt = _timeProvider.GetUtcNow()
             },
-            VoteAccountId = v.AccountId
+            VoteAccountId = v.AccountId,
+            VoteId = v.VoteId
         }).ToList();
 
         var losesVotes  = votes.Where(v => v.ChosenOptionId != winningOptionId).ToList();

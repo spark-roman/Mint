@@ -27,7 +27,7 @@ public sealed class PayoutRepository(
         await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
         var entity = _createMapper.Map(dto);
         entity.CreatedAt = DateTimeOffset.UtcNow;
-        entity.Status = PayoutStatus.Pending;
+        entity.Status = PayoutStatus.Completed;
 
         await context.Payouts.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
