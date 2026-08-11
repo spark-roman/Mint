@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
-using Mint.Database.Entities.System;
-using Mint.Database.Entities.System.Initializers;
+using Mint.Database.Entities.Prompts.System;
+using Mint.Database.Entities.System.Prompts.Initializers;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.UserCategories.Initializers;
 

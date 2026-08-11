@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Database.Entities.Prompts.System;
 using Mint.Database.Entities.System;
 using Mint.Database.Entities.UserInteractive.Duels;
 

@@ -5,8 +5,8 @@ using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Prompts;
 using Mint.Common.Contracts.Mappers;
-using Mint.Database.Entities.System.Dto;
-using Mint.Database.Entities.System.Repositories;
+using Mint.Database.Entities.System.Prompts.Dto;
+using Mint.Database.Entities.System.Prompts.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 

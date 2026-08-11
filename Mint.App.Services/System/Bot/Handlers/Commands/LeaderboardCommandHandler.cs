@@ -1,11 +1,10 @@
 using System.Collections.ObjectModel;
-using System.Globalization;
-using System.Text;
-using Microsoft.VisualBasic;
+using System.Threading.Tasks;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Leaderboards;
-using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Dto;
 using Mint.Database.Entities.Bot.Commands.Repositories;
@@ -19,7 +18,8 @@ public sealed class LeaderboardCommandHandler(
     ILeaderboardHandler leaderboardHandler,
     IScenarioRepository scenarioRepository,
     IUserSessionRepository sessionRepository,
-    IMessageFormatter messageFormatter) : ICommandHandler
+    IMessageFormatter messageFormatter,
+    ISystemSettingHandler systemSettingHandler) : ICommandHandler
 {
     private readonly ILeaderboardHandler _leaderboardHandler = leaderboardHandler ?? throw new ArgumentNullException(nameof(leaderboardHandler));
 
@@ -29,14 +29,14 @@ public sealed class LeaderboardCommandHandler(
 
     private readonly IMessageFormatter _messageFormatter = messageFormatter ?? throw new ArgumentNullException(nameof(messageFormatter));
 
-    private const int DefaultTop = 15;
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     /// <inheritdoc/>
     public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(tgUser);
 
-        var top = ParseTop(inputData);
+        var top = await ParseTop(inputData, cancellationToken);
 
         var result = await _leaderboardHandler.GetLeaderboardAsync(top, tgUser.Id, AuthSystem.Tg, cancellationToken);
 
@@ -83,14 +83,16 @@ public sealed class LeaderboardCommandHandler(
         };
     }
 
-    private static int ParseTop(string inputData)
+    private async Task<int> ParseTop(string inputData, CancellationToken cancellationToken)
     {
+        var defaultTop = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.LeaderboardSize, 15, cancellationToken);
+
         if (string.IsNullOrEmpty(inputData))
-            return DefaultTop;
+            return defaultTop;
 
         if (int.TryParse(inputData, out var top))
             return Math.Max(1, top);
 
-        return DefaultTop;
+        return defaultTop;
     }
 }

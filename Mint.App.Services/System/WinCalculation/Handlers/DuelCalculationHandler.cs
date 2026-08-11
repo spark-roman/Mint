@@ -1,7 +1,9 @@
 using System.Collections.ObjectModel;
 using Microsoft.EntityFrameworkCore;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.System.WinCalculation.Dto;
 using Mint.App.Services.System.WinCalculation.WinCalculationRules;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Ledger.Accounts;
@@ -17,6 +19,7 @@ public sealed class DuelCalculationHandler(
     IVoteRepository voteRepository,
     IAccountRepository accountRepository,
     ReadOnlyCollection<IWinCalculationRule> winCalculationRules,
+    ISystemSettingHandler systemSettingHandler,
     TimeProvider timeProvider) : IDuelCalculationHandler
 {
     private readonly IDuelRepository _duelRepository = duelRepository ?? throw new ArgumentNullException(nameof(duelRepository));
@@ -29,7 +32,7 @@ public sealed class DuelCalculationHandler(
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
-    private const decimal HouseCutPercent = 0.05m;
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     /// <inheritdoc />
     public async Task<DuelResultDto> CalculateResultAsync(long duelId, long winningOptionId, CancellationToken cancellationToken)
@@ -61,8 +64,9 @@ public sealed class DuelCalculationHandler(
             };
         }
 
+        var houseCutPercent = await _systemSettingHandler.GetDecimalAsync(SettingKeysConstants.HouseCommission, 0.05m, cancellationToken);
         var totalPot = votes.Sum(v => v.BetAmount);
-        var houseCut = totalPot * HouseCutPercent;
+        var houseCut = totalPot * houseCutPercent;
         var prizePool = totalPot - houseCut;
 
         var winningVotes = votes.Where(v => v.ChosenOptionId == winningOptionId).ToList();

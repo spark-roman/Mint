@@ -2,7 +2,7 @@ using System.Collections.ObjectModel;
 using System.Text.Json;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.Database;
-using Mint.Database.Entities.System.Initializers;
+using Mint.Database.Entities.System.Prompts.Initializers;
 using Mint.Database.Entities.UserInteractive.UserCategories.Initializers;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.Seeding;

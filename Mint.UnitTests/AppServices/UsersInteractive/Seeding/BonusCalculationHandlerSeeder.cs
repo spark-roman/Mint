@@ -1,6 +1,7 @@
 using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Database;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.Users;
 
@@ -64,7 +65,7 @@ public static class BonusCalculationHandlerSeeder
                 Balance = 10000000.00m,
                 CreatedAt = now,
                 LastTransactionDate = now,
-                Status = Mint.Common.Contracts.Ledger.Accounts.AccountStatus.Active
+                Status = AccountStatus.Active
             },
             new AccountEntity
             {
@@ -73,7 +74,7 @@ public static class BonusCalculationHandlerSeeder
                 Balance = 1500.50m,
                 CreatedAt = now,
                 LastTransactionDate = now,
-                Status = Mint.Common.Contracts.Ledger.Accounts.AccountStatus.Active
+                Status = AccountStatus.Active
             },
             new AccountEntity
             {
@@ -82,7 +83,7 @@ public static class BonusCalculationHandlerSeeder
                 Balance = 3200.00m,
                 CreatedAt = now,
                 LastTransactionDate = now,
-                Status = Mint.Common.Contracts.Ledger.Accounts.AccountStatus.Active
+                Status = AccountStatus.Active
             },
             new AccountEntity
             {
@@ -91,7 +92,7 @@ public static class BonusCalculationHandlerSeeder
                 Balance = 750.25m,
                 CreatedAt = now,
                 LastTransactionDate = now,
-                Status = Mint.Common.Contracts.Ledger.Accounts.AccountStatus.Active
+                Status = AccountStatus.Active
             });
 
         context.UserBonusStats.AddRange(
@@ -155,6 +156,10 @@ public static class BonusCalculationHandlerSeeder
                 CreatedAt = now,
                 UpdatedAt = now
             });
+
+        context.SaveChanges();
+
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
 
         context.SaveChanges();
     }

@@ -5,6 +5,7 @@ using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.Stats.Initializers;
@@ -195,6 +196,10 @@ public static class UserProfilesHandlerSeeder
                 CreatedAt = now,
                 UpdatedAt = now
             });
+
+        context.SaveChanges();
+
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
 
         context.SaveChanges();
     }

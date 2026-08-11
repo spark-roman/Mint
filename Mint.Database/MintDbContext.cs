@@ -5,7 +5,9 @@ using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.News;
 using Mint.Database.Entities.News.RSS;
+using Mint.Database.Entities.Prompts.System;
 using Mint.Database.Entities.System;
+using Mint.Database.Entities.System.Settings;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Stats;
@@ -117,6 +119,11 @@ public class MintDbContext : DbContext
     /// News
     /// </summary>
     public DbSet<NewsEntity> News { get; set; }
+
+    /// <summary>
+    /// System settings
+    /// </summary>
+    public DbSet<SystemSettingEntity> SystemSettings { get; set; }
 
     /// <summary>
     /// Constructor with connection param

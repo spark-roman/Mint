@@ -48,7 +48,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         Assert.NotNull(result);
         Assert.True(result.Success);
         Assert.False(result.AlreadyApplied);
-        Assert.Equal(1000.00m, result.Amount);
+        Assert.Equal(5000.00m, result.Amount);
         Assert.Contains("Стартовый бонус", result.Message);
     }
 
@@ -71,7 +71,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.True(stats.IsStartBonusClaimed);
-        Assert.Equal(1000.00m, stats.TotalStartBonusesClaimed);
+        Assert.Equal(5000.00m, stats.TotalStartBonusesClaimed);
     }
 
     /// <summary>
@@ -94,7 +94,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         Assert.NotNull(transactions);
         Assert.NotEmpty(transactions);
         var transaction = transactions.First(t => t.BounusType == BonusType.Start);
-        Assert.Equal(1000.00m, transaction.Amount);
+        Assert.Equal(5000.00m, transaction.Amount);
         Assert.Equal(BonusType.Start, transaction.BounusType);
     }
 
@@ -151,7 +151,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         Assert.NotNull(result);
         Assert.True(result.Success);
         Assert.False(result.IsStreakBonusApplied);
-        Assert.Equal(100m, result.Amount);
+        Assert.Equal(1000m, result.Amount);
         Assert.Contains("Ежедневный бонус", result.Message);
     }
 
@@ -179,7 +179,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(1, stats.CurrentDailyStreak);
-        Assert.Equal(100m, stats.TotalDailyBonusesClaimed);
+        Assert.Equal(1000m, stats.TotalDailyBonusesClaimed);
     }
 
     /// <summary>
@@ -199,13 +199,13 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
 
         // Assert
         Assert.True(result.Success);
-        Assert.Equal(100m, result.Amount);
+        Assert.Equal(1000m, result.Amount);
         Assert.False(result.IsStreakBonusApplied);
 
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(4, stats.CurrentDailyStreak); // 3 + 1
-        Assert.Equal(400m, stats.TotalDailyBonusesClaimed); // 300 + 100
+        Assert.Equal(1300m, stats.TotalDailyBonusesClaimed); // 300 + 1000
     }
 
     /// <summary>
@@ -228,7 +228,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         Assert.NotNull(transactions);
         Assert.NotEmpty(transactions);
         var transaction = transactions.First(t => t.BounusType == BonusType.Daily);
-        Assert.Equal(100m, transaction.Amount);
+        Assert.Equal(1000m, transaction.Amount);
         Assert.Equal(BonusType.Daily, transaction.BounusType);
     }
 
@@ -278,7 +278,7 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         Assert.NotNull(result);
         Assert.True(result.Success);
         Assert.True(result.IsStreakBonusApplied);
-        Assert.Equal(1100m, result.Amount); // 100 daily + 1000 streak
+        Assert.Equal(11000m, result.Amount); // 100 daily + 1000 streak
         Assert.Contains("Стрик 7 дней", result.Message);
         Assert.Contains("100 ежедневных + 1000 за стрик", result.Message);
 
@@ -286,14 +286,14 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
         Assert.Equal(0, stats.CurrentDailyStreak); // Reset after 7
-        Assert.Equal(1000m, stats.TotalStreakBonusesClaimed);
+        Assert.Equal(10000m, stats.TotalStreakBonusesClaimed);
 
         // Verify streak transaction was created
         var transactions = await transactionRepository.GetTransactionsByAccountIdAsync(3, CancellationToken.None);
         Assert.NotNull(transactions);
         var streakTransaction = transactions?.FirstOrDefault(t => t.BounusType == BonusType.Streak);
         Assert.NotNull(streakTransaction);
-        Assert.Equal(1000m, streakTransaction.Amount);
+        Assert.Equal(10000m, streakTransaction.Amount);
     }
 
     #endregion
@@ -353,11 +353,11 @@ public class BonusCalculationHandlerTests : IClassFixture<BonusCalculationHandle
         // Assert
         Assert.NotNull(result);
         Assert.True(result.Success);
-        Assert.Equal(1000.00m, result.Amount);
+        Assert.Equal(5000.00m, result.Amount);
 
         var stats = await bonusStatsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(stats);
-        Assert.Equal(2000.00m, stats.TotalStartBonusesClaimed); // 1000 + 1000
+        Assert.Equal(6000.00m, stats.TotalStartBonusesClaimed); // 1000 + 5000
     }
 
     #endregion

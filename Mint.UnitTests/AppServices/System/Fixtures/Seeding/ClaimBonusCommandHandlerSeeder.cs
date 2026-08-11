@@ -4,6 +4,7 @@ using Mint.Database;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.Users;
 
@@ -180,6 +181,10 @@ public static class ClaimBonusCommandHandlerSeeder
         {
             context.Buttons.Add(button);
         }
+
+        context.SaveChanges();
+
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
 
         context.SaveChanges();
     }

@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using Mint.Database.Entities.System.Repositories;
+using Mint.Database.Entities.System.Prompts.Repositories;
 
 namespace Mint.Database.Infrastructure.DI.System;
 

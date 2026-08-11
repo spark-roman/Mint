@@ -42,7 +42,9 @@ public static class DatabseExtensions
         services.RegisterBotRepositories();
         services.RegisterCategoryMappers();
         services.RegisterCategoryRepositories();
-        services.RegisterNewaMappers();
-        services.RegisterNesRepositories();
+        services.RegisterNewsMappers();
+        services.RegisterNewsRepositories();
+        services.RegisterSettingMappers();
+        services.RegisterSettingRepositories();
     }
 }

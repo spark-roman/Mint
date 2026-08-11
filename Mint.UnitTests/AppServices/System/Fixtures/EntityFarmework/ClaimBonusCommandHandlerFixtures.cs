@@ -79,6 +79,7 @@ public sealed class ClaimBonusCommandHandlerFixtures : IDisposable
         context.Steps.RemoveRange(context.Steps);
         context.StepTypes.RemoveRange(context.StepTypes);
         context.Buttons.RemoveRange(context.Buttons);
+        context.SystemSettings.RemoveRange(context.SystemSettings);
         await context.SaveChangesAsync(cancellationToken);
 
         ClaimBonusCommandHandlerSeeder.Seed(context);

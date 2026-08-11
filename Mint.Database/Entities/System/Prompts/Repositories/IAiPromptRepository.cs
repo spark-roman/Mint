@@ -1,6 +1,6 @@
-using Mint.Database.Entities.System.Dto;
+using Mint.Database.Entities.System.Prompts.Dto;
 
-namespace Mint.Database.Entities.System.Repositories;
+namespace Mint.Database.Entities.System.Prompts.Repositories;
 
 /// <summary>
 /// Repository interface for working with AI prompts

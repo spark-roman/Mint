@@ -1,6 +1,7 @@
 using AdvApplication.Auth.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Mint.App.Services.Infrastructure.DI.System.Settings;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
@@ -42,6 +43,8 @@ public sealed class BonusCalculationHandlerFixture : IDisposable
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
         services.AddScoped<IBonusCalculationHandler, BonusCalculationHandler>();
+        services.RegisterSettingsServices();
+        services.AddLogging();
 
         _serviceProvider = services.BuildServiceProvider();
 
@@ -81,6 +84,7 @@ public sealed class BonusCalculationHandlerFixture : IDisposable
         context.Users.RemoveRange(context.Users);
         context.Accounts.RemoveRange(context.Accounts);
         context.BonusTypes.RemoveRange(context.BonusTypes);
+        context.SystemSettings.RemoveRange(context.SystemSettings);
         await context.SaveChangesAsync(cancellationToken);
 
         BonusCalculationHandlerSeeder.Seed(context);

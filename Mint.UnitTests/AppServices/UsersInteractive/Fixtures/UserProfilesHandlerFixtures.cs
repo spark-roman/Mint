@@ -25,11 +25,6 @@ public sealed class UserProfilesHandlerFixture : IDisposable
     /// </summary>
     public UserProfilesHandlerFixture()
     {
-        /*_bonusValidatorMock = new Mock<IBonusValidator>();
-        _bonusValidatorMock.Setup(v => v.CanApplyStartBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _bonusValidatorMock.Setup(v => v.CanApplyDailyBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _bonusValidatorMock.Setup(v => v.CanApplyStreakBonus(It.IsAny<UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);*/
-
         var databaseName = "TestDatabase" + Guid.NewGuid();
 
         var services = new ServiceCollection();
@@ -40,7 +35,6 @@ public sealed class UserProfilesHandlerFixture : IDisposable
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
-        //services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
         services.AddScoped<IUserProfilesHandler, UserProfilesHandler>();
 
         _serviceProvider = services.BuildServiceProvider();
