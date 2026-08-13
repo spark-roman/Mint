@@ -31,7 +31,7 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             ["{{winrate}}"] = userProfileDto.Winrate.ToString(CultureInfo.InvariantCulture),
             ["{{rank_name}}"] = userProfileDto.RankName ?? "Новичок",
             ["{{rank_emoji}}"] = userProfileDto.RankEmoji ?? "🌱",
-            ["{{rank_points}}"] = userProfileDto.RankPoints.ToString(CultureInfo.InvariantCulture) ?? "",
+            ["{{rank_points}}"] = userProfileDto.RankPoints.ToString("N0", CultureInfo.InvariantCulture) ?? "",
             ["{{referral_count}}"] = userProfileDto.ReferralCount.ToString(CultureInfo.InvariantCulture) ?? "0",
             ["{{total_referral_bonus}}"] = userProfileDto.TotalReferralBonus.ToString("N0", CultureInfo.InvariantCulture) ?? "0",
             ["{{streak_days}}"] = userProfileDto.StreakDays.ToString("N0", CultureInfo.InvariantCulture) ?? "0",

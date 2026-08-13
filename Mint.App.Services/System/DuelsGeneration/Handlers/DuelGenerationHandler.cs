@@ -32,7 +32,7 @@ public class DuelGenerationHandler(
     /// <inheritdoc />
     public Task<int> PublishDuelsAsync(CancellationToken cancellationToken)
     {
-        var expiresAt = _timeProvider.GetUtcNow().AddHours(23);
+        var expiresAt = _timeProvider.GetUtcNow().AddHours(24);
 
         return _duelRepository.PublishDuelsAsync(expiresAt, cancellationToken);
     }

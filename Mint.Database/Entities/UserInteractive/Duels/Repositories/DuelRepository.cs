@@ -125,7 +125,7 @@ public class DuelRepository(
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var duels = await context.Duels.Where(d => d.Status == DuelStatus.Planned).ToListAsync(cancellationToken);
+        var duels = await context.Duels.Where(d => d.Status == DuelStatus.Planned && d.ExpiresAt <= expiresAt).ToListAsync(cancellationToken);
 
         if (duels is null || duels.Count == 0)
         {
@@ -135,7 +135,6 @@ public class DuelRepository(
         foreach(var duel in duels)
         {
             duel.Status = DuelStatus.Active;
-            duel.ExpiresAt = expiresAt;
         }
 
         await context.SaveChangesAsync(cancellationToken);
