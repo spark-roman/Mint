@@ -252,5 +252,31 @@ public static class DuelCalculationHandlerSeeder
         // Let me fix: option 1 = 2 votes (500+200), option 2 = 1 vote (300) -> option 1 wins
 
         context.SaveChanges();
+
+        // ===== Duel 6: active, equal votes on both options (tie) =====
+        context.Duels.Add(new DuelEntity
+        {
+            Id = 6,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Равные голоса",
+            Description = "Поровну голосов",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active
+        });
+
+        context.SaveChanges();
+
+        context.DuelOptions.AddRange(
+            new DuelOptionEntity { Id = 11, DuelId = 5, OptionText = "Да", OptionCode = "yes" },
+            new DuelOptionEntity { Id = 12, DuelId = 5, OptionText = "Нет", OptionCode = "no" });
+
+        context.SaveChanges();
+
+        context.Votes.AddRange(
+            new VoteEntity { AccountId = 2, DuelId = 6, ChosenOptionId = 11, BetAmount = 500m, CreatedAt = now.AddHours(-3) },
+            new VoteEntity { AccountId = 3, DuelId = 6, ChosenOptionId = 11, BetAmount = 200m, CreatedAt = now.AddHours(-3) },
+            new VoteEntity { AccountId = 1, DuelId = 6, ChosenOptionId = 12, BetAmount = 300m, CreatedAt = now.AddHours(-3) },
+            new VoteEntity { AccountId = 4, DuelId = 6, ChosenOptionId = 12, BetAmount = 300m, CreatedAt = now.AddHours(-3) });
     }
 }

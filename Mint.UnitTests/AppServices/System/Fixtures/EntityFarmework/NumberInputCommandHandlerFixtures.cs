@@ -76,6 +76,7 @@ public sealed class NumberInputCommandHandlerFixtures : IDisposable
         context.Duels.RemoveRange(context.Duels);
         context.DuelOptions.RemoveRange(context.DuelOptions);
         context.Accounts.RemoveRange(context.Accounts);
+        context.SystemSettings.RemoveRange(context.SystemSettings);
         await context.SaveChangesAsync(cancellationToken);
 
         NumberInputCommandHandlerSeeder.Seed(context);

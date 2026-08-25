@@ -133,7 +133,7 @@ public sealed class DuelSettlementHandler(
             }
             else
             {
-                await _transactionRepository.CreateTransactionAsync(voteResult.PayoutInstruction, cancellationToken);
+                var transactionId = await _transactionRepository.CreateTransactionAsync(voteResult.PayoutInstruction, cancellationToken);
 
                 var userStats = await _userStatsRepository.GetStatsByAccountIdAsync(voteResult.VoteAccountId, cancellationToken);
 
@@ -158,7 +158,8 @@ public sealed class DuelSettlementHandler(
                     DuelId = duelId,
                     AccountId = voteResult.PayoutInstruction.CreditAccountId,
                     Amount = voteResult.PayoutInstruction.Amount,
-                    ProcessedAt = _timeProvider.GetUtcNow()
+                    ProcessedAt = _timeProvider.GetUtcNow(),
+                    TransactionId = transactionId
                 };
 
                 await _payoutRepository.CreateAsync(payoutCreateDto, cancellationToken);

@@ -85,6 +85,36 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
     }
 
     /// <summary>
+    /// Verifies that SettleDuelAsync creates payout transactions for winning option voters.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_ValidDuelWithVotes_CreateDifferentPayoutTransactions()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var duelId = 5;
+
+        // Act
+        await handler.SettleDuelAsync(duelId, CancellationToken.None);
+
+        // Assert
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var transactions = context.Transactions
+            .Where(t => t.Description!.Contains(":1"))
+            .ToList();
+
+        Assert.NotEmpty(transactions);
+        // Accounts 1 and 2 voted for option 1 (winning)
+        Assert.Equal(2, transactions.Count);
+    }
+
+    /// <summary>
     /// Verifies that SettleDuelAsync determines winning option by total bet amount.
     /// </summary>
     [Fact]

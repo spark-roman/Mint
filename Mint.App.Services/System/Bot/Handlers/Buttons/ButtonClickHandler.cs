@@ -1,10 +1,12 @@
 using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Duels.Handlers;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Bot.Commands.Dto;
 using Mint.Database.Entities.Bot.Commands.Repositories;
@@ -27,25 +29,28 @@ public sealed class ButtonClickHandler(
     IAccountRepository accountRepository,
     IUserProfilesHandler profilesHandler,
     IMessageFormatter messageFormatter,
-    IDuelHandler duelHandler) : IButtonHandler
+    IDuelHandler duelHandler,
+    ISystemSettingHandler systemSettingHandler) : IButtonHandler
 {
     private readonly IScenarioRepository _scenarioRepository = scenarioRepository ?? throw new ArgumentNullException(nameof(scenarioRepository));
-    
+
     private readonly IUserSessionRepository _sessionRepository = sessionRepository ?? throw new ArgumentNullException(nameof(sessionRepository));
-    
+
     private readonly ICategoryRepository _categoryRepository = categoryRepository ?? throw new ArgumentNullException(nameof(categoryRepository));
-    
+
     private readonly IDuelRepository _duelRepository = duelRepository ?? throw new ArgumentNullException(nameof(duelRepository));
-    
+
     private readonly IUserProfilesHandler _profilesHandler = profilesHandler ?? throw new ArgumentNullException(nameof(profilesHandler));
 
     private readonly IVoteRepository _voteRepository = voteRepository ?? throw new ArgumentNullException(nameof(voteRepository));
-    
+
     private readonly IAccountRepository _accountRepository = accountRepository ?? throw new ArgumentNullException(nameof(accountRepository));
-    
+
     private readonly IMessageFormatter _messageFormatter = messageFormatter ?? throw new ArgumentNullException(nameof(messageFormatter));
 
     private readonly IDuelHandler _duelHandler = duelHandler ?? throw new ArgumentNullException(nameof(duelHandler));
+
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     /// <inheritdoc />
     public async Task<CommandResult> HandleAsync(long externalUserId, string callbackData, CancellationToken cancellationToken)
@@ -68,36 +73,30 @@ public sealed class ButtonClickHandler(
         if (callbackData == ActionConstants.Leaderboard)
             return await NavigateToScenarioAsync(externalUserId, ScenarioConstants.Leaderboard, false, cancellationToken);
 
-        // === Бонусы ===
         if (callbackData == ActionConstants.ClaimBonus)
             return await HandleClaimBonusAsync(externalUserId, AuthSystem.Tg, cancellationToken);
 
-        // === Выбор категории ===
         if (callbackData.StartsWith(ActionConstants.CategoryPrefix, StringComparison.InvariantCultureIgnoreCase))
         {
             var categoryCode = callbackData[ActionConstants.CategoryPrefix.Length..];
             return await HandleCategorySelectionAsync(externalUserId, categoryCode, cancellationToken);
         }
 
-        // === Обработка голосования (v_duelId_optionId) ===
         if (callbackData.StartsWith(ActionConstants.VotePrefix, StringComparison.InvariantCultureIgnoreCase))
         {
             return await HandleVoteSelectionAsync(externalUserId, callbackData, cancellationToken);
         }
 
-        // === Обработка ставки (bet_duelId_optionId_amount) ===
         if (callbackData.StartsWith(ActionConstants.BetPrefix, StringComparison.InvariantCultureIgnoreCase))
         {
             return await HandleBetPlacementAsync(externalUserId, callbackData, cancellationToken);
         }
 
-        // === Обработка отмены (cancel_duelId) ===
         if (callbackData.StartsWith(ActionConstants.CancelPrefix, StringComparison.InvariantCultureIgnoreCase))
         {
             return await HandleCancelAsync(externalUserId, callbackData, cancellationToken);
         }
 
-        // === Стандартная навигация по кнопке ===
         return await HandleButtonNavigationAsync(externalUserId, callbackData, cancellationToken);
     }
 
@@ -314,10 +313,7 @@ public sealed class ButtonClickHandler(
     /// <summary>
     /// Handles bet placement and shows success screen.
     /// </summary>
-    private async Task<CommandResult> HandleBetPlacementAsync(
-        long externalUserId,
-        string callbackData,
-        CancellationToken cancellationToken)
+    private async Task<CommandResult> HandleBetPlacementAsync(long externalUserId, string callbackData, CancellationToken cancellationToken)
     {
         var parts = callbackData.Split('_');
         if (parts.Length != 4 || parts[0] != ActionConstants.BetPrefix.TrimEnd('_'))
@@ -325,13 +321,24 @@ public sealed class ButtonClickHandler(
             return CommandResult.Error("Неверный формат");
         }
 
-        if (!long.TryParse(parts[1], out var duelId) ||
-            !long.TryParse(parts[2], out var optionId) ||
-            !decimal.TryParse(parts[3], out var amount))
+        if (!long.TryParse(parts[1], out var duelId) || !long.TryParse(parts[2], out var optionId) || !decimal.TryParse(parts[3], out var amount))
         {
             return CommandResult.Error("Неверные данные");
         }
-        
+
+        var minBet = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.MinBetAmount, 10, cancellationToken);
+        var maxBet = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.MaxBetAmount, 10000, cancellationToken);
+
+        if (amount < minBet)
+        {
+            return CommandResult.Error($"Минимальная сумма ставки — {minBet}.");
+        }
+
+        if (amount > maxBet)
+        {
+            return CommandResult.Error($"Максимальная сумма ставки — {maxBet}.");
+        }
+
         var result = await _duelHandler.PlaceBetAsync(
             externalUserId,
             duelId,
