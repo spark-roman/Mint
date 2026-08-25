@@ -47,7 +47,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             AccountId = 2,
             ChosenOptionId = 100501,
             BetAmount = 100.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var payout = new PayoutCreateDto
@@ -56,7 +57,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 150.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         };
 
         // Act
@@ -109,7 +111,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 75.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         };
 
         // Act
@@ -142,7 +145,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             AccountId = 2,
             ChosenOptionId = 100502,
             BetAmount = 10.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Act
@@ -152,7 +156,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = expectedDuelId,
             AccountId = expectedAccountId,
             Amount = expectedAmount,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Assert
@@ -186,7 +191,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             AccountId = 2,
             ChosenOptionId = 100501,
             BetAmount = 10.00m,
-            CreatedAt = DateTimeOffset.UtcNow
+            CreatedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var voteId2 = await voteRepository.CreateVoteAsync(new VoteCreateDto
@@ -206,7 +212,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
                 DuelId = 100500,
                 AccountId = 1,
                 Amount = 15.00m,
-                ProcessedAt = DateTimeOffset.UtcNow
+                ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
             },
             new PayoutCreateDto
             {
@@ -214,7 +221,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
                 DuelId = 100500,
                 AccountId = 1,
                 Amount = 25.00m,
-                ProcessedAt = DateTimeOffset.UtcNow
+                ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
             }
         ]);
 
@@ -276,7 +284,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 300.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Act
@@ -349,7 +358,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         await repository.CreateAsync(new PayoutCreateDto
@@ -358,7 +368,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 25.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Act
@@ -428,7 +439,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         await repository.CreateAsync(new PayoutCreateDto
@@ -437,7 +449,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 25.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Act
@@ -498,7 +511,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 75.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var updateDto = new PayoutUpdateDto
@@ -545,7 +559,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 45.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var updateDto = new PayoutUpdateDto
@@ -589,7 +604,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var updateDto = new PayoutUpdateDto
@@ -670,7 +686,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 75.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var updateDto = new PayoutUpdateDto
@@ -737,7 +754,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var payout2 = await repository.CreateAsync(new PayoutCreateDto
@@ -746,7 +764,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 25.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         var dtos = new ReadOnlyCollection<PayoutUpdateDto>(
@@ -825,7 +844,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         await repository.CreateAsync(new PayoutCreateDto
@@ -834,7 +854,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 25.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Act
@@ -874,7 +895,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
             DuelId = 100500,
             AccountId = 1,
             Amount = 15.00m,
-            ProcessedAt = DateTimeOffset.UtcNow
+            ProcessedAt = DateTimeOffset.UtcNow,
+            TransactionId = 1
         }, CancellationToken.None);
 
         // Mark as completed
@@ -921,7 +943,8 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
                 DuelId = 100500,
                 AccountId = 1,
                 Amount = 15.00m,
-                ProcessedAt = DateTimeOffset.UtcNow
+                ProcessedAt = DateTimeOffset.UtcNow,
+                TransactionId = 1
             }, CancellationToken.None);
         }
 

@@ -169,6 +169,54 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
 
     #endregion
 
+    #region HandleAsync - Amount Limits
+
+    /// <summary>
+    /// Verifies that HandleAsync returns error when the amount is below the minimum bet limit.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_AmountBelowMinimum_ReturnsErrorMessage()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.NumberInput);
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+
+        // Act — amount 5 is below the configured minimum of 10
+        var result = await handler.HandleAsync(tgUser, "5", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.IsFinal);
+        Assert.True(result.IsNewMessage);
+        Assert.Contains("Минимальная сумма ставки", result.Message);
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync returns error when the amount is above the maximum bet limit.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_AmountAboveMaximum_ReturnsErrorMessage()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.NumberInput);
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+
+        // Act — amount 50000 is above the configured maximum of 10000
+        var result = await handler.HandleAsync(tgUser, "50000", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.IsFinal);
+        Assert.True(result.IsNewMessage);
+        Assert.Contains("Максимальная сумма ставки", result.Message);
+    }
+
+    #endregion
+
     #region HandleAsync - No Session
 
     /// <summary>
@@ -579,7 +627,7 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
     }
 
     /// <summary>
-    /// Verifies that HandleAsync accepts small decimal amounts.
+    /// Verifies that HandleAsync accepts small decimal amounts within the allowed range.
     /// </summary>
     [Fact]
     public async Task HandleAsync_SmallDecimalAmount_ParsesCorrectly()
@@ -591,7 +639,7 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
         var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
 
         // Act
-        var result = await handler.HandleAsync(tgUser, "0.01", CancellationToken.None);
+        var result = await handler.HandleAsync(tgUser, "10.50", CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);

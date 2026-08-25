@@ -19,7 +19,8 @@ public sealed class DbPayoutCreateMapper : IDbEntityMapper<PayoutCreateDto, Payo
             DuelId = entity.DuelId,
             AccountId = entity.AccountId,
             Amount = entity.Amount,
-            ProcessedAt = entity.ProcessedAt
+            ProcessedAt = entity.ProcessedAt,
+            TransactionId = entity.TransactionId
         };
     }
 }

@@ -3,6 +3,7 @@ using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database;
 using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.UserCategories;
@@ -281,5 +282,9 @@ public static class NumberInputCommandHandlerSeeder
                 LastTransactionDate = now,
                 Status = AccountStatus.Active
             });
+
+        // Seed system settings for bet amount validation
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
+        context.SaveChanges();
     }
 }

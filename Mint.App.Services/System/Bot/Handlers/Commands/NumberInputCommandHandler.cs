@@ -4,9 +4,11 @@ using System.Text.Json;
 using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Duels.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
+using Mint.Common.Contracts.Settings;
 using Mint.Database.Entities.Bot.Commands.Dto;
 using Mint.Database.Entities.Bot.Commands.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Repositories;
@@ -22,6 +24,7 @@ public class NumberInputCommandHandler(
     IDuelRepository duelRepository,
     IScenarioRepository scenarioRepository,
     IMessageFormatter messageFormatter,
+    ISystemSettingHandler systemSettingHandler,
     ILogger<NumberInputCommandHandler> logger) : ICommandHandler
 {
     private readonly IUserSessionRepository _sessionRepository = sessionRepository
@@ -35,9 +38,12 @@ public class NumberInputCommandHandler(
 
     private readonly IScenarioRepository _scenarioRepository = scenarioRepository
         ?? throw new ArgumentNullException(nameof(scenarioRepository));
-    
+
     private readonly IMessageFormatter _messageFormatter = messageFormatter
         ?? throw new ArgumentNullException(nameof(messageFormatter));
+
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler
+        ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     private readonly ILogger<NumberInputCommandHandler> _logger = logger
         ?? throw new ArgumentNullException(nameof(logger));
@@ -54,6 +60,29 @@ public class NumberInputCommandHandler(
             return new CommandResult
             {
                 Message = "❌ Пожалуйста, введите положительное число.",
+                IsFinal = true,
+                IsNewMessage = true
+            };
+        }
+
+        var minBet = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.MinBetAmount, 10, cancellationToken);
+        var maxBet = await _systemSettingHandler.GetIntAsync(SettingKeysConstants.MaxBetAmount, 10000, cancellationToken);
+
+        if (amount < minBet)
+        {
+            return new CommandResult
+            {
+                Message = $"❌ Минимальная сумма ставки — {minBet}.",
+                IsFinal = true,
+                IsNewMessage = true
+            };
+        }
+
+        if (amount > maxBet)
+        {
+            return new CommandResult
+            {
+                Message = $"❌ Максимальная сумма ставки — {maxBet}.",
                 IsFinal = true,
                 IsNewMessage = true
             };

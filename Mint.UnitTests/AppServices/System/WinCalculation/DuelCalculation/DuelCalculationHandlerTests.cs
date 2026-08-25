@@ -575,6 +575,25 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         Assert.Contains(1, result);
     }
 
+    [Fact]
+    public async Task CalculateWinningOptionIdAsync_MultipleEqualVotes_Returns2WinningOptions()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var duelId = 6;
+
+        // Act
+        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.Contains(11, result);
+        Assert.Contains(12, result);
+    }
+
     /// <summary>
     /// Verifies that CalculateWinningOptionIdAsync returns empty for duel with no votes.
     /// Duel 2 has no votes.

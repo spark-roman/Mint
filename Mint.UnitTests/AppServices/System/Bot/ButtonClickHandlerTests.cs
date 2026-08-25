@@ -695,8 +695,8 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
-        // Act
-        var result = await handler.HandleAsync(1002, "bet_1_1_999999", CancellationToken.None);
+        // Act — amount 2000 is within bet limits but exceeds Bob's balance (1500.50)
+        var result = await handler.HandleAsync(1002, "bet_1_1_2000", CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -743,6 +743,48 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Assert
         Assert.NotNull(result);
         // Result depends on duel state - just verify it doesn't throw
+    }
+
+    #endregion
+
+    #region Bet Placement - Amount Limits
+
+    /// <summary>
+    /// Verifies that HandleAsync returns error when bet amount is below the minimum.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BetBelowMinimum_ReturnsErrorMessage()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act — amount 5 is below the configured minimum of 10
+        var result = await handler.HandleAsync(1002, "bet_1_1_5", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Contains("Минимальная сумма ставки", result.Message);
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync returns error when bet amount is above the maximum.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_BetAboveMaximum_ReturnsErrorMessage()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act — amount 50000 is above the configured maximum of 10000
+        var result = await handler.HandleAsync(1002, "bet_1_1_50000", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Contains("Максимальная сумма ставки", result.Message);
     }
 
     #endregion

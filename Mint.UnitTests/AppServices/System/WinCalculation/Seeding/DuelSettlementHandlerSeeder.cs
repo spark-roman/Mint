@@ -364,5 +364,55 @@ public static class DuelSettlementHandlerSeeder
             });
 
         context.SaveChanges();
+
+        context.Duels.AddRange(
+            new DuelEntity
+            {
+                Id = 5,
+                CategoryId = 2,
+                DuelType = DuelType.OpinionMatch,
+                Question = "C# лучше Java?",
+                Description = "C# лучший язык в мире!",
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(24), // not expired
+                Status = DuelStatus.Active
+            });
+
+        context.SaveChanges();
+
+        context.DuelOptions.AddRange(
+            new DuelOptionEntity
+            {
+                Id = 9,
+                DuelId = 5,
+                OptionText = "C#",
+                OptionCode = "A"
+            },
+            new DuelOptionEntity
+            {
+                Id = 10,
+                DuelId = 5,
+                OptionText = "Java",
+                OptionCode = "B"
+            });
+
+        context.Votes.AddRange(
+            new VoteEntity
+            {
+                AccountId = 2,
+                DuelId = 5,
+                ChosenOptionId = 1,
+                BetAmount = 500m,
+                CreatedAt = DateTimeOffset.UtcNow.AddHours(-2)
+            },
+            new VoteEntity
+            {
+                AccountId = 3,
+                DuelId = 5,
+                ChosenOptionId = 2,
+                BetAmount = 300m,
+                CreatedAt = DateTimeOffset.UtcNow.AddHours(-2)
+            });
+
+        context.SaveChanges();
     }
 }

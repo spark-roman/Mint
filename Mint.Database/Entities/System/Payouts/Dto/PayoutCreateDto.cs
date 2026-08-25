@@ -14,6 +14,9 @@ public sealed record PayoutCreateDto
     /// <summary>Identifier of the account receiving the payout.</summary>
     public required long AccountId { get; init; }
 
+    /// <summary>Identifier of the transaction that was used to payout.</summary>
+    public required long TransactionId { get; init; }
+
     /// <summary>Payout amount.</summary>
     public required decimal Amount { get; init; }
 

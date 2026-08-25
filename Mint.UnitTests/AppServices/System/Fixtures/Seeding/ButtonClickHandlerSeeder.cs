@@ -1,5 +1,6 @@
 using Mint.Database;
 using Mint.Database.Entities.Bot.Commands.Initializers;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.Users;
@@ -202,6 +203,10 @@ public static class ButtonClickHandlerSeeder
         };
 
         context.Duels.AddRange(duel1, duel2, duel3);
+        context.SaveChanges();
+
+        // Seed system settings for bet amount validation
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
         context.SaveChanges();
     }
 }
