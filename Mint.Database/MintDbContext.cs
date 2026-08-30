@@ -225,15 +225,32 @@ public class MintDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.BonusTypeId);
 
-        modelBuilder.Entity<ButtonEntity>()
-            .Property(b => b.Type)
-            .HasDefaultValue(TgButtonType.CallbackData);
+        modelBuilder.Entity<ButtonEntity>(entity =>
+        {
+            entity.HasKey(b => b.Id);
 
-        modelBuilder.Entity<ButtonEntity>()
-            .HasOne(b => b.NextStep)
-            .WithMany()
-            .HasForeignKey(b => b.NextStepId)
-            .OnDelete(DeleteBehavior.SetNull);
+            entity.Property(b => b.Caption)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(b => b.Action)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(b => b.Type)
+                .HasColumnType("smallint")
+                .HasDefaultValueSql("1");
+
+            entity.HasOne(b => b.ParentStep)
+                .WithMany(s => s.Buttons)
+                .HasForeignKey(b => b.ParentStepId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            entity.HasOne(b => b.NextStep)
+                .WithMany()
+                .HasForeignKey(b => b.NextStepId)
+                .OnDelete(DeleteBehavior.SetNull);
+        });
 
         modelBuilder.Entity<UserSessionEntity>()
             .HasOne(us => us.Scenario)
