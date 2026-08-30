@@ -8,10 +8,10 @@ public sealed class TelegramOptions
     /// <summary>
     /// Section name for configuration.
     /// </summary>
-    public const string SectionName = "Auth:Tg:UserName";
+    public const string SectionName = "Auth:Tg";
 
     /// <summary>
     /// Bot username (e.g., "opinion_bot").
     /// </summary>
-    public string BotUsername { get; set; } = string.Empty;
+    public required string BotUsername { get; set; }
 }
