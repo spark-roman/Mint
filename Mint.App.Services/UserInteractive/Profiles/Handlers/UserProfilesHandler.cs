@@ -1,4 +1,5 @@
 using AdvApplication.Auth.Users;
+using HashidsNet;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
@@ -26,6 +27,7 @@ public class UserProfilesHandler(
     IUserBonusStatsRepository bonusStatsRepository,
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
+    IHashids hashids,
     TimeProvider timeProvider,
     IBonusValidator bonusValidator) : IUserProfilesHandler
 {
@@ -46,6 +48,8 @@ public class UserProfilesHandler(
 
     private readonly IUserRepository _userRepository = userRepository
         ?? throw new ArgumentNullException(nameof(userRepository));
+
+    private readonly IHashids _hashids = hashids ?? throw new ArgumentNullException(nameof(hashids));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     
@@ -241,5 +245,75 @@ public class UserProfilesHandler(
         }
 
         return true;
+    }
+
+    /// <inheritdoc />
+    public async Task ProcessReferralAsync(long newUserId, string referralCode, CancellationToken cancellationToken)
+    {
+        if (string.IsNullOrEmpty(referralCode))
+        {
+            throw new ArgumentNullException($"Empty referral code for user {newUserId}");
+        }
+
+        var decoded = _hashids.DecodeLong(referralCode);
+        if (decoded.Length == 0)
+        {
+            throw new ArgumentException("Invalid referral code", nameof(referralCode));
+        }
+
+        var referrerExternalId = decoded[0];
+        if (referrerExternalId == newUserId)
+        {
+            throw new ArgumentException($"User {newUserId} tried to refer themselves");
+        }
+
+        var referrer = await _userRepository.GetUserAsync(referrerExternalId, (byte)AuthSystem.Tg, cancellationToken);
+        if (referrer == null)
+        {
+            throw new InvalidOperationException($"Referrer user {referrerExternalId} not found");
+        }
+
+        var newUser = await _userRepository.GetUserAsync(newUserId, (byte)AuthSystem.Tg, cancellationToken);
+        if (newUser == null)
+        {
+            throw new InvalidOperationException($"New user {newUserId} not found");
+        }
+
+        var newUserStats = await _statsRepository.GetStatsByUserIdAsync(newUser.ExternalUserId, (byte)AuthSystem.Tg, cancellationToken);
+        if (newUserStats == null)
+        {
+            throw new InvalidOperationException($"Stats for user {newUserId} not found");
+        }
+
+        if (newUserStats.InvitedByUserId != null)
+        {
+            throw new InvalidOperationException($"User {newUserId} already has a referrer: {newUserStats.InvitedByUserId}");
+        }
+
+        var updateDto = new UserStatsUpdateDto
+        {
+            RankPoints = newUserStats.RankPoints,
+            TotalWins = newUserStats.TotalWins,
+            TotalLosses = newUserStats.TotalLosses,
+            ReferralCount = newUserStats.ReferralCount,
+            InvitedByUserId = referrer.Id
+        };
+
+        await _statsRepository.UpdateStatsAsync(newUser.ExternalUserId, updateDto, cancellationToken);
+
+        var referrerStats = await _statsRepository.GetStatsByUserIdAsync(referrer.ExternalUserId, (byte)AuthSystem.Tg, cancellationToken);
+        if (referrerStats != null)
+        {
+            var referrerUpdate = new UserStatsUpdateDto
+            {
+                RankPoints = referrerStats.RankPoints,
+                TotalWins = referrerStats.TotalWins,
+                TotalLosses = referrerStats.TotalLosses,
+                ReferralCount = referrerStats.ReferralCount + 1,
+                InvitedByUserId = referrerStats.InvitedByUserId
+            };
+            
+            await _statsRepository.UpdateStatsAsync(referrer.ExternalUserId, referrerUpdate, cancellationToken);
+        }
     }
 }

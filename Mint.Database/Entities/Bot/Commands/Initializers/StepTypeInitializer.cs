@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Mint.Common.Contracts.Bot.Commands;
 
 namespace Mint.Database.Entities.Bot.Commands.Initializers;
 
@@ -94,13 +95,12 @@ public sealed class BotInitializer
             Message = """
                 👥 **РЕФЕРАЛЬНАЯ ПРОГРАММА**
 
-                Пригласи друга и получи **500 монет**, когда он сделает свои первые 3 ставки в любых дуэлях!
+                Пригласи друга и получи **{{referral_amount}} монет**!
 
                 🎁 Твоя ссылка:
-                `https://t.me/opinion_bot?start={{referral_code}}`
+                `https://t.me/{{bot_username}}?start={{referral_code}}`
 
                 👥 Приглашено друзей: {{referral_count}}
-                💰 Всего бонусов: {{total_referral_bonus}} 🪙
                 """,
             IsFinal = false
         },
@@ -239,7 +239,16 @@ public sealed class BotInitializer
         new ButtonEntity { Id = 12, ParentStepId = 5, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
         // ========== referral (ParentStepId = 4) ==========
-        new ButtonEntity { Id = 7, ParentStepId = 4, OrderNum = 1, Caption = "✉️ Переслать другу", Action = "share_referral" },
+        new ButtonEntity
+        {
+            Id = 7,
+            ParentStepId = 4,
+            OrderNum = 1,
+            Caption = "✉️ Переслать другу",
+            Action = "Присоединяйся к \"Дуэли мнений\" по ссылке: https://t.me/{{bot_username}}?start={{referral_code}}",
+            Type = TgButtonType.SwitchInlineQuery
+        },
+        new ButtonEntity { Id = 13, ParentStepId = 4, OrderNum = 2, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
         // ========== leaderboard (ParentStepId = 5) ==========
         new ButtonEntity { Id = 8, ParentStepId = 6, OrderNum = 1, Caption = "🔙 Вернуться в профиль", Action = "profile" },

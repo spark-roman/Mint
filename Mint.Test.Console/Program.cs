@@ -25,7 +25,7 @@ var host = Host.CreateDefaultBuilder(args)
         services.Configure<DeepSeekSettings>(context.Configuration.GetSection("DeepSeekSettings"));
         services.AddDbContextFactory<MintDbContext>(options => options.UseNpgsql(connectionString));
 
-        services.RegisterAppServices();
+        services.RegisterAppServices("salt", 8);
         services.RegisterDatabaseServices();
     })
     .Build();

@@ -32,6 +32,7 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<ICommandHandler, LeaderboardCommandHandler>(TgCommandType.Leaderboard);
         services.AddKeyedScoped<ICommandHandler, HelpCommandHandler>(TgCommandType.Help);
         services.AddKeyedScoped<ICommandHandler, NumberInputCommandHandler>(TgCommandType.NumberInput);
+        services.AddKeyedScoped<ICommandHandler, ReferralCommandHandler>(TgCommandType.Referral);
 
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CategorySelection);
         services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.DuelSelection);

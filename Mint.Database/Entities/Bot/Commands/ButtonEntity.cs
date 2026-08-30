@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Common.Contracts.Bot.Commands;
 
 namespace Mint.Database.Entities.Bot.Commands;
 
@@ -60,4 +61,9 @@ public class ButtonEntity
     /// Next step
     /// </summary>
     public virtual StepEntity? NextStep { get; set; }
+
+    /// <summary>
+    /// Button type
+    /// </summary>
+    public TgButtonType Type { get; set; }
 }

@@ -57,7 +57,7 @@ public sealed class ProfileCommandHandlerFixture : IDisposable
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
-        services.RegisterAppServices();
+        services.RegisterAppServices("salt", 8);
         services.AddSingleton<IDtoMapper<User, ExternalUserDto>, TgUserMapper>();
         services.AddScoped<IMessageFormatter>(_ => _messageFormatterMock.Object);
         services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);

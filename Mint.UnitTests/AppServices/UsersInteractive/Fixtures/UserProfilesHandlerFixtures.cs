@@ -1,13 +1,11 @@
+using HashidsNet;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI;
-using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Database;
-using Mint.Database.Entities.UserInteractive.Bonuses.Dto;
 using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.UsersInteractive.Seeding;
-using Moq;
 
 namespace Mint.UnitTests.AppServices.UsersInteractive.Fixtures;
 
@@ -30,11 +28,12 @@ public sealed class UserProfilesHandlerFixture : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices();
+        services.RegisterAppServices("salt", 8);
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
+        services.AddSingleton<IHashids>(new Hashids("test-referral-salt", 8));
         services.AddScoped<IUserProfilesHandler, UserProfilesHandler>();
 
         _serviceProvider = services.BuildServiceProvider();

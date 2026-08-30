@@ -1,3 +1,4 @@
+using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers;
 using Mint.Bot.Polling.Services;
 using Telegram.Bot;
@@ -23,6 +24,8 @@ public static class BotExtensions
 
         builder.Services.AddSingleton<ITelegramBotClient>(sp => new TelegramBotClient($"{botId}:{token}"));
         builder.Services.AddSingleton<IUpdateHandler, UpdateHandler>();
-        builder.Services.AddHostedService<PollingService>();   
+        builder.Services.AddHostedService<PollingService>();
+
+        builder.Services.Configure<TelegramOptions>(builder.Configuration.GetSection(TelegramOptions.SectionName));
     }
 }

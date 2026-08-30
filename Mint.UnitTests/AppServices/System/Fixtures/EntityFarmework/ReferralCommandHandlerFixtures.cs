@@ -1,50 +1,44 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Mint.App.Services.Infrastructure.DI.System.Bot;
-using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
+using Microsoft.Extensions.Options;
+using Mint.App.Services.Infrastructure.DI;
+using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Messages;
-using Mint.App.Services.UserInteractive.Bonuses.Rules;
-using Mint.App.Services.UserInteractive.Profiles.Handlers;
+using Mint.App.Services.UserInteractive.Referral.Dto;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
-using Telegram.Bot.Types;
 using Moq;
-using Mint.App.Services.Infrastructure.DI;
+using Telegram.Bot.Types;
 
 namespace Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 
 /// <summary>
-/// Fixture для тестов <see cref="StartCommandHandler"/> с EF Core и реальными репозиториями.
+/// Fixture for <see cref="ReferralCommandHandler"/> tests with EF Core and DI.
 /// </summary>
-public sealed class StartCommandHandlerFixture : IDisposable
+public sealed class ReferralCommandHandlerFixture : IDisposable
 {
-    private readonly Mock<IBonusValidator> _bonusValidatorMock;
+    private const string BotUserName = "opinion_test_bot";
     private readonly ServiceProvider _serviceProvider;
     private bool _disposed;
 
     /// <summary>
-    /// Initializes a new instance of the <see cref="StartCommandHandlerFixture"/> class.
+    /// Initializes a new instance of the <see cref="ReferralCommandHandlerFixture"/> class.
     /// </summary>
-    public StartCommandHandlerFixture()
+    public ReferralCommandHandlerFixture()
     {
-        _bonusValidatorMock = new Mock<IBonusValidator>();
-        _bonusValidatorMock.Setup(v => v.CanApplyStartBonus(It.IsAny<Mint.Database.Entities.UserInteractive.Bonuses.Dto.UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _bonusValidatorMock.Setup(v => v.CanApplyDailyBonus(It.IsAny<Mint.Database.Entities.UserInteractive.Bonuses.Dto.UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(true);
-        _bonusValidatorMock.Setup(v => v.CanApplyStreakBonus(It.IsAny<Mint.Database.Entities.UserInteractive.Bonuses.Dto.UserBonusStatsDto?>(), It.IsAny<CancellationToken>())).ReturnsAsync(false);
-
         var databaseName = "TestDatabase" + Guid.NewGuid();
 
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices("salt", 8);
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
-        services.AddScoped<IBonusValidator>(_ => _bonusValidatorMock.Object);
-        services.RegisterUserProfileHandlers();
+        services.AddSingleton(TimeProvider.System);
+        services.RegisterAppServices("salt", 8);
+        services.Configure<TelegramOptions>(options => options.BotUsername = BotUserName);
 
         _serviceProvider = services.BuildServiceProvider();
 
@@ -52,7 +46,12 @@ public sealed class StartCommandHandlerFixture : IDisposable
     }
 
     /// <summary>
-    /// Creates a service scope for resolving services.
+    /// Gets the configured bot username.
+    /// </summary>
+    public string ConfiguredBotUserName => BotUserName;
+
+    /// <summary>
+    /// Seeds the database with test data.
     /// </summary>
     private void SeedDatabase()
     {
@@ -60,7 +59,7 @@ public sealed class StartCommandHandlerFixture : IDisposable
         var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
 
         using var context = dbContextFactory.CreateDbContextAsync().GetAwaiter().GetResult();
-        StartCommandSeeder.Seed(context);
+        ReferralCommandSeeder.Seed(context);
         context.SaveChangesAsync().GetAwaiter().GetResult();
     }
 
@@ -102,4 +101,3 @@ public sealed class StartCommandHandlerFixture : IDisposable
         _disposed = true;
     }
 }
-

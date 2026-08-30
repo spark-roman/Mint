@@ -60,4 +60,10 @@ public class UserStatsEntity
     /// </summary>
     [Column("updated_at")]
     public DateTimeOffset UpdatedAt { get; set; }
+
+    /// <summary>
+    /// User ID of the user who invited the user
+    /// </summary>
+    [Column("invited_by_user_id")]
+    public long? InvitedByUserId { get; set; }
 }

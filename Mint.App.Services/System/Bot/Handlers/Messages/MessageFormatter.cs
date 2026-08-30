@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Text;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.App.Services.UserInteractive.Referral.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
@@ -168,5 +169,28 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             .Aggregate((a, b) => $"{a}\n{b}");
 
         return Task.FromResult(messageTemplate.Replace("{{categories_list}}", categoriesList, StringComparison.InvariantCultureIgnoreCase));
+    }
+
+    /// <inheritdoc />
+    public async Task<string> FormatReferralMessageAsync(
+        string messageTemplate,
+        ReferralDataDto referralData,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(referralData);
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{referral_code}}"] = referralData.ReferralCode,
+            ["{{referral_count}}"] = referralData.ReferralCount.ToString(CultureInfo.InvariantCulture),
+            ["{{referral_amount}}"] = referralData.ReferralAmount.ToString("N0", CultureInfo.InvariantCulture),
+            ["{{bot_username}}"] =  referralData.BotUserName
+        };
+
+        var formattedMessage = replacements.Aggregate(
+            messageTemplate,
+            (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+
+        return await Task.FromResult(formattedMessage);
     }
 }

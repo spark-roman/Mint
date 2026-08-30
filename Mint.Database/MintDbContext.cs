@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.Bot.Commands;
 using Mint.Database.Entities.Ledger.Accounts;
@@ -223,6 +224,10 @@ public class MintDbContext : DbContext
             .HasOne(t => t.TransactionType)
             .WithMany()
             .HasForeignKey(t => t.BonusTypeId);
+
+        modelBuilder.Entity<ButtonEntity>()
+            .Property(b => b.Type)
+            .HasDefaultValue(TgButtonType.CallbackData);
 
         modelBuilder.Entity<ButtonEntity>()
             .HasOne(b => b.NextStep)
