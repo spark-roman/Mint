@@ -1,3 +1,5 @@
+using Mint.Common.Contracts.Bot.Commands;
+
 namespace Mint.Database.Entities.Bot.Commands.Dto;
 
 /// <summary>
@@ -18,8 +20,11 @@ public record ButtonDto
     public string Caption { get; init; } = string.Empty;
     
     /// <summary>Action identifier (callback data or special command)</summary>
-    public string Action { get; init; } = string.Empty;
+    public string Action { get; set; } = string.Empty;
     
     /// <summary>Identifier of the next step to navigate to when button is clicked</summary>
     public long? NextStepId { get; init; }
+
+    /// <summary>Button type</summary>
+    public TgButtonType Type { get; set; }
 }

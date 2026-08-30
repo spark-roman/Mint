@@ -31,6 +31,12 @@ public sealed class StartCommandHandler(
         var userCreateDto = _userCreateDtoMapper.Map(tgUser);
         await _profileHandler.InitializeUserAsync(userCreateDto, cancellationToken);
 
+        if (!string.IsNullOrEmpty(inputData) && inputData.StartsWith("ref_", StringComparison.InvariantCultureIgnoreCase))
+        {
+            var referralCode = inputData.Replace("ref_", "", StringComparison.InvariantCultureIgnoreCase);
+            await _profileHandler.ProcessReferralAsync(tgUser.Id, referralCode, cancellationToken);
+        }
+
         var commandResult = await _mainMenuCommandHandler.HandleAsync(tgUser, "start", cancellationToken);
 
         return commandResult;

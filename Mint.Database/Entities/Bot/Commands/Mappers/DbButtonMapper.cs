@@ -20,7 +20,8 @@ public sealed class DbButtonMapper : IDbEntityMapper<ButtonEntity, ButtonDto>
             OrderNum = entity.OrderNum,
             Caption = entity.Caption,
             Action = entity.Action,
-            NextStepId = entity.NextStepId
+            NextStepId = entity.NextStepId,
+            Type = entity.Type
         };
     }
 }

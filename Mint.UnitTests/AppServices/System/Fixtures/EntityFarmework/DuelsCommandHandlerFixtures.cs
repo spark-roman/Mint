@@ -28,7 +28,7 @@ public sealed class DuelsCommandHandlerFixtures : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices();
+        services.RegisterAppServices("salt", 8);
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 

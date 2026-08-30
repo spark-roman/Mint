@@ -1,10 +1,6 @@
 using Mint.Common.Contracts.Ledger.Accounts;
-using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Database;
-using Mint.Database.Entities.Bot.Commands;
-using Mint.Database.Entities.Bot.Commands.Initializers;
 using Mint.Database.Entities.Ledger.Accounts;
-using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Bonuses;
 using Mint.Database.Entities.UserInteractive.Stats;
@@ -65,6 +61,17 @@ public static class UserProfilesHandlerSeeder
                 FirstName = "Charlie",
                 LastName = "Brown",
                 UserName = "charlie.brown",
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = 1
+            },
+            new UserEntity
+            {
+                Id = 4,
+                ExternalUserId = 1004,
+                SystemType = 1,
+                FirstName = "Dave",
+                LastName = "Miller",
+                UserName = "dave.miller",
                 CreatedAt = DateTimeOffset.UtcNow,
                 Status = 1
             });
@@ -136,6 +143,17 @@ public static class UserProfilesHandlerSeeder
                 TotalWins = 20,
                 TotalLosses = 10,
                 ReferralCount = 5,
+                UpdatedAt = DateTimeOffset.UtcNow
+            },
+            new UserStatsEntity
+            {
+                Id = 4,
+                UserId = 4,
+                RankPoints = 10,
+                TotalWins = 0,
+                TotalLosses = 1,
+                ReferralCount = 0,
+                InvitedByUserId = 1,
                 UpdatedAt = DateTimeOffset.UtcNow
             });
 

@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore.Query.SqlExpressions;
 using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
+using Mint.Common.Contracts.Bot.Commands;
 using Mint.Database.Entities.Bot.Commands.Dto;
 using Telegram.Bot;
 using Telegram.Bot.Exceptions;
@@ -98,9 +100,11 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
 
         var rows = buttons
             .OrderBy(b => b.OrderNum)
-            .Select(b => new[]
+            .Select(b => b.Type switch
             {
-                InlineKeyboardButton.WithCallbackData(b.Caption, b.Action)
+                TgButtonType.SwitchInlineQuery => [InlineKeyboardButton.WithSwitchInlineQuery(b.Caption, b.Action)],
+                TgButtonType.CallbackData => [InlineKeyboardButton.WithCallbackData(b.Caption, b.Action)],
+                _ => new[] { InlineKeyboardButton.WithCallbackData(b.Caption, b.Action) }
             })
             .ToArray();
 

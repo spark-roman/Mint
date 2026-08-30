@@ -29,4 +29,9 @@ public record UserStatsCreateDto
     /// Total losses
     /// </summary>
     public int TotalLosses { get; init; }
+
+    /// <summary>
+    /// Invited by user id
+    /// </summary>
+    public long? InvitedByUserId { get; set; }
 }

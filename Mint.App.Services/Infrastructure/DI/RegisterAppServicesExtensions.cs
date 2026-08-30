@@ -3,6 +3,7 @@ using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.Infrastructure.DI.System.Bot;
 using Mint.App.Services.Infrastructure.DI.System.Duels;
 using Mint.App.Services.Infrastructure.DI.System.News;
+using Mint.App.Services.Infrastructure.DI.System.Referral;
 using Mint.App.Services.Infrastructure.DI.System.Settings;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
 using Mint.App.Services.Infrastructure.DI.UserInterective.Leaderboards;
@@ -20,7 +21,9 @@ public static class RegisterAppServicesExtensions
     /// Registers all app services.
     /// </summary>
     /// <param name="services">Service collection.</param>
-    public static void RegisterAppServices(this IServiceCollection services)
+    /// <param name="salt">Salt</param>
+    /// <param name="minLength">Minimum password length.</param>
+    public static void RegisterAppServices(this IServiceCollection services, string salt, int minLength)
     {
         services.AddSingleton(new DeepSeekSettings
         {
@@ -40,5 +43,6 @@ public static class RegisterAppServicesExtensions
         services.RegisterNewsServices();
         services.RegisterDuelsServices();
         services.RegisterSettingsServices();
+        services.RegisterReferralServices(salt, minLength);
     }
 }

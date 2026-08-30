@@ -124,6 +124,8 @@ public class UserStatsRepository(
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;
         stats.TotalLosses = updatedEntity.TotalLosses;
+        stats.ReferralCount = updatedEntity.ReferralCount;
+        stats.InvitedByUserId = updatedEntity.InvitedByUserId;
         stats.UpdatedAt = updatedEntity.UpdatedAt;
 
         await context.SaveChangesAsync(cancellationToken);
@@ -153,6 +155,8 @@ public class UserStatsRepository(
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;
         stats.TotalLosses = updatedEntity.TotalLosses;
+        stats.ReferralCount = updatedEntity.ReferralCount;
+        stats.InvitedByUserId = updatedEntity.InvitedByUserId;
         stats.UpdatedAt = updatedEntity.UpdatedAt;
 
         await context.SaveChangesAsync(cancellationToken);

@@ -30,7 +30,8 @@ public class DbUserStatsCreateMapper : IDbEntityMapper<UserStatsCreateDto, UserS
             RankPoints = entity.RankPoints,
             TotalWins = entity.TotalWins,
             TotalLosses = entity.TotalLosses,
-            UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime
+            UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            InvitedByUserId = entity.InvitedByUserId
         };
     }
 }

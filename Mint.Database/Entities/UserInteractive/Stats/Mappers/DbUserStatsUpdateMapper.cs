@@ -30,7 +30,8 @@ public class DbUserStatsUpdateMapper : IDbEntityMapper<UserStatsUpdateDto, UserS
             TotalWins = entity.TotalWins,
             TotalLosses = entity.TotalLosses,
             ReferralCount = entity.ReferralCount,
-            UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime
+            UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime,
+            InvitedByUserId = entity.InvitedByUserId
         };
     }
 }

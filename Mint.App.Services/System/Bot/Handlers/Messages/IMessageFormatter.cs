@@ -1,6 +1,7 @@
 using System.Collections.ObjectModel;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
+using Mint.App.Services.UserInteractive.Referral.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
@@ -63,4 +64,12 @@ public interface IMessageFormatter
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     /// <returns>Formatted message string with category options listed.</returns>
     Task<string> FormatCategoriesAsync(string messageTemplate, Collection<CategoryDto> categories, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Formats a referral message template with user data.
+    /// </summary>
+    /// <param name="messageTemplate">Message template containing placeholders to be replaced.</param>
+    /// <param name="referralData">Referral data containing the referral code, count, and amount.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+    public Task<string> FormatReferralMessageAsync(string messageTemplate, ReferralDataDto referralData, CancellationToken cancellationToken);
 }

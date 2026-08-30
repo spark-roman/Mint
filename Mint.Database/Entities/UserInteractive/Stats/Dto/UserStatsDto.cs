@@ -53,7 +53,12 @@ public record UserStatsDto
     /// <summary>
     /// Rank name
     /// </summary>
-    public string RankName { get; set; } = string.Empty;   
+    public string RankName { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Id of the user who invited this user
+    /// </summary>
+    public long? InvitedByUserId { get; set; }
 }
 
 /// <summary>
@@ -80,5 +85,10 @@ public record UserStatsUpdateDto
     /// Number of successfully referred friends who completed the conditions
     /// </summary>
     public int ReferralCount { get; init; }
+
+    /// <summary>
+    /// Id of the user who invited this user
+    /// </summary>
+    public long? InvitedByUserId { get; init; }
 }
 
