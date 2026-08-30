@@ -104,6 +104,8 @@ public sealed class ReferralCommandHandler(
             5000m,
             cancellationToken);
 
+        _logger.LogInformation("TelegramOptions: {Options}, Value:{Value}", _botConfiguration, _botConfiguration.BotUsername);
+
         var referralData = new ReferralDataDto
         {
             ReferralCode = referralCode,
