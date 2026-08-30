@@ -17,150 +17,168 @@ namespace Mint.Database.Migrations
                 type: "bigint",
                 nullable: true);
 
-            migrationBuilder.AddColumn<int>(
-                name: "Type",
+            migrationBuilder.AlterColumn<string>(
+                name: "caption",
                 table: "buttons",
-                type: "integer",
+                type: "character varying(100)",
+                maxLength: 100,
                 nullable: false,
-                defaultValue: 1);
+                oldClrType: typeof(string),
+                oldType: "text");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "action",
+                table: "buttons",
+                type: "character varying(100)",
+                maxLength: 100,
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "text");
+
+            migrationBuilder.AddColumn<short>(
+                name: "type",
+                table: "buttons",
+                type: "smallint",
+                nullable: false,
+                defaultValueSql: "1");
 
             migrationBuilder.UpdateData(
                 table: "ai_prompts",
                 keyColumn: "id",
                 keyValue: 1,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5271), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1115), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 1,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5049), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5049), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(878), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(878), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 2,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5051), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5051), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(881), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(881), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 3,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5053), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5053), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(884), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(884), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 4,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5055), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5055), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(886), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(886), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 5,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5056), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5057), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(887), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(888), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "bonus_types",
                 keyColumn: "id",
                 keyValue: 6,
                 columns: new[] { "created_at", "updated_at" },
-                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5058), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5058), new TimeSpan(0, 0, 0, 0, 0)) });
+                values: new object[] { new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(890), new TimeSpan(0, 0, 0, 0, 0)), new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(890), new TimeSpan(0, 0, 0, 0, 0)) });
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 1L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 2L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 3L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 4L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 5L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 6L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 7L,
-                columns: new[] { "action", "Type" },
-                values: new object[] { "Присоединяйся к \"Дуэли мнений\" по ссылке: https://t.me/{{bot_username}}?start={{referral_code}}", 2 });
+                columns: new[] { "action", "type" },
+                values: new object[] { "Присоединяйся к \"Дуэли мнений\" по ссылке: https://t.me/{{bot_username}}?start={{referral_code}}", (short)2 });
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 8L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 9L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 10L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 11L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.UpdateData(
                 table: "buttons",
                 keyColumn: "id",
                 keyValue: 12L,
-                columns: new string[0],
-                values: new object[0]);
+                column: "type",
+                value: (short)1);
 
             migrationBuilder.InsertData(
                 table: "buttons",
-                columns: new[] { "id", "action", "caption", "next_step_id", "order_num", "parent_step_id" },
-                values: new object[] { 13L, "main_menu", "🔙 Назад в меню", null, (short)2, 4L });
+                columns: new[] { "id", "action", "caption", "next_step_id", "order_num", "parent_step_id", "type" },
+                values: new object[] { 13L, "main_menu", "🔙 Назад в меню", null, (short)2, 4L, (short)1 });
 
             migrationBuilder.UpdateData(
                 table: "steps",
@@ -174,70 +192,70 @@ namespace Mint.Database.Migrations
                 keyColumn: "id",
                 keyValue: 1L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5626), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1488), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 2L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5628), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1490), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 3L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5629), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1491), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 4L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5630), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1491), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 5L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5630), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1492), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 6L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5631), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1493), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 7L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5632), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1494), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 8L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5633), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1495), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 9L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5633), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1495), new TimeSpan(0, 0, 0, 0, 0)));
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
                 keyColumn: "id",
                 keyValue: 10L,
                 column: "updated_at",
-                value: new DateTimeOffset(new DateTime(2026, 8, 30, 15, 23, 24, 112, DateTimeKind.Unspecified).AddTicks(5634), new TimeSpan(0, 0, 0, 0, 0)));
+                value: new DateTimeOffset(new DateTime(2026, 8, 30, 16, 36, 25, 771, DateTimeKind.Unspecified).AddTicks(1496), new TimeSpan(0, 0, 0, 0, 0)));
         }
 
         /// <inheritdoc />
@@ -253,8 +271,26 @@ namespace Mint.Database.Migrations
                 table: "user_stats");
 
             migrationBuilder.DropColumn(
-                name: "Type",
+                name: "type",
                 table: "buttons");
+
+            migrationBuilder.AlterColumn<string>(
+                name: "caption",
+                table: "buttons",
+                type: "text",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "character varying(100)",
+                oldMaxLength: 100);
+
+            migrationBuilder.AlterColumn<string>(
+                name: "action",
+                table: "buttons",
+                type: "text",
+                nullable: false,
+                oldClrType: typeof(string),
+                oldType: "character varying(100)",
+                oldMaxLength: 100);
 
             migrationBuilder.UpdateData(
                 table: "ai_prompts",

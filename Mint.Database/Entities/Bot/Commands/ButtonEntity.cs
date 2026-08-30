@@ -65,5 +65,6 @@ public class ButtonEntity
     /// <summary>
     /// Button type
     /// </summary>
-    public TgButtonType Type { get; set; }
+    [Column("type")]
+    public TgButtonType Type { get; set; } = TgButtonType.CallbackData;
 }
