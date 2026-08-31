@@ -2,9 +2,15 @@ using AdvApplication.Auth.Users;
 using HashidsNet;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
+using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.Settings;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Accounts.Dto;
+using Mint.Database.Entities.Ledger.Transactions.Repositories;
 using Mint.Database.Entities.UserInteractive.Bonuses.Repositories;
+using Mint.Database.Entities.UserInteractive.Stats.Dto;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.Database.Entities.Users.Dto;
 using Mint.UnitTests.AppServices.UsersInteractive.Fixtures;
@@ -446,7 +452,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.ProcessReferralAsync(1002, null!, CancellationToken.None));
+        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, null!, CancellationToken.None));
     }
 
     /// <summary>
@@ -460,7 +466,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.ProcessReferralAsync(1002, string.Empty, CancellationToken.None));
+        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, string.Empty, CancellationToken.None));
     }
 
     /// <summary>
@@ -474,7 +480,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentException>(() => handler.ProcessReferralAsync(1002, "!!!invalid-code!!!", CancellationToken.None));
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, "!!!invalid-code!!!", CancellationToken.None));
     }
 
     /// <summary>
@@ -489,7 +495,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referralCode = EncodeReferralCode(1002);
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentException>(() => handler.ProcessReferralAsync(1002, referralCode, CancellationToken.None));
+        await Assert.ThrowsAnyAsync<ArgumentException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None));
     }
 
     /// <summary>
@@ -504,7 +510,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referralCode = EncodeReferralCode(99999);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1002, referralCode, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None));
     }
 
     /// <summary>
@@ -519,7 +525,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referralCode = EncodeReferralCode(1001);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(99999, referralCode, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(99999, AuthSystem.Tg, referralCode, CancellationToken.None));
     }
 
     /// <summary>
@@ -540,7 +546,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referrerStatsBefore = await statsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
 
         // Act
-        await handler.ProcessReferralAsync(1002, referralCode, CancellationToken.None);
+        await handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None);
 
         // Assert - new user is linked to the referrer (by internal user id)
         var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
@@ -570,7 +576,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal(1, newUserStatsBefore!.InvitedByUserId);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1004, referralCode, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1004, AuthSystem.Tg, referralCode, CancellationToken.None));
 
         // Assert - invitation is not overwritten
         var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1004, (byte)AuthSystem.Tg, CancellationToken.None);
@@ -606,6 +612,19 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.NotNull(referrer);
         Assert.Equal(createdUserId, referrer.Id);
 
+        // Referrer needs an account for the referral bonus transaction
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+        var createdAccountId = await accountRepository.CreateAccountAsync(
+            new AccountCreateDto
+            {
+                ExternalUserId = 80000,
+                SystemType = (byte)AuthSystem.Tg,
+                Balance = 0.0m,
+                CreatedAt = DateTimeOffset.UtcNow,
+                Status = AccountStatus.Active
+            },
+            CancellationToken.None);
+
         var referrerStatsBefore = await statsRepository.GetStatsByUserIdAsync(80000, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.Null(referrerStatsBefore);
 
@@ -615,12 +634,21 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Null(newUserStatsBefore!.InvitedByUserId);
 
         // Act
-        await handler.ProcessReferralAsync(1003, referralCode, CancellationToken.None);
+        await handler.ProcessReferralAsync(1003, AuthSystem.Tg, referralCode, CancellationToken.None);
 
         // Assert - new user is linked to the referrer without stats
         var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(newUserStatsAfter);
         Assert.Equal(referrer.Id, newUserStatsAfter!.InvitedByUserId);
+
+        // Assert - referral bonus transaction is credited to the referrer's account
+        var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+        var transactions = await transactionRepository.GetTransactionsByAccountIdAsync(createdAccountId, CancellationToken.None);
+        Assert.NotNull(transactions);
+        var referralTransaction = Assert.Single(transactions, t => t.CreditAccountId == createdAccountId);
+        Assert.Equal(AccountConsts.SystemAccountId, referralTransaction.DebitAccountId);
+        Assert.Equal(5000.00m, referralTransaction.Amount);
+        Assert.Equal(BonusType.Streak, referralTransaction.BounusType);
     }
 
     /// <summary>
@@ -654,7 +682,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referrerStatsBefore = await statsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(85000, referralCode, CancellationToken.None));
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(85000, AuthSystem.Tg, referralCode, CancellationToken.None));
 
         // Assert - no stats were created for the new user
         var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(85000, (byte)AuthSystem.Tg, CancellationToken.None);
@@ -664,6 +692,124 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referrerStatsAfter = await statsRepository.GetStatsByUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(referrerStatsAfter);
         Assert.Equal(referrerStatsBefore!.ReferralCount, referrerStatsAfter!.ReferralCount);
+    }
+
+    /// <summary>
+    /// Verifies that ProcessReferralAsync throws InvalidOperationException when the referrer has no account.
+    /// </summary>
+    [Fact]
+    public async Task ProcessReferralAsync_ReferrerWithoutAccount_ThrowsInvalidOperationException()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+
+        // Referrer without an account (only user is created)
+        await userRepository.CreateUserAsync(
+            new UserCreateDto
+            {
+                ExternalUserId = 86000,
+                SystemType = (byte)AuthSystem.Tg,
+                FirstName = "Referrer",
+                LastName = "NoAccount",
+                UserName = "referrer.no_account",
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            CancellationToken.None);
+
+        // Fresh new user with stats so the test does not depend on execution order
+        await userRepository.CreateUserAsync(
+            new UserCreateDto
+            {
+                ExternalUserId = 88000,
+                SystemType = (byte)AuthSystem.Tg,
+                FirstName = "New",
+                LastName = "NoAccount",
+                UserName = "new.no_account_referrer",
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            CancellationToken.None);
+
+        await statsRepository.CreateStatsAsync(
+            new UserStatsCreateDto { ExternalUserId = 88000 },
+            CancellationToken.None);
+
+        var referralCode = EncodeReferralCode(86000);
+
+        var newUserStatsBefore = await statsRepository.GetStatsByUserIdAsync(88000, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.Null(newUserStatsBefore!.InvitedByUserId);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(88000, AuthSystem.Tg, referralCode, CancellationToken.None));
+
+        // Assert - new user is not linked to the referrer
+        var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(88000, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(newUserStatsAfter);
+        Assert.Null(newUserStatsAfter!.InvitedByUserId);
+    }
+
+    /// <summary>
+    /// Verifies that ProcessReferralAsync creates a referral bonus transaction credited to the referrer's account.
+    /// </summary>
+    [Fact]
+    public async Task ProcessReferralAsync_ValidReferral_CreatesReferralBonusTransaction()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
+        var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        // Fresh new user with stats so the test does not depend on execution order
+        await userRepository.CreateUserAsync(
+            new UserCreateDto
+            {
+                ExternalUserId = 87000,
+                SystemType = (byte)AuthSystem.Tg,
+                FirstName = "New",
+                LastName = "Transaction",
+                UserName = "new.transaction",
+                CreatedAt = DateTimeOffset.UtcNow
+            },
+            CancellationToken.None);
+
+        await statsRepository.CreateStatsAsync(
+            new UserStatsCreateDto { ExternalUserId = 87000 },
+            CancellationToken.None);
+
+        // Referrer is Alice (1001) with seeded account Id = 2
+        var referrerAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(referrerAccount);
+
+        var transactionsBefore = await transactionRepository.GetTransactionsByAccountIdAsync(
+            referrerAccount.Id, CancellationToken.None) ?? [];
+        var referralTransactionsBefore = transactionsBefore.Count(t => t.BounusType == BonusType.Streak && t.Amount == 5000.00m);
+
+        var referralCode = EncodeReferralCode(1001);
+
+        // Act
+        await handler.ProcessReferralAsync(87000, AuthSystem.Tg, referralCode, CancellationToken.None);
+
+        // Assert - a referral bonus transaction was created for the referrer's account
+        var transactionsAfter = await transactionRepository.GetTransactionsByAccountIdAsync(
+            referrerAccount.Id, CancellationToken.None);
+        Assert.NotNull(transactionsAfter);
+        var referralTransaction = Assert.Single(transactionsAfter, t =>
+            t.BounusType == BonusType.Streak
+            && t.Amount == 5000.00m
+            && t.CreditAccountId == referrerAccount.Id
+            && t.DebitAccountId == AccountConsts.SystemAccountId);
+
+        Assert.Equal("Streak bonus", referralTransaction.Description);
+
+        // Assert - exactly one new referral transaction was added
+        var referralTransactionsAfter = transactionsAfter.Count(t => t.BounusType == BonusType.Streak && t.Amount == 5000.00m);
+        Assert.Equal(referralTransactionsBefore + 1, referralTransactionsAfter);
     }
 
     #endregion
