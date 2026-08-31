@@ -1,9 +1,11 @@
 using AdvApplication.Auth.Users;
 using HashidsNet;
+using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.Common.Contracts.Ledger.Accounts;
+using Mint.Common.Contracts.Settings;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
@@ -28,6 +30,7 @@ public class UserProfilesHandler(
     IUserRepository userRepository,
     ITransactionRepository transactionRepository,
     IHashids hashids,
+    ISystemSettingHandler systemSettingHandler,
     TimeProvider timeProvider,
     IBonusValidator bonusValidator) : IUserProfilesHandler
 {
@@ -50,6 +53,9 @@ public class UserProfilesHandler(
         ?? throw new ArgumentNullException(nameof(userRepository));
 
     private readonly IHashids _hashids = hashids ?? throw new ArgumentNullException(nameof(hashids));
+
+    private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler
+        ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     
@@ -248,7 +254,7 @@ public class UserProfilesHandler(
     }
 
     /// <inheritdoc />
-    public async Task ProcessReferralAsync(long newUserId, string referralCode, CancellationToken cancellationToken)
+    public async Task ProcessReferralAsync(long newUserId, AuthSystem systemType, string referralCode, CancellationToken cancellationToken)
     {
         if (string.IsNullOrEmpty(referralCode))
         {
@@ -267,19 +273,19 @@ public class UserProfilesHandler(
             throw new ArgumentException($"User {newUserId} tried to refer themselves");
         }
 
-        var referrer = await _userRepository.GetUserAsync(referrerExternalId, (byte)AuthSystem.Tg, cancellationToken);
+        var referrer = await _userRepository.GetUserAsync(referrerExternalId, (byte)systemType, cancellationToken);
         if (referrer == null)
         {
             throw new InvalidOperationException($"Referrer user {referrerExternalId} not found");
         }
 
-        var newUser = await _userRepository.GetUserAsync(newUserId, (byte)AuthSystem.Tg, cancellationToken);
+        var newUser = await _userRepository.GetUserAsync(newUserId, (byte)systemType, cancellationToken);
         if (newUser == null)
         {
             throw new InvalidOperationException($"New user {newUserId} not found");
         }
 
-        var newUserStats = await _statsRepository.GetStatsByUserIdAsync(newUser.ExternalUserId, (byte)AuthSystem.Tg, cancellationToken);
+        var newUserStats = await _statsRepository.GetStatsByUserIdAsync(newUser.ExternalUserId, (byte)systemType, cancellationToken);
         if (newUserStats == null)
         {
             throw new InvalidOperationException($"Stats for user {newUserId} not found");
@@ -289,6 +295,30 @@ public class UserProfilesHandler(
         {
             throw new InvalidOperationException($"User {newUserId} already has a referrer: {newUserStats.InvitedByUserId}");
         }
+
+        var referralBonusAmount = await _systemSettingHandler.GetDecimalAsync(
+            SettingKeysConstants.ReferralBonus,
+            5000m,
+            cancellationToken);
+
+        var account = await _accountRepository.GetAccountByExternalUserIdAsync(referrerExternalId, (byte)systemType, cancellationToken);
+
+        if (account == null)
+        {
+            throw new InvalidOperationException($"Account for referral not found. UserId: {referrerExternalId}");
+        }
+
+        var referralTransaction = new TransactionCreateDto
+        {
+            DebitAccountId = AccountConsts.SystemAccountId,
+            CreditAccountId = account.Id,
+            Amount = referralBonusAmount,
+            Description = "Streak bonus",
+            BonusType = BonusType.Streak,
+            CreatedAt = _timeProvider.GetUtcNow()
+        };
+
+        await _transactionRepository.CreateTransactionAsync(referralTransaction, cancellationToken);
 
         var updateDto = new UserStatsUpdateDto
         {
@@ -301,7 +331,7 @@ public class UserProfilesHandler(
 
         await _statsRepository.UpdateStatsAsync(newUser.ExternalUserId, updateDto, cancellationToken);
 
-        var referrerStats = await _statsRepository.GetStatsByUserIdAsync(referrer.ExternalUserId, (byte)AuthSystem.Tg, cancellationToken);
+        var referrerStats = await _statsRepository.GetStatsByUserIdAsync(referrer.ExternalUserId, (byte)systemType, cancellationToken);
         if (referrerStats != null)
         {
             var referrerUpdate = new UserStatsUpdateDto

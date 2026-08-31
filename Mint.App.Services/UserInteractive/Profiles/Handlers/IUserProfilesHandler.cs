@@ -22,9 +22,10 @@ public interface IUserProfilesHandler
     /// Processes a referral code.
     /// </summary>
     /// <param name="newUserId">New user identifier.</param>
+    /// <param name="systemType">System type.</param>
     /// <param name="referralCode">Referral code.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    Task ProcessReferralAsync(long newUserId, string referralCode, CancellationToken cancellationToken);
+    Task ProcessReferralAsync(long newUserId, AuthSystem systemType, string referralCode, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets user profile with all related data (balance, stats, bonus, rank).

@@ -4,6 +4,7 @@ using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Users.Dto;
 using Telegram.Bot.Types;
 
@@ -48,7 +49,7 @@ public sealed class StartCommandHandler(
 
                 if (!string.IsNullOrEmpty(referralCode))
                 {
-                    await _profileHandler.ProcessReferralAsync(tgUser.Id, referralCode, cancellationToken);
+                    await _profileHandler.ProcessReferralAsync(tgUser.Id, AuthSystem.Tg, referralCode, cancellationToken);
                 }
             }
         }
