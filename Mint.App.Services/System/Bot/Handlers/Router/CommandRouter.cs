@@ -1,4 +1,3 @@
-using System.Globalization;
 using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Buttons;
@@ -96,9 +95,11 @@ private TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
     {
         _logger.LogInformation("CommandText: {CommandText}", updateCommand.CommandText);
 
-        if (updateCommand.CommandText.StartsWith('/'))
+        var command = updateCommand.CommandText.Split(' ')[0];
+
+        if (command.StartsWith('/'))
         {
-            return updateCommand.CommandText.ToUpperInvariant() switch
+            return command.ToUpperInvariant() switch
             {
                 "/START" => TgCommandType.Start,
                 "/HELP" => TgCommandType.Help,
@@ -111,7 +112,7 @@ private TgCommandType DetermineCommandType(UpdateCommandDto updateCommand)
             };
         }
 
-        if (decimal.TryParse(updateCommand.CommandText, out _))
+        if (decimal.TryParse(command, out _))
         {
             return TgCommandType.NumberInput;
         }
