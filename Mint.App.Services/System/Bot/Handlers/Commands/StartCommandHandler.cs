@@ -1,4 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
@@ -12,7 +13,8 @@ namespace Mint.App.Services.System.Bot.Handlers.Commands;
 public sealed class StartCommandHandler(
     [FromKeyedServices(TgCommandType.MainMenu)] ICommandHandler mainMenuCommandHandler,
     IUserProfilesHandler profileHandler,
-    IDtoMapper<User, UserCreateDto> userCreateDtoMapper) : ICommandHandler
+    IDtoMapper<User, UserCreateDto> userCreateDtoMapper,
+    ILogger<StartCommandHandler> logger) : ICommandHandler
 {
     private readonly ICommandHandler _mainMenuCommandHandler = mainMenuCommandHandler
         ?? throw new ArgumentNullException(nameof(mainMenuCommandHandler));
@@ -23,6 +25,9 @@ public sealed class StartCommandHandler(
     private readonly IDtoMapper<User, UserCreateDto> _userCreateDtoMapper = userCreateDtoMapper
         ?? throw new ArgumentNullException(nameof(userCreateDtoMapper));
 
+    private readonly ILogger<StartCommandHandler> _logger = logger
+        ?? throw new ArgumentNullException(nameof(logger));
+
     /// <inheritdoc />
     public async Task<CommandResult> HandleAsync(User tgUser, string inputData, CancellationToken cancellationToken)
     {
@@ -31,10 +36,21 @@ public sealed class StartCommandHandler(
         var userCreateDto = _userCreateDtoMapper.Map(tgUser);
         await _profileHandler.InitializeUserAsync(userCreateDto, cancellationToken);
 
-        if (!string.IsNullOrEmpty(inputData) && inputData.StartsWith("ref_", StringComparison.InvariantCultureIgnoreCase))
+        _logger.LogInformation("Start command with input: {InputData}", inputData);
+        if (!string.IsNullOrEmpty(inputData) && inputData.StartsWith("/start", StringComparison.InvariantCultureIgnoreCase))
         {
-            var referralCode = inputData.Replace("ref_", "", StringComparison.InvariantCultureIgnoreCase);
-            await _profileHandler.ProcessReferralAsync(tgUser.Id, referralCode, cancellationToken);
+            var parts = inputData.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            if (parts.Length > 1)
+            {
+                string? referralCode = parts[1];
+
+                _logger.LogInformation("Referral code extracted: {ReferralCode}", referralCode);
+
+                if (!string.IsNullOrEmpty(referralCode))
+                {
+                    await _profileHandler.ProcessReferralAsync(tgUser.Id, referralCode, cancellationToken);
+                }
+            }
         }
 
         var commandResult = await _mainMenuCommandHandler.HandleAsync(tgUser, "start", cancellationToken);
