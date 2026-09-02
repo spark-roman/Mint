@@ -226,7 +226,7 @@ public static class NumberInputCommandHandlerSeeder
                 UserId = 1,
                 ScenarioId = 3, // duels scenario
                 CurrentStepId = 9, // bet input step
-                Data = "{\"duel_id\":1,\"option_id\":1,\"category\":\"politics\"}",
+                Data = "{\"duel_id\":1,\"option_id\":1,\"category\":\"politics\",\"message_id\":100500}",
                 StartedAt = DateTimeOffset.UtcNow,
                 CompletedAt = null
             },
@@ -236,7 +236,7 @@ public static class NumberInputCommandHandlerSeeder
                 UserId = 2,
                 ScenarioId = 3, // duels scenario
                 CurrentStepId = 9, // bet input step
-                Data = "{\"duel_id\":2,\"option_id\":3,\"category\":\"science\"}",
+                Data = "{\"duel_id\":2,\"option_id\":3,\"category\":\"science\",\"message_id\":100500}",
                 StartedAt = DateTimeOffset.UtcNow,
                 CompletedAt = null
             });

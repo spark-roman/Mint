@@ -47,7 +47,7 @@ public sealed class CommandRouter(
         {
             var inputData = ExtractInputData(updateCommand);
 
-            var result = await buttonHandler.HandleAsync(updateCommand.User!.Id, inputData, cancellationToken);
+            var result = await buttonHandler.HandleAsync(updateCommand.User!.Id, inputData, updateCommand, cancellationToken);
 
             _logger.LogInformation("Button handled: {CommandType}, IsFinal: {IsFinal}", commandType, result.IsFinal);
 
