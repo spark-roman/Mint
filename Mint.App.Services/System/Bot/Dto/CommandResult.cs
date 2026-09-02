@@ -38,6 +38,11 @@ public record CommandResult
     /// </summary>
     public string? Notification { get; init; }
 
+    /// <summary>
+    /// Message ID to reply to.
+    /// </summary>
+    public int MessageId { get; init; }
+
     /// <summary>Creates an error result.</summary>
     public static CommandResult Error(string message)
         => new()

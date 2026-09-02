@@ -74,9 +74,13 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
         }
         else
         {
+            var messageId = commandResult.MessageId > 0 
+                ? commandResult.MessageId 
+                : command.MessageId;
+
             await EditMessageAsync(
                 command.ChatId,
-                command.MessageId,
+                messageId,
                 commandResult.Message,
                 ParseMode.Markdown,
                 BuildKeyboard(commandResult.Keyboard),

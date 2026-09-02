@@ -120,7 +120,8 @@ public class NumberInputCommandHandler(
 
         if (sessionData == null ||
             !sessionData.TryGetValue("duel_id", out var duelIdValue) ||
-            !sessionData.TryGetValue("option_id", out var optionIdValue))
+            !sessionData.TryGetValue("option_id", out var optionIdValue) ||
+            !sessionData.TryGetValue("message_id", out var messageIdValue))
         {
             return new CommandResult
             {
@@ -132,6 +133,7 @@ public class NumberInputCommandHandler(
 
         var duelId = ((JsonElement)duelIdValue).GetInt64();
         var optionId = ((JsonElement)optionIdValue).GetInt64();
+        var messageId = ((JsonElement)messageIdValue).GetInt32();
 
         _logger.LogInformation("DuelId: {DuelId}, OptionId: {OptionId}, Amount: {Amount}", duelId, optionId, amount);
 
@@ -190,7 +192,8 @@ public class NumberInputCommandHandler(
             Message = message,
             Keyboard = new Collection<ButtonDto>(buttons),
             IsFinal = step.IsFinal,
-            IsNewMessage = false
+            IsNewMessage = false,
+            MessageId = messageId
         };
     }
 }

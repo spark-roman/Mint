@@ -1,5 +1,6 @@
 using System.Collections.ObjectModel;
 using Mint.App.Services.System.Bot.Dto;
+using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.System.Settings.Handlers;
 using Mint.App.Services.UserInteractive.Duels.Dto;
@@ -53,9 +54,10 @@ public sealed class ButtonClickHandler(
     private readonly ISystemSettingHandler _systemSettingHandler = systemSettingHandler ?? throw new ArgumentNullException(nameof(systemSettingHandler));
 
     /// <inheritdoc />
-    public async Task<CommandResult> HandleAsync(long externalUserId, string callbackData, CancellationToken cancellationToken)
+    public async Task<CommandResult> HandleAsync(long externalUserId, string callbackData, UpdateCommandDto updateCommand, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(callbackData);
+        ArgumentNullException.ThrowIfNull(updateCommand);
 
         // === Навигация по сценариям ===
         if (callbackData == ActionConstants.MainMenu)
@@ -84,7 +86,7 @@ public sealed class ButtonClickHandler(
 
         if (callbackData.StartsWith(ActionConstants.VotePrefix, StringComparison.InvariantCultureIgnoreCase))
         {
-            return await HandleVoteSelectionAsync(externalUserId, callbackData, cancellationToken);
+            return await HandleVoteSelectionAsync(externalUserId, callbackData, updateCommand, cancellationToken);
         }
 
         if (callbackData.StartsWith(ActionConstants.BetPrefix, StringComparison.InvariantCultureIgnoreCase))
@@ -159,6 +161,7 @@ public sealed class ButtonClickHandler(
     private async Task<CommandResult> HandleCategorySelectionAsync(
         long externalUserId,
         string categoryCode,
+        
         CancellationToken cancellationToken)
     {
         var category = await _categoryRepository.GetByCodeAsync(categoryCode, cancellationToken);
@@ -242,6 +245,7 @@ public sealed class ButtonClickHandler(
     private async Task<CommandResult> HandleVoteSelectionAsync(
         long externalUserId,
         string callbackData,
+        UpdateCommandDto updateCommand,
         CancellationToken cancellationToken)
     {
         var parts = callbackData.Split('_');
@@ -298,7 +302,7 @@ public sealed class ButtonClickHandler(
             externalUserId,
             scenario.Id,
             step.Id,
-            $"{{\"step\":\"bet\",\"duel_id\":{duelId},\"option_id\":{optionId}}}",
+            $"{{\"step\":\"bet\",\"duel_id\":{duelId},\"option_id\":{optionId},\"message_id\":{updateCommand.MessageId}}}",
             cancellationToken);
 
         return new CommandResult

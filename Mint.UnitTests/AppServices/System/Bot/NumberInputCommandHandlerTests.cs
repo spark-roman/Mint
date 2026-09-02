@@ -348,6 +348,37 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
     }
 
     /// <summary>
+    /// Verifies that HandleAsync returns error when session data is missing message_id.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_SessionDataMissingMessageId_ReturnsErrorMessage()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.NumberInput);
+        var dbContext = _currentScope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        var tgUser = new User { Id = 1001, IsBot = false, FirstName = "Alice" };
+
+        // Set session data without message_id
+        using var db = await dbContext.CreateDbContextAsync(CancellationToken.None);
+        var session = await db.UserSessions.FirstOrDefaultAsync(
+            s => s.UserId == 1, CancellationToken.None);
+        Assert.NotNull(session);
+        session.Data = "{\"duel_id\":1,\"option_id\":1}";
+        await db.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "100", CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.True(result.IsFinal);
+        Assert.True(result.IsNewMessage);
+        Assert.Contains("Данные о дуэли не найдены", result.Message);
+    }
+
+    /// <summary>
     /// Verifies that HandleAsync returns error when session data is an empty object.
     /// </summary>
     [Fact]
@@ -438,7 +469,7 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
         Assert.NotNull(result);
         Assert.True(result.IsFinal);
         Assert.True(result.IsNewMessage);
-        Assert.Contains("Дуэль не найдена", result.Message);
+        Assert.Contains("Данные о дуэли не найдены", result.Message);
     }
 
     #endregion
@@ -531,6 +562,26 @@ public class NumberInputCommandHandlerTests : IClassFixture<NumberInputCommandHa
         Assert.Contains("СТАВКА УСПЕШНО", result.Message);
         Assert.Contains("500", result.Message);
         Assert.Contains("Да, радикально", result.Message); // option text from duel 1, option 1
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync returns the message id from session data in the success result.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_Success_ReturnsMessageIdFromSessionData()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<ICommandHandler>(TgCommandType.NumberInput);
+        var tgUser = new User { Id = 1002, IsBot = false, FirstName = "Bob" };
+
+        // Act
+        var result = await handler.HandleAsync(tgUser, "100", CancellationToken.None);
+
+        // Assert - message id is taken from the seeded session data (100500)
+        Assert.NotNull(result);
+        Assert.Equal(100500, result.MessageId);
     }
 
     /// <summary>

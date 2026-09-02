@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.Bot.Handlers.Buttons;
+using Mint.App.Services.System.Bot.Handlers.Commands.Dto;
 using Mint.App.Services.UserInteractive.Duels.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Common.Contracts.Users;
@@ -10,6 +11,7 @@ using Mint.Database.Entities.UserInteractive.Votes.Dto;
 using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 using Mint.Database.Entities.Users.Sessions.Repositories;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
+using Telegram.Bot.Types;
 
 namespace Mint.UnitTests.AppServices.System.Bot;
 
@@ -32,6 +34,8 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
 
     #region Navigation - Main Menu
 
+    private UpdateCommandDto _updateCommandDto = new() { MessageId = 100500 };
+
     /// <summary>
     /// Verifies that HandleAsync with 'main_menu' navigates to start scenario.
     /// </summary>
@@ -44,7 +48,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "main_menu", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "main_menu", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -71,7 +75,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "profile", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "profile", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -98,7 +102,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "duels", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "duels", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -125,7 +129,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "referral", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "referral", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -152,7 +156,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "nonexistent_scenario", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "nonexistent_scenario", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -175,7 +179,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "claim_bonus", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "claim_bonus", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -194,7 +198,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "claim_bonus", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "claim_bonus", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -217,7 +221,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -240,7 +244,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_tech", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_tech", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -261,7 +265,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_sports", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_sports", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -290,7 +294,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.NotNull(step);
 
         // Act
-        await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var session = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
@@ -313,7 +317,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result.Keyboard);
@@ -332,7 +336,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result.Keyboard);
@@ -351,7 +355,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result.Keyboard);
@@ -372,7 +376,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_crypto", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result.Keyboard);
@@ -392,7 +396,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "duels", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "duels", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -417,7 +421,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_nonexistent", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_nonexistent", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -451,7 +455,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.NotNull(category);
 
         // Act
-        var result = await handler.HandleAsync(1001, "category_no_duels", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "category_no_duels", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -476,7 +480,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "v_1_1", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "v_1_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -486,6 +490,27 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.Contains("500", result.Keyboard[1].Caption);
         Assert.Contains("1000", result.Keyboard[2].Caption);
         Assert.Contains("Отмена", result.Keyboard[3].Caption);
+    }
+
+    /// <summary>
+    /// Verifies that vote selection saves the message id from the update command into session data.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_VoteSelection_SavesMessageIdInSessionData()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
+
+        // Act
+        await handler.HandleAsync(1001, "v_1_1", _updateCommandDto, CancellationToken.None);
+
+        // Assert
+        var session = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
+        Assert.NotNull(session);
+        Assert.Contains("\"message_id\":100500", session.Data);
     }
 
     /// <summary>
@@ -508,7 +533,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.NotNull(step);
 
         // Act
-        await handler.HandleAsync(1001, "v_1_1", CancellationToken.None);
+        await handler.HandleAsync(1001, "v_1_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var session = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
@@ -554,7 +579,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         await voteRepository.CreateVoteAsync(vote, CancellationToken.None);
 
         // Act
-        var result = await handler.HandleAsync(1001, "v_1_1", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "v_1_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -577,7 +602,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "v_invalid", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "v_invalid", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -596,7 +621,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "v_abc_def", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "v_abc_def", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -621,7 +646,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         // Act
-        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -650,7 +675,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
 
         // Act
-        await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
+        await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var hasVoted = await voteRepository.HasUserVotedInDuelAsync(1002, 1, CancellationToken.None);
@@ -673,7 +698,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var initialBalance = account!.Balance;
 
         // Act
-        await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
+        await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var newBalance = await accountRepository.GetUserBalanceAsync(1002, CancellationToken.None);
@@ -696,7 +721,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act — amount 2000 is within bet limits but exceeds Bob's balance (1500.50)
-        var result = await handler.HandleAsync(1002, "bet_1_1_2000", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_2000", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -719,7 +744,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -738,7 +763,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1002, "bet_1_1_100", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -761,7 +786,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act — amount 5 is below the configured minimum of 10
-        var result = await handler.HandleAsync(1002, "bet_1_1_5", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_5", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -780,7 +805,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act — amount 50000 is above the configured maximum of 10000
-        var result = await handler.HandleAsync(1002, "bet_1_1_50000", CancellationToken.None);
+        var result = await handler.HandleAsync(1002, "bet_1_1_50000", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -803,7 +828,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "bet_invalid", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "bet_invalid", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -822,7 +847,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "bet_abc_def_ghi", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "bet_abc_def_ghi", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -861,7 +886,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
             CancellationToken.None);
 
         // Act
-        var result = await handler.HandleAsync(1001, "cancel_1", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "cancel_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -901,7 +926,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
             CancellationToken.None);
 
         // Act
-        await handler.HandleAsync(1001, "cancel_1", CancellationToken.None);
+        await handler.HandleAsync(1001, "cancel_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var session = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
@@ -926,7 +951,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "cancel_invalid", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "cancel_invalid", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -945,7 +970,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "cancel_abc", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "cancel_abc", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -964,7 +989,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(99999, "cancel_1", CancellationToken.None);
+        var result = await handler.HandleAsync(99999, "cancel_1", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -999,7 +1024,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
             CancellationToken.None);
 
         // Act
-        var result = await handler.HandleAsync(1001, "cancel_999", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "cancel_999", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -1022,7 +1047,22 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.HandleAsync(1001, null!, CancellationToken.None));
+        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.HandleAsync(1001, null!, _updateCommandDto, CancellationToken.None));
+    }
+
+    /// <summary>
+    /// Verifies that HandleAsync throws ArgumentNullException when updateCommand is null.
+    /// </summary>
+    [Fact]
+    public async Task HandleAsync_NullUpdateCommand_ThrowsArgumentNullException()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+
+        // Act & Assert
+        await Assert.ThrowsAnyAsync<ArgumentNullException>(() => handler.HandleAsync(1001, "main_menu", null!, CancellationToken.None));
     }
 
     /// <summary>
@@ -1037,7 +1077,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -1068,7 +1108,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         Assert.NotNull(step);
 
         // Act
-        await handler.HandleAsync(1001, "main_menu", CancellationToken.None);
+        await handler.HandleAsync(1001, "main_menu", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var session = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
@@ -1107,7 +1147,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var initialSessionId = (await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None))!.Id;
 
         // Act - navigate to profile
-        await handler.HandleAsync(1001, "profile", CancellationToken.None);
+        await handler.HandleAsync(1001, "profile", _updateCommandDto, CancellationToken.None);
 
         // Assert
         var updatedSession = await sessionRepository.GetActiveSessionAsync(1001, CancellationToken.None);
@@ -1153,7 +1193,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         if (buttons.Count > 0)
         {
             var button = buttons[0];
-            await handler.HandleAsync(1001, button.Action, CancellationToken.None);
+            await handler.HandleAsync(1001, button.Action, _updateCommandDto, CancellationToken.None);
         }
 
         // Assert
@@ -1173,7 +1213,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
 
         // Act
-        var result = await handler.HandleAsync(1001, "unknown_action_xyz", CancellationToken.None);
+        var result = await handler.HandleAsync(1001, "unknown_action_xyz", _updateCommandDto, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
