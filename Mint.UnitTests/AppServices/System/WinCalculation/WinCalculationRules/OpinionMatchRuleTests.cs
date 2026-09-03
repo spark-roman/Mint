@@ -104,8 +104,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(1, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     /// <summary>
@@ -125,8 +124,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(2, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(4, result);
+        Assert.Equal(4, result);
     }
 
     /// <summary>
@@ -146,8 +144,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(1, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     /// <summary>
@@ -167,8 +164,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(2, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(4, result);
+        Assert.Equal(4, result);
     }
 
     #endregion
@@ -191,50 +187,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(3, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Contains(5, result);
-        Assert.Contains(6, result);
-    }
-
-    /// <summary>
-    /// Verifies that CalculateAsync returns tied options sorted correctly.
-    /// </summary>
-    [Fact]
-    public async Task CalculateAsync_Tie_ReturnsSortedOptions()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-
-        // Act
-        var result = await rule.CalculateAsync(3, CancellationToken.None);
-
-        // Assert
-        var sorted = result.OrderBy(x => x).ToList();
-        Assert.Equal(sorted, result);
-    }
-
-    /// <summary>
-    /// Verifies that ties are determined by vote count, not bet amount.
-    /// </summary>
-    [Fact]
-    public async Task CalculateAsync_TieByVoteCount_BetsDiffer()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-
-        // Option 5: 2 voters, bets 100+200 = 300
-        // Option 6: 2 voters, bets 500+50 = 550
-        // Same vote count -> tie
-        var result = await rule.CalculateAsync(3, CancellationToken.None);
-
-        // Assert
-        Assert.Equal(2, result.Count);
-        Assert.Contains(5, result);
-        Assert.Contains(6, result);
+        Assert.Null(result);
     }
 
     #endregion
@@ -274,7 +227,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -292,7 +245,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(999, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     #endregion
@@ -341,8 +294,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     #endregion
@@ -414,8 +366,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     #endregion
@@ -480,8 +431,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert - option 1 wins with 2 votes vs 1 vote
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     #endregion
@@ -540,8 +490,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert - option 2 wins with 5 votes vs 1 vote
-        Assert.Single(result);
-        Assert.Contains(2, result);
+        Assert.Equal(2, result);
     }
 
     #endregion
@@ -591,8 +540,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.Equal(1, result);
     }
 
     #endregion
@@ -656,10 +604,7 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
         var result = await rule.CalculateAsync(duelId, CancellationToken.None);
 
         // Assert
-        Assert.Equal(3, result.Count);
-        Assert.Contains(1, result);
-        Assert.Contains(2, result);
-        Assert.Contains(3, result);
+        Assert.Null(result);
     }
 
     #endregion

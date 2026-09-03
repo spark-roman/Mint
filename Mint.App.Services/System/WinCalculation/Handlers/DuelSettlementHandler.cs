@@ -84,19 +84,16 @@ public sealed class DuelSettlementHandler(
 
     private async Task SettleDuelByVotesAsync(DuelDto duel, CancellationToken cancellationToken)
     {
-        var winningOptionIds = await _duelCalculator.CalculateWinningOptionIdAsync(duel.Id, DuelType.OpinionMatch, cancellationToken);
+        var winningOptionId = await _duelCalculator.CalculateWinningOptionIdAsync(duel.Id, DuelType.OpinionMatch, cancellationToken);
         
-        if (winningOptionIds is null || winningOptionIds.Count == 0)
+        if (winningOptionId is null)
         {
             _logger.LogWarning("No winners found for duel {DuelId}, closing without settlement", duel.Id);
-            await _duelRepository.CloseDuelAsync(duel.Id, cancellationToken);
-            return;
         }
-        
-        foreach (var winningOptionId in winningOptionIds)
+        else
         {
-            await ProcessSettlementAsync(duel.Id, winningOptionId, cancellationToken);
-
+            await ProcessSettlementAsync(duel.Id, winningOptionId.Value, cancellationToken);
+            
             _logger.LogInformation(
                 "Duel {DuelId} settled with winning option {WinningOptionId} by majority vote",
                 duel.Id,

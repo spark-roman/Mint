@@ -116,7 +116,7 @@ public sealed class DuelCalculationHandler(
     }
 
     /// <inheritdoc />
-    public async Task<List<long>> CalculateWinningOptionIdAsync(long duelId, DuelType duelType, CancellationToken cancellationToken)
+    public async Task<long?> CalculateWinningOptionIdAsync(long duelId, DuelType duelType, CancellationToken cancellationToken)
     {
         var tasks = _winCalculationRules.Select(async rule => new
         {
@@ -130,7 +130,7 @@ public sealed class DuelCalculationHandler(
             .Select(x => x.Rule)
             .FirstOrDefault();
 
-        var winningOptionIds = matchedRule is null ? [] : await matchedRule.CalculateAsync(duelId, cancellationToken);
+        var winningOptionIds = matchedRule is null ? null : await matchedRule.CalculateAsync(duelId, cancellationToken);
 
         return winningOptionIds;
     }

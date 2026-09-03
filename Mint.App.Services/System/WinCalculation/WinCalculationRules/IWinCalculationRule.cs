@@ -12,8 +12,8 @@ public interface IWinCalculationRule
     /// </summary>
     /// <param name="duelId">Duel id</param>
     /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Winning option ids</returns>
-    Task<List<long>> CalculateAsync(long duelId, CancellationToken cancellationToken);
+    /// <returns>Winning option id</returns>
+    Task<long?> CalculateAsync(long duelId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Check if rule matches given duel type
