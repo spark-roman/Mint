@@ -23,6 +23,6 @@ public interface IDuelCalculationHandler
     /// <param name="duelId">Duel id.</param>
     /// <param name="duelType">Duel type.</param>
     /// <param name="cancellationToken">Cancellation token.</param>
-    /// <returns>Winning option ids.</returns>
-    Task<List<long>> CalculateWinningOptionIdAsync(long duelId, DuelType duelType, CancellationToken cancellationToken);
+    /// <returns>Winning option id.</returns>
+    Task<long?> CalculateWinningOptionIdAsync(long duelId, DuelType duelType, CancellationToken cancellationToken);
 }

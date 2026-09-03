@@ -502,8 +502,8 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Value);
     }
 
     /// <summary>
@@ -524,7 +524,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.FactPrediction, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -545,8 +545,8 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Value);
     }
 
     #endregion
@@ -571,8 +571,8 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Single(result);
-        Assert.Contains(1, result);
+        Assert.NotNull(result);
+        Assert.Equal(1, result.Value);
     }
 
     [Fact]
@@ -589,9 +589,10 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Equal(2, result.Count);
+        Assert.Null(result);
+        /*Assert.Equal(2, result.Count);
         Assert.Contains(11, result);
-        Assert.Contains(12, result);
+        Assert.Contains(12, result);*/
     }
 
     /// <summary>
@@ -612,7 +613,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     /// <summary>
@@ -632,7 +633,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
 
         // Assert
-        Assert.Empty(result);
+        Assert.Null(result);
     }
 
     #endregion

@@ -11,13 +11,13 @@ public class OpinionMatchRule(IVoteRepository voteRepository) : IWinCalculationR
     private readonly IVoteRepository _voteRepository = voteRepository ?? throw new ArgumentNullException(nameof(voteRepository));
 
     /// <inheritdoc />
-    public async Task<List<long>> CalculateAsync(long duelId, CancellationToken cancellationToken)
+    public async Task<long?> CalculateAsync(long duelId, CancellationToken cancellationToken)
     {
         var votes = await _voteRepository.GetVotesByDuelIdAsync(duelId, cancellationToken);
 
         if (votes is null || votes.Count == 0)
         {
-            return [];
+            return null;
         }
 
         var maxVoteCount = votes
@@ -30,7 +30,7 @@ public class OpinionMatchRule(IVoteRepository voteRepository) : IWinCalculationR
             .Select(g => g.Key)
             .ToList();
 
-        return winningOptionIds;
+        return winningOptionIds.Count == 1 ? winningOptionIds.First() : null;
     }
 
     /// <inheritdoc />
