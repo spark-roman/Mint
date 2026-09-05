@@ -225,6 +225,36 @@ public class MintDbContext : DbContext
             .WithMany()
             .HasForeignKey(t => t.BonusTypeId);
 
+        modelBuilder.Entity<AccountEntity>()
+            .Property(a => a.Balance)
+            .HasPrecision(12, 2);
+
+        modelBuilder.Entity<TransactionEntity>()
+            .Property(t => t.Amount)
+            .HasPrecision(12, 2);
+
+        modelBuilder.Entity<VoteEntity>()
+            .Property(v => v.BetAmount)
+            .HasPrecision(12, 2);
+
+        modelBuilder.Entity<UserBonusStatsEntity>(entity =>
+        {
+            entity.Property(b => b.TotalStartBonusesClaimed)
+                .HasPrecision(12, 2);
+
+            entity.Property(b => b.TotalStreakBonusesClaimed)
+                .HasPrecision(12, 2);
+
+            entity.Property(b => b.TotalDailyBonusesClaimed)
+                .HasPrecision(12, 2);
+
+            entity.Property(b => b.TotalReferralBonusesClaimed)
+                .HasPrecision(12, 2);
+
+            entity.Property(b => b.TotalRankBonusClaimed)
+                .HasPrecision(12, 2);
+        });
+
         modelBuilder.Entity<ButtonEntity>(entity =>
         {
             entity.HasKey(b => b.Id);
@@ -357,7 +387,7 @@ public class MintDbContext : DbContext
 
             entity.Property(e => e.Amount)
                 .IsRequired()
-                .HasPrecision(15, 2);
+                .HasPrecision(12, 2);
 
             entity.Property(e => e.Status)
                 .IsRequired();
