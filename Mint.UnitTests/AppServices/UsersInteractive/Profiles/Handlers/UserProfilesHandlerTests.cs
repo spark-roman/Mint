@@ -484,33 +484,57 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
     }
 
     /// <summary>
-    /// Verifies that ProcessReferralAsync throws ArgumentException when a user tries to invite himself.
+    /// Verifies that ProcessReferralAsync logs and returns without throwing when a user tries to invite himself.
     /// </summary>
     [Fact]
-    public async Task ProcessReferralAsync_SelfReferral_ThrowsArgumentException()
+    public async Task ProcessReferralAsync_SelfReferral_ReturnsWithoutThrowing()
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
         var referralCode = EncodeReferralCode(1002);
 
-        // Act & Assert
-        await Assert.ThrowsAnyAsync<ArgumentException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None));
+        var statsBefore = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+
+        // Act & Assert - does not throw
+        await handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None);
+
+        // Assert - stats are unchanged
+        var statsAfter = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(statsAfter);
+        Assert.Equal(statsBefore!.RankPoints, statsAfter.RankPoints);
+        Assert.Equal(statsBefore.TotalWins, statsAfter.TotalWins);
+        Assert.Equal(statsBefore.TotalLosses, statsAfter.TotalLosses);
+        Assert.Equal(statsBefore.ReferralCount, statsAfter.ReferralCount);
+        Assert.Equal(statsBefore.InvitedByUserId, statsAfter.InvitedByUserId);
     }
 
     /// <summary>
-    /// Verifies that ProcessReferralAsync throws InvalidOperationException when the referrer does not exist.
+    /// Verifies that ProcessReferralAsync logs and returns without throwing when the referrer does not exist.
     /// </summary>
     [Fact]
-    public async Task ProcessReferralAsync_ReferrerNotFound_ThrowsInvalidOperationException()
+    public async Task ProcessReferralAsync_ReferrerNotFound_ReturnsWithoutThrowing()
     {
         // Arrange
         _currentScope = _fixture.CreateScope();
         var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
         var referralCode = EncodeReferralCode(99999);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None));
+        var newUserStatsBefore = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+
+        // Act & Assert - does not throw
+        await handler.ProcessReferralAsync(1002, AuthSystem.Tg, referralCode, CancellationToken.None);
+
+        // Assert - stats are unchanged
+        var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(newUserStatsAfter);
+        Assert.Equal(newUserStatsBefore!.RankPoints, newUserStatsAfter.RankPoints);
+        Assert.Equal(newUserStatsBefore.TotalWins, newUserStatsAfter.TotalWins);
+        Assert.Equal(newUserStatsBefore.TotalLosses, newUserStatsAfter.TotalLosses);
+        Assert.Equal(newUserStatsBefore.ReferralCount, newUserStatsAfter.ReferralCount);
+        Assert.Equal(newUserStatsBefore.InvitedByUserId, newUserStatsAfter.InvitedByUserId);
     }
 
     /// <summary>
@@ -560,10 +584,10 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
     }
 
     /// <summary>
-    /// Verifies that ProcessReferralAsync throws InvalidOperationException when the new user has already been invited.
+    /// Verifies that ProcessReferralAsync logs and returns without throwing when the new user has already been invited.
     /// </summary>
     [Fact]
-    public async Task ProcessReferralAsync_NewUserAlreadyInvited_ThrowsInvalidOperationException()
+    public async Task ProcessReferralAsync_NewUserAlreadyInvited_ReturnsWithoutThrowing()
     {
         // Arrange - user 1004 is seeded with InvitedByUserId = 1 (invited by Alice)
         _currentScope = _fixture.CreateScope();
@@ -575,13 +599,19 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.NotNull(newUserStatsBefore);
         Assert.Equal(1, newUserStatsBefore!.InvitedByUserId);
 
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(() => handler.ProcessReferralAsync(1004, AuthSystem.Tg, referralCode, CancellationToken.None));
+        // Act & Assert - does not throw
+        await handler.ProcessReferralAsync(1004, AuthSystem.Tg, referralCode, CancellationToken.None);
 
         // Assert - invitation is not overwritten
         var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1004, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(newUserStatsAfter);
         Assert.Equal(1, newUserStatsAfter!.InvitedByUserId);
+
+        // Assert - stats are unchanged
+        Assert.Equal(newUserStatsBefore.RankPoints, newUserStatsAfter.RankPoints);
+        Assert.Equal(newUserStatsBefore.TotalWins, newUserStatsAfter.TotalWins);
+        Assert.Equal(newUserStatsBefore.TotalLosses, newUserStatsAfter.TotalLosses);
+        Assert.Equal(newUserStatsBefore.ReferralCount, newUserStatsAfter.ReferralCount);
     }
 
     /// <summary>
@@ -805,11 +835,100 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
             && t.CreditAccountId == referrerAccount.Id
             && t.DebitAccountId == AccountConsts.SystemAccountId);
 
-        Assert.Equal("Streak bonus", referralTransaction.Description);
+        Assert.Equal("Referral bonus", referralTransaction.Description);
 
         // Assert - exactly one new referral transaction was added
         var referralTransactionsAfter = transactionsAfter.Count(t => t.BounusType == BonusType.Streak && t.Amount == 5000.00m);
         Assert.Equal(referralTransactionsBefore + 1, referralTransactionsAfter);
+    }
+
+    /// <summary>
+    /// Verifies the scenario where user 1002 invites user 1003 and the user clicks the same referral link twice:
+    /// the first click succeeds, the second click throws, stats are not changed again
+    /// and no second referral transaction is created.
+    /// </summary>
+    [Fact]
+    public async Task ProcessReferralAsync_User1002Invites1003_SecondClickOnSameLink_ThrowsAndDoesNotChangeState()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<ITransactionRepository>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        // Ensure user 1003 has no referrer so the test does not depend on execution order
+        var newStatsInitial = await statsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(newStatsInitial);
+        if (newStatsInitial.InvitedByUserId != null)
+        {
+            await statsRepository.UpdateStatsAsync(
+                1003,
+                new UserStatsUpdateDto
+                {
+                    RankPoints = newStatsInitial.RankPoints,
+                    TotalWins = newStatsInitial.TotalWins,
+                    TotalLosses = newStatsInitial.TotalLosses,
+                    ReferralCount = newStatsInitial.ReferralCount,
+                    InvitedByUserId = null
+                },
+                CancellationToken.None);
+        }
+
+        // Referrer 1002 has a seeded account
+        var referrerAccount = await accountRepository.GetAccountByExternalUserIdAsync(
+            1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(referrerAccount);
+
+        var newUserStatsBefore = await statsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.Null(newUserStatsBefore!.InvitedByUserId);
+
+        var referrerStatsBefore = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(referrerStatsBefore);
+
+        var referrerTransactionsBefore = await transactionRepository.GetTransactionsByAccountIdAsync(
+            referrerAccount.Id, CancellationToken.None) ?? [];
+
+        var referralCode = EncodeReferralCode(1002);
+
+        // Act - user 1003 clicks the referral link of user 1002: the invitation succeeds
+        await handler.ProcessReferralAsync(1003, AuthSystem.Tg, referralCode, CancellationToken.None);
+
+        // Assert - user 1003 is linked to user 1002 (internal user id 2) and the referral bonus transaction was created
+        var statsAfterFirstClick = await statsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(statsAfterFirstClick);
+        Assert.Equal(2, statsAfterFirstClick!.InvitedByUserId);
+
+        var transactionsAfterFirstClick = await transactionRepository.GetTransactionsByAccountIdAsync(
+            referrerAccount.Id, CancellationToken.None) ?? [];
+        Assert.Equal(referrerTransactionsBefore.Count + 1, transactionsAfterFirstClick.Count);
+
+        // Act & Assert - user 1003 clicks the same referral link again: the handler logs and returns without throwing
+        await handler.ProcessReferralAsync(1003, AuthSystem.Tg, referralCode, CancellationToken.None);
+
+        // Assert - the invitation of user 1003 is not changed
+        var newUserStatsAfter = await statsRepository.GetStatsByUserIdAsync(1003, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(newUserStatsAfter);
+        Assert.Equal(2, newUserStatsAfter!.InvitedByUserId);
+
+        // Assert - user 1003's stats are unchanged (except the invitation set by the first click)
+        Assert.Equal(newUserStatsBefore!.RankPoints, newUserStatsAfter.RankPoints);
+        Assert.Equal(newUserStatsBefore.TotalWins, newUserStatsAfter.TotalWins);
+        Assert.Equal(newUserStatsBefore.TotalLosses, newUserStatsAfter.TotalLosses);
+        Assert.Equal(newUserStatsBefore.ReferralCount, newUserStatsAfter.ReferralCount);
+
+        // Assert - user 1002's stats are unchanged: the referral count was incremented exactly once by the first click
+        var referrerStatsAfter = await statsRepository.GetStatsByUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(referrerStatsAfter);
+        Assert.Equal(referrerStatsBefore!.RankPoints, referrerStatsAfter.RankPoints);
+        Assert.Equal(referrerStatsBefore.TotalWins, referrerStatsAfter.TotalWins);
+        Assert.Equal(referrerStatsBefore.TotalLosses, referrerStatsAfter.TotalLosses);
+        Assert.Equal(referrerStatsBefore.ReferralCount + 1, referrerStatsAfter.ReferralCount);
+
+        // Assert - no second referral transaction was created for user 1002
+        var referrerTransactionsAfter = await transactionRepository.GetTransactionsByAccountIdAsync(
+            referrerAccount.Id, CancellationToken.None) ?? [];
+        Assert.Equal(transactionsAfterFirstClick.Count, referrerTransactionsAfter.Count);
     }
 
     #endregion

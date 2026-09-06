@@ -209,6 +209,10 @@ public class MintDbContext : DbContext
             .HasForeignKey<UserStatsEntity>(us => us.UserId)
             .OnDelete(DeleteBehavior.Cascade);
 
+        modelBuilder.Entity<UserStatsEntity>()
+            .Property(t => t.RankPoints)
+            .HasPrecision(12, 2);
+
         modelBuilder.Entity<UserBonusStatsEntity>()
             .HasOne(ubs => ubs.User)
             .WithOne(u => u.BonusStats)
