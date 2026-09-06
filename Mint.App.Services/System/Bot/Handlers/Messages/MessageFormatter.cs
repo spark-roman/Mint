@@ -83,6 +83,9 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
 
         foreach (var entry in entries)
         {
+            var escDisplayName = MarkdownV2Escaper.Escape(entry.DisplayName);
+            var escRankName = MarkdownV2Escaper.Escape(entry.RankName);
+
             var medal = entry.Rank switch
             {
                 1 => "🥇",
@@ -91,7 +94,7 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
                 _ => "🎖"
             };
 
-            sb.AppendLine(CultureInfo.CurrentCulture, $"{medal} **{entry.Rank}.** {entry.DisplayName} — {entry.RankName} • {entry.RankPoints:N0} RP");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"{medal} **{entry.Rank}.** {escDisplayName} — {escRankName} • {entry.RankPoints:N0} RP");
         }
 
         return sb.ToString();
