@@ -32,7 +32,8 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
         }
         catch (ApiRequestException ex)
         {
-            _logger.LogError(ex, "Failed to send message to chat {ChatId}", chatId);
+            _logger.LogError(ex, "Failed to send message to chat {ChatId}, text: {Text}", chatId, text);
+            
             throw;
         }
     }
@@ -52,7 +53,8 @@ public sealed class BotMessageSender(ITelegramBotClient botClient, ILogger<BotMe
         }
         catch (ApiRequestException ex)
         {
-            _logger.LogError(ex, "Failed to edit message {MessageId} in chat {ChatId}", messageId, chatId);
+            _logger.LogError(ex, "Failed to edit message {MessageId} in chat {ChatId}, text: {Text}", messageId, chatId, text);
+
             throw;
         }
     }
