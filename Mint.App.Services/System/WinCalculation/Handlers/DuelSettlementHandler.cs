@@ -127,6 +127,8 @@ public sealed class DuelSettlementHandler(
                 };
 
                 await _userStatsRepository.UpdateStatsByAccountIdAsync(voteResult.VoteAccountId, statsUpdateDto, cancellationToken);
+
+                _logger.LogDebug("Lose account id: {CreditAccountId}", voteResult.VoteAccountId);
             }
             else
             {
