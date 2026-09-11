@@ -128,7 +128,7 @@ public sealed class DuelSettlementHandler(
 
                 await _userStatsRepository.UpdateStatsByAccountIdAsync(voteResult.VoteAccountId, statsUpdateDto, cancellationToken);
 
-                _logger.LogDebug("Lose account id: {CreditAccountId}", voteResult.VoteAccountId);
+                _logger.LogInformation("Lose account id: {CreditAccountId}", voteResult.VoteAccountId);
             }
             else
             {
@@ -163,7 +163,7 @@ public sealed class DuelSettlementHandler(
 
                 await _payoutRepository.CreateAsync(payoutCreateDto, cancellationToken);
 
-                _logger.LogDebug(
+                _logger.LogInformation(
                     "Payout: {Amount} to account {CreditAccountId}",
                     voteResult.PayoutInstruction.Amount,
                     voteResult.VoteAccountId);
