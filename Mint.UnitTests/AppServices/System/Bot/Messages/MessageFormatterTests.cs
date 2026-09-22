@@ -280,4 +280,26 @@ public class MessageFormatterTests
         // Act & Assert
         await Assert.ThrowsAnyAsync<ArgumentNullException>(() => _formatter.FormatLeaderboardAsync("template", null!, CancellationToken.None));
     }
+
+    /// <summary>
+    /// Verifies that FormatProfileAsync replaces the draws placeholder with the total draws value.
+    /// </summary>
+    [Fact]
+    public async Task FormatProfileAsync_ReplacesDrawsPlaceholder()
+    {
+        // Arrange
+        var profile = new UserProfileDto
+        {
+            ExternalUserId = 1001,
+            TotalDraws = 7,
+            NextDailyAvailableAt = DateTimeOffset.UtcNow.AddHours(-1),
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+
+        // Act
+        var result = await _formatter.FormatProfileAsync("Ничья: {{draws}}", profile, CancellationToken.None);
+
+        // Assert
+        Assert.Equal("Ничья: 7", result);
+    }
 }

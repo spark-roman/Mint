@@ -23,6 +23,7 @@ public class DbUserStatsMapper : IDbUserStatsMapper
             RankPoints = statsEntity.RankPoints,
             TotalWins = statsEntity.TotalWins,
             TotalLosses = statsEntity.TotalLosses,
+            TotalDraws = statsEntity.TotalDraws,
             ReferralCount = statsEntity.ReferralCount,
             UpdatedAt = statsEntity.UpdatedAt,
             UserName = userEntity.UserName ?? userEntity.FirstName ?? "Аноним",

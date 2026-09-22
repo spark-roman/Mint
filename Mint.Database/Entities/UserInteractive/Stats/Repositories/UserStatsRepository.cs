@@ -124,6 +124,7 @@ public class UserStatsRepository(
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;
         stats.TotalLosses = updatedEntity.TotalLosses;
+        stats.TotalDraws = updatedEntity.TotalDraws;
         stats.ReferralCount = updatedEntity.ReferralCount;
         stats.InvitedByUserId = updatedEntity.InvitedByUserId;
         stats.UpdatedAt = updatedEntity.UpdatedAt;
@@ -155,6 +156,7 @@ public class UserStatsRepository(
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;
         stats.TotalLosses = updatedEntity.TotalLosses;
+        stats.TotalDraws = updatedEntity.TotalDraws;
         stats.ReferralCount = updatedEntity.ReferralCount;
         stats.InvitedByUserId = updatedEntity.InvitedByUserId;
         stats.UpdatedAt = updatedEntity.UpdatedAt;

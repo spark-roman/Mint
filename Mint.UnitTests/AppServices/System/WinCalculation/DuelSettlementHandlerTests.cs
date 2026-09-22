@@ -910,10 +910,9 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
     }
 
     /// <summary>
-    /// Verifies that in a tie scenario (multiple winning options), all tied options are processed.
-    /// When tie occurs, each tied option is processed as winning, so each voter becomes
-    /// a winner once (for their chosen option) and a loser once (for the other option).
-    /// Net effect: TotalWins +1 and TotalLosses +1 for each voter.
+    /// Verifies that in a tie scenario (equal vote count for multiple options) all voters are refunded.
+    /// Each voter receives a refund transaction and TotalDraws is incremented once;
+    /// TotalWins, TotalLosses and RankPoints are not changed.
     /// </summary>
     [Fact]
     public async Task SettleDuelAsync_MultipleWinningOptions_AllProcessed()
@@ -932,7 +931,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         Assert.NotNull(initialStats2);
         Assert.NotNull(initialStats3);
 
-        // Create a duel with 3 options where options 1 and 2 are tied
+        // Create a duel with 3 options where options A and B are tied
         var newDuelId = await duelRepository.CreateDuelAsync(
             new DuelCreateDto
             {
@@ -976,17 +975,184 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         // Act
         await handler.SettleDuelAsync(newDuelId, CancellationToken.None);
 
-        // Assert - in a tie, each voter is winner once (for their option) and loser once (for the other)
-        // Net effect: TotalWins +1 and TotalLosses +1 for each voter
+        // Assert - in a tie every voter is refunded once, TotalDraws is incremented once,
+        // TotalWins, TotalLosses and RankPoints are not changed
         var stats2 = await statsRepository.GetStatsByAccountIdAsync(2, CancellationToken.None);
         var stats3 = await statsRepository.GetStatsByAccountIdAsync(3, CancellationToken.None);
 
         Assert.NotNull(stats2);
         Assert.NotNull(stats3);
-        Assert.Equal(initialStats2.TotalWins + 1, stats2.TotalWins);
-        Assert.Equal(initialStats2.TotalLosses + 1, stats2.TotalLosses);
-        Assert.Equal(initialStats3.TotalWins + 1, stats3.TotalWins);
-        Assert.Equal(initialStats3.TotalLosses + 1, stats3.TotalLosses);
+        Assert.Equal(initialStats2.TotalDraws + 1, stats2.TotalDraws);
+        Assert.Equal(initialStats2.TotalWins, stats2.TotalWins);
+        Assert.Equal(initialStats2.TotalLosses, stats2.TotalLosses);
+        Assert.Equal(initialStats2.RankPoints, stats2.RankPoints);
+
+        Assert.Equal(initialStats3.TotalDraws + 1, stats3.TotalDraws);
+        Assert.Equal(initialStats3.TotalWins, stats3.TotalWins);
+        Assert.Equal(initialStats3.TotalLosses, stats3.TotalLosses);
+        Assert.Equal(initialStats3.RankPoints, stats3.RankPoints);
+
+        // Assert - both voters receive refund transactions with the full bet amounts
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var refundTransactions = context.Transactions
+            .Where(t => t.Description!.Contains($"Возврат за ничью:{newDuelId}"))
+            .ToList();
+
+        Assert.Equal(2, refundTransactions.Count);
+        Assert.Contains(refundTransactions, t => t.CreditAccountId == 2 && t.Amount == 100m);
+        Assert.Contains(refundTransactions, t => t.CreditAccountId == 3 && t.Amount == 200m);
+    }
+
+    /// <summary>
+    /// Verifies that a tie (equal vote count for two options) results in refunds for all voters.
+    /// Each voter receives a refund transaction with the full bet amount and a payout record.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_Tie_RefundsAllBets()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
+
+        var newDuelId = await duelRepository.CreateDuelAsync(
+            new DuelCreateDto
+            {
+                CategoryId = 1,
+                DuelType = DuelType.OpinionMatch,
+                Question = "Tie duel",
+                Description = "Equal votes for both options",
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+                Options = new List<DuelOptionCreateDto>
+                {
+                    new() { OptionText = "A", OptionCode = "a" },
+                    new() { OptionText = "B", OptionCode = "b" }
+                }
+            },
+            CancellationToken.None);
+
+        var duel = await duelRepository.GetDuelByIdAsync(newDuelId, CancellationToken.None);
+        var options = duel!.Options.ToList();
+
+        // 1 vote for option A, 1 vote for option B -> tie
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = newDuelId,
+            AccountId = 2,
+            ChosenOptionId = options[0].Id,
+            BetAmount = 100m
+        }, CancellationToken.None);
+
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = newDuelId,
+            AccountId = 3,
+            ChosenOptionId = options[1].Id,
+            BetAmount = 200m
+        }, CancellationToken.None);
+
+        // Act
+        await handler.SettleDuelAsync(newDuelId, CancellationToken.None);
+
+        // Assert
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var refundTransactions = context.Transactions
+            .Where(t => t.Description!.Contains($"Возврат за ничью:{newDuelId}"))
+            .ToList();
+
+        Assert.Equal(2, refundTransactions.Count);
+        Assert.Contains(refundTransactions, t => t.CreditAccountId == 2 && t.Amount == 100m);
+        Assert.Contains(refundTransactions, t => t.CreditAccountId == 3 && t.Amount == 200m);
+        Assert.All(refundTransactions, t => Assert.Equal(1, t.DebitAccountId)); // system account
+
+        // A payout record is created for every refunded vote
+        var payouts = context.Payouts.Where(p => p.DuelId == newDuelId).ToList();
+        Assert.Equal(2, payouts.Count);
+    }
+
+    /// <summary>
+    /// Verifies that a tie increments TotalDraws for all voters
+    /// and does not change TotalWins, TotalLosses and RankPoints.
+    /// </summary>
+    [Fact]
+    public async Task SettleDuelAsync_Tie_IncrementsTotalDraws()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
+        var statsRepository = _currentScope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+
+        var newDuelId = await duelRepository.CreateDuelAsync(
+            new DuelCreateDto
+            {
+                CategoryId = 1,
+                DuelType = DuelType.OpinionMatch,
+                Question = "Tie duel",
+                Description = "Equal votes for both options",
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(48),
+                Options = new List<DuelOptionCreateDto>
+                {
+                    new() { OptionText = "A", OptionCode = "a" },
+                    new() { OptionText = "B", OptionCode = "b" }
+                }
+            },
+            CancellationToken.None);
+
+        var duel = await duelRepository.GetDuelByIdAsync(newDuelId, CancellationToken.None);
+        var options = duel!.Options.ToList();
+
+        // 1 vote for option A, 1 vote for option B -> tie
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = newDuelId,
+            AccountId = 2,
+            ChosenOptionId = options[0].Id,
+            BetAmount = 100m
+        }, CancellationToken.None);
+
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = newDuelId,
+            AccountId = 3,
+            ChosenOptionId = options[1].Id,
+            BetAmount = 200m
+        }, CancellationToken.None);
+
+        // Capture initial stats
+        var initialStats2 = await statsRepository.GetStatsByAccountIdAsync(2, CancellationToken.None);
+        var initialStats3 = await statsRepository.GetStatsByAccountIdAsync(3, CancellationToken.None);
+        Assert.NotNull(initialStats2);
+        Assert.NotNull(initialStats3);
+
+        // Act
+        await handler.SettleDuelAsync(newDuelId, CancellationToken.None);
+
+        // Assert - draw: TotalDraws +1, everything else unchanged
+        var stats2 = await statsRepository.GetStatsByAccountIdAsync(2, CancellationToken.None);
+        var stats3 = await statsRepository.GetStatsByAccountIdAsync(3, CancellationToken.None);
+
+        Assert.NotNull(stats2);
+        Assert.NotNull(stats3);
+        Assert.Equal(initialStats2.TotalDraws + 1, stats2.TotalDraws);
+        Assert.Equal(initialStats2.TotalWins, stats2.TotalWins);
+        Assert.Equal(initialStats2.TotalLosses, stats2.TotalLosses);
+        Assert.Equal(initialStats2.RankPoints, stats2.RankPoints);
+
+        Assert.Equal(initialStats3.TotalDraws + 1, stats3.TotalDraws);
+        Assert.Equal(initialStats3.TotalWins, stats3.TotalWins);
+        Assert.Equal(initialStats3.TotalLosses, stats3.TotalLosses);
+        Assert.Equal(initialStats3.RankPoints, stats3.RankPoints);
     }
 
     #endregion

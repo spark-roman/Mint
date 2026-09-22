@@ -133,7 +133,7 @@ public class UserProfilesHandler(
 
         var rank = await _rankConfigRepository.GetHighestRankAsync(userStat?.RankPoints ?? 0, cancellationToken);
 
-        var totalDuels = (userStat?.TotalWins ?? 0) + (userStat?.TotalLosses ?? 0);
+        var totalDuels = (userStat?.TotalWins ?? 0) + (userStat?.TotalLosses ?? 0) + (userStat?.TotalDraws ?? 0);
         var wins = userStat?.TotalWins ?? 0;
         var winrate = totalDuels > 0 ? Math.Round((double)wins / totalDuels * 100, 1) : 0;
 
@@ -158,6 +158,7 @@ public class UserProfilesHandler(
             TotalDuels = totalDuels,
             TotalWins = wins,
             TotalLosses = userStat?.TotalLosses ?? 0,
+            TotalDraws = userStat?.TotalDraws ?? 0,
             Winrate = winrate,
             ReferralCount = userStat?.ReferralCount ?? 0,
             TotalReferralBonus = bonusStat?.TotalReferralBonusesClaimed ?? 0,
@@ -335,6 +336,7 @@ public class UserProfilesHandler(
             RankPoints = newUserStats.RankPoints,
             TotalWins = newUserStats.TotalWins,
             TotalLosses = newUserStats.TotalLosses,
+            TotalDraws = newUserStats.TotalDraws,
             ReferralCount = newUserStats.ReferralCount,
             InvitedByUserId = referrer.Id
         };
@@ -349,6 +351,7 @@ public class UserProfilesHandler(
                 RankPoints = referrerStats.RankPoints,
                 TotalWins = referrerStats.TotalWins,
                 TotalLosses = referrerStats.TotalLosses,
+                TotalDraws = referrerStats.TotalDraws,
                 ReferralCount = referrerStats.ReferralCount + 1,
                 InvitedByUserId = referrerStats.InvitedByUserId
             };

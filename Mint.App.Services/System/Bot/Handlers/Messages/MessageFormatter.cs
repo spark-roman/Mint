@@ -29,6 +29,7 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             ["{{total_duels}}"] = userProfileDto.TotalDuels.ToString(CultureInfo.InvariantCulture) ?? "0",
             ["{{wins}}"] = userProfileDto.TotalWins.ToString(CultureInfo.InvariantCulture) ?? "0",
             ["{{losses}}"] = userProfileDto.TotalLosses.ToString(CultureInfo.InvariantCulture) ?? "0",
+            ["{{draws}}"] = userProfileDto.TotalDraws.ToString(CultureInfo.InvariantCulture) ?? "0",
             ["{{winrate}}"] = userProfileDto.Winrate.ToString(CultureInfo.InvariantCulture),
             ["{{rank_name}}"] = userProfileDto.RankName ?? "Новичок",
             ["{{rank_emoji}}"] = userProfileDto.RankEmoji ?? "🌱",

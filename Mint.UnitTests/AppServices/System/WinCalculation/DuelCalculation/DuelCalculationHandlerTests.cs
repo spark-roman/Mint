@@ -1,7 +1,10 @@
-using System.Linq;
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.WinCalculation.Handlers;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.Duels.Dto;
+using Mint.Database.Entities.UserInteractive.Votes.Dto;
 using Mint.UnitTests.AppServices.System.WinCalculation.Fixtures;
 
 namespace Mint.UnitTests.AppServices.System.WinCalculation.DuelCalculation;
@@ -38,15 +41,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_ValidDuelWithVotes_ReturnsCorrectResult()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -65,15 +90,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_WinningVoters_ReceivePayoutInstructions()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var winningResults = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
@@ -95,20 +142,42 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_LosingVoters_ReceiveNullPayout()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var losingResults = result.VoteResults.Where(v => v.PayoutInstruction == null).ToList();
         Assert.Single(losingResults);
-        Assert.Equal(4, losingResults.First().VoteAccountId); // Charlie
+        Assert.Equal(4, losingResults.First().VoteAccountId);
     }
 
     /// <summary>
@@ -118,15 +187,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PayoutInstructionsUseSystemAccountAsDebit()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.All(result.VoteResults, v =>
@@ -145,15 +236,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PayoutInstructionsCreditCorrectAccount()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var payouts = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
@@ -169,15 +282,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PayoutDescriptionsContainDuelId()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.All(result.VoteResults, v =>
@@ -196,15 +331,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_AllVotesIncludedInResults()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(3, result.VoteResults.Count);
@@ -224,15 +381,35 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_AllVotesWinning_NoLosingVoters()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 4;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 4,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Один голос",
+            Description = "Только один голос",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 4, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-1) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -252,85 +429,42 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_WinningOptionHasMultipleVoters_AllGetPayouts()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var winningPayouts = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
         Assert.Equal(2, winningPayouts.Count);
         Assert.All(winningPayouts, p => Assert.True(p.PayoutInstruction!.Amount > 0));
-    }
-
-    #endregion
-
-    #region CalculateResultAsync - Error Cases
-
-    /// <summary>
-    /// Verifies that CalculateResultAsync throws when duel is not found.
-    /// </summary>
-    [Fact]
-    public async Task CalculateResultAsync_DuelNotFound_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _fixture.GetHandler(_currentScope);
-
-        var duelId = 999;
-        var winningOptionId = 1;
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None));
-    }
-
-    /// <summary>
-    /// Verifies that CalculateResultAsync throws when duel is already closed.
-    /// </summary>
-    [Fact]
-    public async Task CalculateResultAsync_AlreadyClosed_ThrowsInvalidOperationException()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _fixture.GetHandler(_currentScope);
-
-        var duelId = 3;
-        var winningOptionId = 1;
-
-        // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(
-            () => handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None));
-    }
-
-    /// <summary>
-    /// Verifies that CalculateResultAsync returns empty result when there are no votes for the duel.
-    /// Duel 2 has no votes.
-    /// </summary>
-    [Fact]
-    public async Task CalculateResultAsync_NoVotes_ReturnsEmptyResult()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _fixture.GetHandler(_currentScope);
-
-        // Act
-        var result = await handler.CalculateResultAsync(2, 1, CancellationToken.None);
-
-        // Assert
-        Assert.NotNull(result);
-        Assert.Equal(2, result.DuelId);
-        Assert.Equal(0, result.TotalPot);
-        Assert.Equal(0, result.HouseCut);
-        Assert.Empty(result.VoteResults);
     }
 
     #endregion
@@ -344,15 +478,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_DifferentBetAmounts_CorrectlyCalculates()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
 
-        // Act - option 1 wins (2 votes vs 1 vote for option 2)
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
+
+        // Act
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -369,15 +525,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_HouseCutIsAlwaysFivePercent()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var expectedHouseCut = 900m * 0.05m; // 45
@@ -391,15 +569,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PrizePoolEqualsTotalPotMinusHouseCut()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(result.TotalPot - result.HouseCut, result.PrizePool);
@@ -412,15 +612,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_WinFactorCorrectlyCalculated()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         // winningTotal = 500 + 100 = 600
@@ -438,15 +660,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PayoutsProportionalToBets()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var alicePayout = result.VoteResults.First(v => v.VoteAccountId == 2).PayoutInstruction!.Amount; // 500 bet
@@ -462,15 +706,37 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_PayoutExceedsBetAmount()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateResultAsync(duelId, winningOptionId, CancellationToken.None);
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
         var alicePayout = result.VoteResults.First(v => v.VoteAccountId == 2).PayoutInstruction!.Amount;
@@ -478,6 +744,126 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
 
         var bobPayout = result.VoteResults.First(v => v.VoteAccountId == 3).PayoutInstruction!.Amount;
         Assert.True(bobPayout > 100m); // Bob bet 100, should receive more
+    }
+
+    /// <summary>
+    /// Verifies that CalculateResultAsync returns an empty result without payout instructions when there are no votes.
+    /// </summary>
+    [Fact]
+    public async Task CalculateResultAsync_NoVotes_ReturnsEmptyResult()
+    {
+        // Arrange
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>([]);
+
+        // Act
+        var result = await handler.CalculateResultAsync(duel, 1, votes, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(1, result.DuelId);
+        Assert.Equal(1, result.WinningOptionId);
+        Assert.Equal(0m, result.TotalPot);
+        Assert.Equal(0m, result.HouseCut);
+        Assert.Empty(result.VoteResults);
+    }
+
+    /// <summary>
+    /// Verifies that CalculateResultAsync refunds all bets when the duel ends in a draw.
+    /// winningOptionId is null -> every voter receives a refund of the full bet amount.
+    /// </summary>
+    [Fact]
+    public async Task CalculateResultAsync_Draw_RefundsAllBets()
+    {
+        // Arrange
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
+
+        // Act
+        var result = await handler.CalculateResultAsync(duel, null, votes, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Null(result.WinningOptionId);
+        Assert.Equal(900m, result.TotalPot); // 500 + 100 + 300
+        Assert.Equal(0m, result.HouseCut); // no commission on refunds
+        Assert.Equal(3, result.VoteResults.Count);
+
+        // Every voter receives a refund instruction of the full bet amount
+        Assert.All(result.VoteResults, v => Assert.NotNull(v.PayoutInstruction));
+        Assert.All(result.VoteResults, v => Assert.Equal(BonusType.Refund, v.PayoutInstruction!.BonusType));
+        Assert.All(result.VoteResults, v => Assert.Equal(1, v.PayoutInstruction!.DebitAccountId)); // system account
+
+        Assert.Equal(500m, result.VoteResults.First(v => v.VoteAccountId == 2).PayoutInstruction!.Amount);
+        Assert.Equal(100m, result.VoteResults.First(v => v.VoteAccountId == 3).PayoutInstruction!.Amount);
+        Assert.Equal(300m, result.VoteResults.First(v => v.VoteAccountId == 4).PayoutInstruction!.Amount);
+    }
+
+    /// <summary>
+    /// Verifies that CalculateResultAsync throws ArgumentNullException when duel is null.
+    /// </summary>
+    [Fact]
+    public async Task CalculateResultAsync_NullDuel_ThrowsArgumentNullException()
+    {
+        // Arrange
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) }
+        ]);
+
+        // Act & Assert
+        await Assert.ThrowsAsync<ArgumentNullException>(
+            () => handler.CalculateResultAsync(null!, 1, votes, CancellationToken.None));
     }
 
     #endregion
@@ -492,39 +878,23 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_OpinionMatch_ReturnsWinningOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 1;
+        var now = DateTimeOffset.UtcNow;
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
         Assert.Equal(1, result.Value);
-    }
-
-    /// <summary>
-    /// Verifies that CalculateWinningOptionIdAsync returns empty list for non-matching duel type.
-    /// There is no rule for FactPrediction in the test setup.
-    /// </summary>
-    [Fact]
-    public async Task CalculateWinningOptionIdAsync_NonMatchingRule_ReturnsEmptyList()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _fixture.GetHandler(_currentScope);
-
-        var duelId = 1;
-
-        // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.FactPrediction, CancellationToken.None);
-
-        // Assert
-        Assert.Null(result);
     }
 
     /// <summary>
@@ -535,14 +905,17 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_SingleVote_ReturnsCorrectOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 4;
+        var now = DateTimeOffset.UtcNow;
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 4, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-1) }
+        ]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -561,14 +934,19 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_MultipleVotes_ReturnsWinningOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 5;
+        var now = DateTimeOffset.UtcNow;
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 5, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-3) },
+            new VoteDto { AccountId = 3, DuelId = 5, ChosenOptionId = 1, BetAmount = 200m, CreatedAt = now.AddHours(-3) },
+            new VoteDto { AccountId = 4, DuelId = 5, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, CancellationToken.None);
 
         // Assert
         Assert.NotNull(result);
@@ -579,20 +957,24 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_MultipleEqualVotes_Returns2WinningOptions()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 6;
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 6, ChosenOptionId = 11, BetAmount = 500m, CreatedAt = now.AddHours(-3) },
+            new VoteDto { AccountId = 3, DuelId = 6, ChosenOptionId = 11, BetAmount = 200m, CreatedAt = now.AddHours(-3) },
+            new VoteDto { AccountId = 1, DuelId = 6, ChosenOptionId = 12, BetAmount = 300m, CreatedAt = now.AddHours(-3) },
+            new VoteDto { AccountId = 4, DuelId = 6, ChosenOptionId = 12, BetAmount = 300m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
-        /*Assert.Equal(2, result.Count);
-        Assert.Contains(11, result);
-        Assert.Contains(12, result);*/
     }
 
     /// <summary>
@@ -603,34 +985,39 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_NoVotes_ReturnsEmptyList()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 2;
+        var votes = new ReadOnlyCollection<VoteDto>([]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
     }
 
     /// <summary>
-    /// Verifies that CalculateWinningOptionIdAsync returns empty for non-existent duel.
+    /// Verifies that CalculateWinningOptionIdAsync returns null when no rule matches the duel type.
+    /// There is no rule registered for FactPrediction in the test setup.
     /// </summary>
     [Fact]
-    public async Task CalculateWinningOptionIdAsync_NonExistentDuel_ReturnsEmptyList()
+    public async Task CalculateWinningOptionIdAsync_NoMatchingRule_ReturnsNull()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
 
-        var duelId = 999;
+        var now = DateTimeOffset.UtcNow;
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, CancellationToken.None);
+        var result = await handler.CalculateWinningOptionIdAsync(DuelType.FactPrediction, votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -647,18 +1034,40 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateResultAsync_CancellationToken_Respected()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
         var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var duelId = 1;
         var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => handler.CalculateResultAsync(duelId, winningOptionId, cts.Token));
+            () => handler.CalculateResultAsync(duel, winningOptionId, votes, cts.Token));
     }
 
     /// <summary>
@@ -668,17 +1077,23 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
     public async Task CalculateWinningOptionIdAsync_CancellationToken_Respected()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var handler = _fixture.GetHandler(_currentScope);
         var cts = new CancellationTokenSource();
         await cts.CancelAsync();
 
-        var duelId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(
-            () => handler.CalculateWinningOptionIdAsync(duelId, DuelType.OpinionMatch, cts.Token));
+            () => handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, cts.Token));
     }
 
     #endregion

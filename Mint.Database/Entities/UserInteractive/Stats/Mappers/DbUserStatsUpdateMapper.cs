@@ -29,6 +29,7 @@ public class DbUserStatsUpdateMapper : IDbEntityMapper<UserStatsUpdateDto, UserS
             RankPoints = entity.RankPoints,
             TotalWins = entity.TotalWins,
             TotalLosses = entity.TotalLosses,
+            TotalDraws = entity.TotalDraws,
             ReferralCount = entity.ReferralCount,
             UpdatedAt = _timeProvider.GetUtcNow().UtcDateTime,
             InvitedByUserId = entity.InvitedByUserId

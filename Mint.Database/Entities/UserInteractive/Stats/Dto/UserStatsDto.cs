@@ -36,6 +36,11 @@ public record UserStatsDto
     public int TotalLosses { get; init; }
 
     /// <summary>
+    /// Total draws
+    /// </summary>
+    public int TotalDraws { get; init; }
+
+    /// <summary>
     /// Number of successfully referred friends who completed the conditions
     /// </summary>
     public int ReferralCount { get; init; }
@@ -80,6 +85,11 @@ public record UserStatsUpdateDto
     /// Total losses
     /// </summary>
     public int TotalLosses { get; init; }
+
+    /// <summary>
+    /// Total draws
+    /// </summary>
+    public int TotalDraws { get; init; }
 
     /// <summary>
     /// Number of successfully referred friends who completed the conditions

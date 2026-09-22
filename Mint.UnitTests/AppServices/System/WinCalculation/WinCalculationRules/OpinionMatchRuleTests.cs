@@ -1,8 +1,7 @@
+using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.WinCalculation.WinCalculationRules;
 using Mint.Common.Contracts.UserInteractive.Duels;
-using Mint.Database.Entities.UserInteractive.Duels.Dto;
-using Mint.Database.Entities.UserInteractive.Duels.Repositories;
 using Mint.Database.Entities.UserInteractive.Votes.Dto;
 using Mint.Database.Entities.UserInteractive.Votes.Repositories;
 using Mint.UnitTests.AppServices.System.WinCalculation.WinCalculationRules.Fixtures;
@@ -36,7 +35,6 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task IsMatchedAsync_OpinionMatch_ReturnsTrue()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
@@ -54,7 +52,6 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task IsMatchedAsync_FactPrediction_ReturnsFalse()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
@@ -72,7 +69,6 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task IsMatchedAsync_NonOpinionMatch_ReturnsFalse()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
@@ -96,12 +92,21 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_OpinionMatch_WinnerByVoteCount_ReturnsWinningOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 1, BetAmount = 10m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 5, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 6, DuelId = 1, ChosenOptionId = 2, BetAmount = 1000m, CreatedAt = now.AddHours(-2) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(1, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(1, result);
@@ -116,12 +121,20 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_Duel2_WinnerByVoteCount_ReturnsWinningOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 2, ChosenOptionId = 3, BetAmount = 9999m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 5, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 6, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 4, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(2, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(4, result);
@@ -134,14 +147,20 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_FewerBetsMoreVoters_Wins()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
+        var now = DateTimeOffset.UtcNow;
 
-        // Option 1: 3 voters, total bet = 610
-        // Option 2: 2 voters, total bet = 1300
-        // Winner should be option 1 (more voters)
-        var result = await rule.CalculateAsync(1, CancellationToken.None);
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 1, BetAmount = 10m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 5, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
+            new VoteDto { AccountId = 6, DuelId = 1, ChosenOptionId = 2, BetAmount = 1000m, CreatedAt = now.AddHours(-2) }
+        ]);
+
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(1, result);
@@ -154,14 +173,20 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_OneLargeBet_LosesToMultipleSmallBets()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
-        // Option 3: 1 voter with bet 9999
-        // Option 4: 3 voters with bets 10 each
-        // Winner should be option 4 (more voters)
-        var result = await rule.CalculateAsync(2, CancellationToken.None);
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 2, ChosenOptionId = 3, BetAmount = 9999m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 5, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 6, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) },
+            new VoteDto { AccountId = 4, DuelId = 2, ChosenOptionId = 4, BetAmount = 10m, CreatedAt = now.AddHours(-1) }
+        ]);
+
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(4, result);
@@ -179,12 +204,20 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_TieByVoteCount_ReturnsAllWinningOptions()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
+        var now = DateTimeOffset.UtcNow;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = 5, BetAmount = 100m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = 5, BetAmount = 200m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = 6, BetAmount = 500m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 5, DuelId = 3, ChosenOptionId = 6, BetAmount = 50m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(3, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -201,48 +234,30 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_NoVotes_ReturnsEmptyList()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
-        // Create a duel with no votes
-        using var scope = _fixture.ServiceProvider.CreateScope();
-        var duelRepository = scope.ServiceProvider.GetRequiredService<IDuelRepository>();
-
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
+        var votes = new ReadOnlyCollection<VoteDto>([]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
     }
 
     /// <summary>
-    /// Verifies that CalculateAsync returns empty list for non-existent duel.
+    /// Verifies that CalculateAsync returns null when the votes collection is null.
     /// </summary>
     [Fact]
-    public async Task CalculateAsync_NonExistentDuel_ReturnsEmptyList()
+    public async Task CalculateAsync_NullVotes_ReturnsNull()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
         // Act
-        var result = await rule.CalculateAsync(999, CancellationToken.None);
+        var result = await rule.CalculateAsync(null!, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -259,42 +274,21 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_SingleVote_ReturnsThatOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
 
-        // Create a duel with a single vote
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
+        var chosenOptionId = 5;
 
-        var vote = new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            ChosenOptionId = 1,
-            BetAmount = 500m
-        };
-
-        await voteRepository.CreateVoteAsync(vote, CancellationToken.None);
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = chosenOptionId, BetAmount = 100m, CreatedAt = DateTimeOffset.UtcNow.AddHours(-3) },
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
-        Assert.Equal(1, result);
+        Assert.Equal(chosenOptionId, result);
     }
 
     #endregion
@@ -308,130 +302,25 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_MultipleVotesSameOption_CorrectlyCountsVotes()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
 
-        // Create a duel with multiple votes on the same option
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
+        var now = DateTimeOffset.UtcNow;
+        var winChosenOptionId = 5;
 
-        // 3 votes on option 1, 1 vote on option 2
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            ChosenOptionId = 1,
-            BetAmount = 100m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 3,
-            ChosenOptionId = 1,
-            BetAmount = 200m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 4,
-            ChosenOptionId = 1,
-            BetAmount = 300m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 5,
-            ChosenOptionId = 2,
-            BetAmount = 150m
-        }, CancellationToken.None);
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 100m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 200m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 500m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 5, DuelId = 3, ChosenOptionId = 6, BetAmount = 50m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
-        Assert.Equal(1, result);
-    }
-
-    #endregion
-
-    #region CalculateAsync - Zero Bet Amount
-
-    /// <summary>
-    /// Verifies that CalculateAsync correctly handles votes with zero bet amount.
-    /// Each vote still counts as one voter regardless of bet amount.
-    /// </summary>
-    [Fact]
-    public async Task CalculateAsync_ZeroBetAmount_VoteStillCounts()
-    {
-        // Arrange
-        await _fixture.ResetAsync();
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
-
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
-
-        // Option 1: 2 votes (one with 0 bet, one with 100)
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            ChosenOptionId = 1,
-            BetAmount = 0m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 3,
-            ChosenOptionId = 1,
-            BetAmount = 100m
-        }, CancellationToken.None);
-
-        // Option 2: 1 vote
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 4,
-            ChosenOptionId = 2,
-            BetAmount = 1000m
-        }, CancellationToken.None);
-
-        // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
-
-        // Assert - option 1 wins with 2 votes vs 1 vote
-        Assert.Equal(1, result);
+        Assert.Equal(5, result);
     }
 
     #endregion
@@ -445,52 +334,25 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_LargeVoteCount_CorrectlyHandles()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
 
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
+        var now = DateTimeOffset.UtcNow;
+        var winChosenOptionId = 5;
 
-        // Option 1: 1 vote with huge bet
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            ChosenOptionId = 1,
-            BetAmount = 999999.99m
-        }, CancellationToken.None);
-
-        // Option 2: 5 votes with small bets
-        for (int i = 0; i < 5; i++)
-        {
-            await voteRepository.CreateVoteAsync(new VoteCreateDto
-            {
-                DuelId = duelId,
-                AccountId = 3 + i,
-                ChosenOptionId = 2,
-                BetAmount = 1m
-            }, CancellationToken.None);
-        }
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 1m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 2m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 3m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 5, DuelId = 3, ChosenOptionId = 6, BetAmount = 100500m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert - option 2 wins with 5 votes vs 1 vote
-        Assert.Equal(2, result);
+        Assert.Equal(winChosenOptionId, result);
     }
 
     #endregion
@@ -504,43 +366,25 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_AllVotesSameOption_ReturnsThatOption()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
 
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "Yes", OptionCode = "yes" },
-                new() { OptionText = "No", OptionCode = "no" }
-            }
-        }, CancellationToken.None);
+        var now = DateTimeOffset.UtcNow;
+        var winChosenOptionId = 5;
 
-        // All 5 voters choose option 1
-        for (int i = 0; i < 5; i++)
-        {
-            await voteRepository.CreateVoteAsync(new VoteCreateDto
-            {
-                DuelId = duelId,
-                AccountId = 2 + i,
-                ChosenOptionId = 1,
-                BetAmount = (i + 1) * 10m
-            }, CancellationToken.None);
-        }
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 1m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 2m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 3m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 5, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 5m, CreatedAt = now.AddHours(-3) }
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
-        Assert.Equal(1, result);
+        Assert.Equal(winChosenOptionId, result);
     }
 
     #endregion
@@ -554,54 +398,20 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_ThreeOptionTie_ReturnsAllTiedOptions()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
-        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
 
-        var duelId = await duelRepository.CreateDuelAsync(new DuelCreateDto
-        {
-            CategoryId = 1,
-            DuelType = DuelType.OpinionMatch,
-            Question = "Test duel",
-            Description = "Test description",
-            ExpiresAt = DateTimeOffset.UtcNow.AddHours(24),
-            Options = new List<DuelOptionCreateDto>
-            {
-                new() { OptionText = "A", OptionCode = "a" },
-                new() { OptionText = "B", OptionCode = "b" },
-                new() { OptionText = "C", OptionCode = "c" }
-            }
-        }, CancellationToken.None);
+        var now = DateTimeOffset.UtcNow;
 
-        // 1 vote each on 3 options -> tie
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 2,
-            ChosenOptionId = 1,
-            BetAmount = 100m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 3,
-            ChosenOptionId = 2,
-            BetAmount = 200m
-        }, CancellationToken.None);
-
-        await voteRepository.CreateVoteAsync(new VoteCreateDto
-        {
-            DuelId = duelId,
-            AccountId = 4,
-            ChosenOptionId = 3,
-            BetAmount = 300m
-        }, CancellationToken.None);
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = 1, BetAmount = 1m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = 2, BetAmount = 2m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = 3, BetAmount = 3m, CreatedAt = now.AddHours(-3) }, 
+        ]);
 
         // Act
-        var result = await rule.CalculateAsync(duelId, CancellationToken.None);
+        var result = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Null(result);
@@ -618,14 +428,24 @@ public class OpinionMatchRuleTests : IClassFixture<OpinionMatchRuleFixture>, IDi
     public async Task CalculateAsync_ResultOrdering_Consistent()
     {
         // Arrange
-        await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
         var rule = _currentScope.ServiceProvider.GetRequiredService<OpinionMatchRule>();
 
+        var now = DateTimeOffset.UtcNow;
+        var winChosenOptionId = 5;
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 1m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 3, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 2m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 4, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 3m, CreatedAt = now.AddHours(-3) }, 
+            new VoteDto { AccountId = 5, DuelId = 3, ChosenOptionId = winChosenOptionId, BetAmount = 5m, CreatedAt = now.AddHours(-3) }
+        ]);
+
         // Act - run multiple times
-        var result1 = await rule.CalculateAsync(1, CancellationToken.None);
-        var result2 = await rule.CalculateAsync(1, CancellationToken.None);
-        var result3 = await rule.CalculateAsync(1, CancellationToken.None);
+        var result1 = await rule.CalculateAsync(votes, CancellationToken.None);
+        var result2 = await rule.CalculateAsync(votes, CancellationToken.None);
+        var result3 = await rule.CalculateAsync(votes, CancellationToken.None);
 
         // Assert
         Assert.Equal(result1, result2);

@@ -31,6 +31,11 @@ public record UserStatsCreateDto
     public int TotalLosses { get; init; }
 
     /// <summary>
+    /// Total draws
+    /// </summary>
+    public int TotalDraws { get; init; }
+
+    /// <summary>
     /// Invited by user id
     /// </summary>
     public long? InvitedByUserId { get; set; }

@@ -1,20 +1,17 @@
+using System.Collections.ObjectModel;
 using Mint.Common.Contracts.UserInteractive.Duels;
-using Mint.Database.Entities.UserInteractive.Votes.Repositories;
+using Mint.Database.Entities.UserInteractive.Votes.Dto;
 
 namespace Mint.App.Services.System.WinCalculation.WinCalculationRules;
 
 /// <summary>
 /// Opinion match rule.
 /// </summary>
-public class OpinionMatchRule(IVoteRepository voteRepository) : IWinCalculationRule
+public class OpinionMatchRule: IWinCalculationRule
 {
-    private readonly IVoteRepository _voteRepository = voteRepository ?? throw new ArgumentNullException(nameof(voteRepository));
-
     /// <inheritdoc />
-    public async Task<long?> CalculateAsync(long duelId, CancellationToken cancellationToken)
+    public async Task<long?> CalculateAsync(ReadOnlyCollection<VoteDto> votes, CancellationToken cancellationToken)
     {
-        var votes = await _voteRepository.GetVotesByDuelIdAsync(duelId, cancellationToken);
-
         if (votes is null || votes.Count == 0)
         {
             return null;
@@ -30,7 +27,9 @@ public class OpinionMatchRule(IVoteRepository voteRepository) : IWinCalculationR
             .Select(g => g.Key)
             .ToList();
 
-        return winningOptionIds.Count == 1 ? winningOptionIds.First() : null;
+        var result = winningOptionIds.Count == 1 ? winningOptionIds.First() : (long?)null;
+
+        return await Task.FromResult(result);
     }
 
     /// <inheritdoc />

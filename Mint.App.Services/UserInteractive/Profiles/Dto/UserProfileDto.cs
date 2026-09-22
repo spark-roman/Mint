@@ -33,6 +33,11 @@ public record UserProfileDto
     public long TotalLosses { get; init; }
 
     /// <summary>
+    /// Total draws of the user.
+    /// </summary>
+    public int TotalDraws { get; init; }
+
+    /// <summary>
     /// Accuracy of the user.
     /// </summary>
     public double Accuracy => (double)TotalWins / (TotalWins + TotalLosses);

@@ -14,7 +14,7 @@ public sealed record DuelResultDto
     public required int DuelType { get; init; }
 
     /// <summary>Winning option identifier.</summary>
-    public required long WinningOptionId { get; init; }
+    public required long? WinningOptionId { get; init; }
 
     /// <summary>Total pot of the duel.</summary>
     public required decimal TotalPot { get; init; }

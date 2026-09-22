@@ -66,10 +66,11 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal("🧠", result.RankEmoji);
         
         // Assert - Stats fields
-        Assert.Equal(15, result.TotalDuels);
+        Assert.Equal(18, result.TotalDuels); // 10 wins + 5 losses + 3 draws
         Assert.Equal(10, result.TotalWins);
         Assert.Equal(5, result.TotalLosses);
-        Assert.Equal(66.7, result.Winrate); // 10 / (10 + 5) * 100 = 66.7
+        Assert.Equal(3, result.TotalDraws);
+        Assert.Equal(55.6, result.Winrate); // 10 / (10 + 5 + 3) * 100 = 55.6
         
         // Assert - Referral fields
         Assert.Equal(2, result.ReferralCount);
@@ -106,8 +107,52 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
 
         // Assert
         Assert.NotNull(result);
-        // 10 wins / (10 + 5) = 66.7%
-        Assert.Equal(66.7, result.Winrate);
+        // 10 wins / (10 + 5 + 3) = 55.6%
+        Assert.Equal(55.6, result.Winrate);
+    }
+
+    /// <summary>
+    /// Verifies that GetProfileAsync includes draws in TotalDuels.
+    /// User 1001: 10 wins + 5 losses + 3 draws = 18 total duels.
+    /// </summary>
+    [Fact]
+    public async Task GetProfileAsync_TotalDuels_IncludesDraws()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+
+        // Act
+        var result = await handler.GetProfileAsync(1001, AuthSystem.Tg, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(10, result.TotalWins);
+        Assert.Equal(5, result.TotalLosses);
+        Assert.Equal(3, result.TotalDraws);
+        Assert.Equal(18, result.TotalDuels); // wins + losses + draws
+    }
+
+    /// <summary>
+    /// Verifies that GetProfileAsync returns zero TotalDuels when the user has no stats.
+    /// </summary>
+    [Fact]
+    public async Task GetProfileAsync_NoStats_TotalDuelsIsZero()
+    {
+        // Arrange
+        _currentScope = _fixture.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IUserProfilesHandler>();
+
+        // Act - user 1004 (Dave) has stats with 0 wins, 1 loss, 0 draws
+        var result = await handler.GetProfileAsync(1004, AuthSystem.Tg, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        Assert.Equal(0, result.TotalWins);
+        Assert.Equal(1, result.TotalLosses);
+        Assert.Equal(0, result.TotalDraws);
+        Assert.Equal(1, result.TotalDuels);
+        Assert.Equal(0, result.Winrate);
     }
 
     /// <summary>

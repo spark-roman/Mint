@@ -53,7 +53,7 @@ public class VoteRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<List<VoteDto>?> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
+    public async Task<List<VoteDto>> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 

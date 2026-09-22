@@ -856,9 +856,9 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
         }
 
         /// <inheritdoc />
-        public Task<List<VoteDto>?> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
+        public Task<List<VoteDto>> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
         {
-            return Task.FromResult<List<VoteDto>?>([]);
+            return Task.FromResult<List<VoteDto>>([]);
         }
 
         /// <inheritdoc />

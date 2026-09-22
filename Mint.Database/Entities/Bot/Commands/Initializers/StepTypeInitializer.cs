@@ -62,6 +62,7 @@ public sealed class BotInitializer
                 ├ Всего: {{total_duels}}
                 ├ Успешно: {{wins}}
                 ├ Неудачно: {{losses}}
+                ├ Ничья: {{draws}}
                 └ Точность: {{winrate}}%
 
                 👥 **Рефералы**
