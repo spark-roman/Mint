@@ -41,6 +41,11 @@ public enum BonusType
     Bet,
 
     /// <summary>
+    /// Refund.
+    /// </summary>
+    Refund,
+
+    /// <summary>
     /// Admin bonus.
     /// </summary>
     Admin

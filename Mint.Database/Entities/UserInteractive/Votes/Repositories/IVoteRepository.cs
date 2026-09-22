@@ -30,7 +30,7 @@ public interface IVoteRepository
     /// <param name="duelId">Duel ID</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of votes</returns>
-    Task<List<VoteDto>?> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken);
+    Task<List<VoteDto>> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken);
 
     /// <summary>
     /// Gets a vote by duel ID and account id.

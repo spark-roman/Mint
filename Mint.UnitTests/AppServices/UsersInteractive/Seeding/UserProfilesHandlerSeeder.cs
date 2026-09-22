@@ -122,6 +122,7 @@ public static class UserProfilesHandlerSeeder
                 RankPoints = 150,
                 TotalWins = 10,
                 TotalLosses = 5,
+                TotalDraws = 3,
                 ReferralCount = 2,
                 UpdatedAt = DateTimeOffset.UtcNow
             },

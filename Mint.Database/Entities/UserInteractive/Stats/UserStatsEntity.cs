@@ -49,6 +49,12 @@ public class UserStatsEntity
     public int TotalLosses { get; set; } = 0;
 
     /// <summary>
+    /// Total number of draws
+    /// </summary>
+    [Column("total_draws")]
+    public int TotalDraws { get; set; }
+
+    /// <summary>
     /// Last update timestamp
     /// Number of successfully referred friends who completed the conditions
     /// </summary>
