@@ -11,6 +11,11 @@ public record DuelOptionDto
     public long Id { get; init; }
 
     /// <summary>
+    /// Duel ID the option belongs to
+    /// </summary>
+    public long DuelId { get; init; }
+
+    /// <summary>
     /// Text displayed on the button
     /// </summary>
     public required string OptionText { get; init; }

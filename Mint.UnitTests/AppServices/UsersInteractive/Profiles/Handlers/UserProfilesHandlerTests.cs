@@ -909,11 +909,13 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         {
             await statsRepository.UpdateStatsAsync(
                 1003,
+                (byte)AuthSystem.Tg,
                 new UserStatsUpdateDto
                 {
                     RankPoints = newStatsInitial.RankPoints,
                     TotalWins = newStatsInitial.TotalWins,
                     TotalLosses = newStatsInitial.TotalLosses,
+                    TotalDraws = newStatsInitial.TotalDraws,
                     ReferralCount = newStatsInitial.ReferralCount,
                     InvitedByUserId = null
                 },

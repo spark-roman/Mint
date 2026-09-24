@@ -226,5 +226,37 @@ public static class DuelHandlerSeeder
             });
 
         context.SaveChanges();
+
+        context.Duels.AddRange(
+            new DuelEntity
+            {
+                Id = 4,
+                CategoryId = 4,
+                DuelType = DuelType.OpinionMatch,
+                Question = "Planned duel?",
+                Description = "Duel not published yet",
+                ExpiresAt = now.AddHours(48),
+                Status = DuelStatus.Planned
+            });
+
+        context.SaveChanges();
+
+        context.DuelOptions.AddRange(
+            new DuelOptionEntity
+            {
+                Id = 7,
+                DuelId = 4,
+                OptionText = "Да",
+                OptionCode = "yes"
+            },
+            new DuelOptionEntity
+            {
+                Id = 8,
+                DuelId = 4,
+                OptionText = "Нет",
+                OptionCode = "no"
+            });
+
+        context.SaveChanges();
     }
 }

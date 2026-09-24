@@ -16,12 +16,12 @@ public interface IVoteRepository
     Task<long> CreateVoteAsync(VoteCreateDto dto, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Get vote by duel ID and account ID
+    /// Gets a vote by duel ID and account id.
     /// </summary>
-    /// <param name="duelId">Duel ID</param>
-    /// <param name="accountId">Account ID</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Vote DTO or null if not found</returns>
+    /// <param name="duelId">Duel id.</param>
+    /// <param name="accountId">Account id.</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
+    /// <returns>Vote DTO or null if not found.</returns>
     Task<VoteDto?> GetVoteAsync(long duelId, long accountId, CancellationToken cancellationToken);
 
     /// <summary>
@@ -33,20 +33,11 @@ public interface IVoteRepository
     Task<List<VoteDto>> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken);
 
     /// <summary>
-    /// Gets a vote by duel ID and account id.
+    /// Check if an account has already voted in a duel
     /// </summary>
     /// <param name="duelId">Duel id.</param>
     /// <param name="accountId">Account id.</param>
-    /// <param name="cancellationToken">Cancellation token</param>
-    /// <returns>Vote entity</returns>
-    Task<VoteEntity?> GetVoteByDuelAndAccountAsync(long duelId, long accountId, CancellationToken cancellationToken);
-
-    /// <summary>
-    /// Check if an account has already voted in a duel
-    /// </summary>
-    /// <param name="duelId">Duel id</param>
-    /// <param name="accountId">Account id</param>
-    /// <param name="cancellationToken">Cancellation token</param>
+    /// <param name="cancellationToken">Cancellation token.</param>
     /// <returns>true if vote exists, otherwise false</returns>
     Task<bool> HasAccountVotedAsync(long duelId, long accountId, CancellationToken cancellationToken);
 

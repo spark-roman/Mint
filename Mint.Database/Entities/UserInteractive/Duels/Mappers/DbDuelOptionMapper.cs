@@ -16,6 +16,7 @@ public class DbDuelOptionMapper : IDbEntityMapper<DuelOptionEntity, DuelOptionDt
         return new DuelOptionDto
         {
             Id = entity.Id,
+            DuelId = entity.DuelId,
             OptionText = entity.OptionText,
             OptionCode = entity.OptionCode
         };
