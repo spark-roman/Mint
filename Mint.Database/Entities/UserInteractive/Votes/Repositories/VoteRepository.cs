@@ -30,9 +30,17 @@ public class VoteRepository(
         var entity = _voteCreateMapper.Map(dto);
 
         await context.Votes.AddAsync(entity, cancellationToken);
-        await context.SaveChangesAsync(cancellationToken);
 
-        return entity.DuelId;
+        try
+        {
+            await context.SaveChangesAsync(cancellationToken);
+        }
+        catch (DbUpdateException ex)
+        {
+            throw new InvalidOperationException($"Vote already exists for account {dto.AccountId} in duel {dto.DuelId}", ex);
+        }
+
+        return entity.Id;
     }
 
     /// <inheritdoc/>
@@ -44,12 +52,6 @@ public class VoteRepository(
             .FirstOrDefaultAsync(v => v.DuelId == duelId && v.AccountId == accountId, cancellationToken);
 
         return vote is null ? null : _voteMapper.Map(vote);
-    }
-
-    /// <inheritdoc/>
-    public Task<VoteEntity?> GetVoteByDuelAndAccountAsync(long duelId, long accountId, CancellationToken cancellationToken)
-    {
-        throw new NotImplementedException();
     }
 
     /// <inheritdoc/>

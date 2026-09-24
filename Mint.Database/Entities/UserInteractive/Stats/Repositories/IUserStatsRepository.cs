@@ -36,10 +36,11 @@ public interface IUserStatsRepository
     /// Update user stats
     /// </summary>
     /// <param name="externalUserId">External user id</param>
+    /// <param name="systemType">System type</param>
     /// <param name="dto">DTO with update data</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>True if stats were updated</returns>
-    Task<bool> UpdateStatsAsync(long externalUserId, UserStatsUpdateDto dto, CancellationToken cancellationToken);
+    Task<bool> UpdateStatsAsync(long externalUserId, byte systemType, UserStatsUpdateDto dto, CancellationToken cancellationToken);
 
     /// <summary>
     /// Update user stats by account ID

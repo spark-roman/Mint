@@ -1,4 +1,5 @@
 using System.Collections.ObjectModel;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Duels;
@@ -64,8 +65,23 @@ public sealed class DuelSettlementHandler(
 
         foreach (var duel in expiredDuels)
         {
-            await SettleDuelByVotesAsync(duel, cancellationToken);
-            settledCount++;
+            try
+            {
+                await SettleDuelByVotesAsync(duel, cancellationToken);
+                settledCount++;
+            }
+            catch (OperationCanceledException)
+            {
+                throw;
+            }
+            catch (InvalidOperationException ex)
+            {
+                _logger.LogError(ex, "Failed to settle duel {DuelId}", duel.Id);
+            }
+            catch (DbUpdateException ex)
+            {
+                _logger.LogError(ex, "Failed to settle duel {DuelId}", duel.Id);
+            }
         }
 
         return settledCount;
@@ -91,12 +107,20 @@ public sealed class DuelSettlementHandler(
 
     private async Task SettleDuelByVotesAsync(DuelDto duel, CancellationToken cancellationToken)
     {
+        var currentDuel = await _duelRepository.GetDuelByIdAsync(duel.Id, cancellationToken);
+
+        if (currentDuel is null || currentDuel.Status == DuelStatus.Closed)
+        {
+            _logger.LogWarning("Duel {DuelId} is already closed or missing, skipping settlement", duel.Id);
+            return;
+        }
+
         var votes = await _voteRepository.GetVotesByDuelIdAsync(duel.Id, cancellationToken);
 
         var winningOptionId = await _duelCalculator.CalculateWinningOptionIdAsync(duel.DuelType, votes.AsReadOnly(), cancellationToken);
-        
+
         await ProcessSettlementAsync(duel, winningOptionId, votes.AsReadOnly(), cancellationToken);
-        
+
         _logger.LogInformation(
             "Duel {DuelId} settled with winning option {WinningOptionId} by majority vote",
             duel.Id,

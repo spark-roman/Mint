@@ -341,7 +341,7 @@ public class UserProfilesHandler(
             InvitedByUserId = referrer.Id
         };
 
-        await _statsRepository.UpdateStatsAsync(newUser.ExternalUserId, updateDto, cancellationToken);
+        await _statsRepository.UpdateStatsAsync(newUser.ExternalUserId, (byte)systemType, updateDto, cancellationToken);
 
         var referrerStats = await _statsRepository.GetStatsByUserIdAsync(referrer.ExternalUserId, (byte)systemType, cancellationToken);
         if (referrerStats != null)
@@ -356,7 +356,7 @@ public class UserProfilesHandler(
                 InvitedByUserId = referrerStats.InvitedByUserId
             };
             
-            await _statsRepository.UpdateStatsAsync(referrer.ExternalUserId, referrerUpdate, cancellationToken);
+            await _statsRepository.UpdateStatsAsync(referrer.ExternalUserId, (byte)systemType, referrerUpdate, cancellationToken);
         }
     }
 }

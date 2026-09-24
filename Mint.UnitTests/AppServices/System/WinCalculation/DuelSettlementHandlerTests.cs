@@ -1191,6 +1191,68 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
     }
 
     /// <summary>
+    /// Verifies that a single failing duel does not abort the whole batch:
+    /// the failing duel is skipped with an error while the remaining duels are still settled.
+    /// </summary>
+    [Fact]
+    public async Task SettleExpiredDuelsAsync_FailingDuel_DoesNotAbortBatch()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
+
+        // Create an expired duel whose only voter (account 100) has no stats:
+        // settlement of this duel throws InvalidOperationException.
+        var failingDuelId = await duelRepository.CreateDuelAsync(
+            new DuelCreateDto
+            {
+                CategoryId = 1,
+                DuelType = DuelType.OpinionMatch,
+                Question = "Failing duel",
+                Description = "Voter without stats",
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1),
+                Options = new List<DuelOptionCreateDto>
+                {
+                    new() { OptionText = "Yes", OptionCode = "yes" },
+                    new() { OptionText = "No", OptionCode = "no" }
+                }
+            },
+            CancellationToken.None);
+
+        var failingDuel = await duelRepository.GetDuelByIdAsync(failingDuelId, CancellationToken.None);
+        var failingOptionId = failingDuel!.Options.First().Id;
+
+        await voteRepository.CreateVoteAsync(new VoteCreateDto
+        {
+            DuelId = failingDuelId,
+            AccountId = 100,
+            ChosenOptionId = failingOptionId,
+            BetAmount = 100m,
+            TransactionId = 999
+        }, CancellationToken.None);
+
+        // Act
+        var settledCount = await handler.SettleExpiredDuelsAsync(CancellationToken.None);
+
+        // Assert - only the healthy expired duels (1 and 2) were settled, the batch did not throw
+        Assert.Equal(2, settledCount);
+
+        var duel1 = await duelRepository.GetDuelByIdAsync(1, CancellationToken.None);
+        var duel2 = await duelRepository.GetDuelByIdAsync(2, CancellationToken.None);
+        var failingDuelAfter = await duelRepository.GetDuelByIdAsync(failingDuelId, CancellationToken.None);
+
+        Assert.NotNull(duel1);
+        Assert.NotNull(duel2);
+        Assert.NotNull(failingDuelAfter);
+        Assert.Equal(DuelStatus.Closed, duel1.Status);
+        Assert.Equal(DuelStatus.Closed, duel2.Status);
+        Assert.Equal(DuelStatus.Active, failingDuelAfter.Status); // failed duel is left open for retry
+    }
+
+    /// <summary>
     /// Verifies that SettleExpiredDuelsAsync does not settle already closed duels.
     /// Duel 3 is already closed, should not be counted in settled.
     /// </summary>

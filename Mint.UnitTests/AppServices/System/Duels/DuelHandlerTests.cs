@@ -1,6 +1,7 @@
 using AdvApplication.Auth.Users;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.UserInteractive.Duels.Handlers;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.Users;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions.Repositories;
@@ -145,16 +146,16 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
 
     #endregion
 
-    #region PlaceBetAsync - Transaction Rollback on Vote Failure (Atomicity)
+    #region PlaceBetAsync - Vote Creation Failure (Rollback via TransactionScope)
 
     /// <summary>
-    /// Verifies that when transaction is created but vote creation fails,
-    /// the transaction is rolled back (both are absent from the database).
-    /// This tests the TransactionScope behavior: if scope.Complete() is not called,
-    /// all changes within the scope are discarded.
+    /// Verifies that when vote creation fails (e.g. a concurrent bet won the race),
+    /// the bet is reported as failed. On a relational database the TransactionScope
+    /// rolls back the bet transaction; the in-memory provider does not enlist,
+    /// so database-level rollback is not observable here.
     /// </summary>
-    [Fact(Skip = "Ef inmemory does not support transactions")]
-    public async Task PlaceBetAsync_VoteCreationFails_TransactionRolledBack()
+    [Fact]
+    public async Task PlaceBetAsync_VoteCreationFails_ReturnsFailure()
     {
         // Arrange
         await _fixture.ResetAsync();
@@ -167,6 +168,7 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
         var timeProvider = _currentScope.ServiceProvider.GetRequiredService<TimeProvider>();
 
         // Replace the vote repository with one that throws on CreateVoteAsync
+        // (simulating a unique index violation from a concurrent bet)
         var failingVoteRepository = new FailingVoteRepository();
         var handler = new DuelHandler(
             duelRepository,
@@ -176,26 +178,18 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
             failingVoteRepository,
             timeProvider);
 
-        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
-        Assert.NotNull(account);
+        // Act
+        var result = await handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None);
 
-        // Act - PlaceBetAsync should throw due to failing vote repository
-        var exception = await Assert.ThrowsAsync<InvalidOperationException>(
-            () => handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None));
-
-        // Assert - exception thrown
-        Assert.NotNull(exception);
-
-        // Verify that the transaction was also rolled back (not persisted)
-        // The TransactionScope should have discarded the transaction when Complete() was not called
-        var transactions = await transactionRepository.GetTransactionsByAccountIdAsync(account!.Id, CancellationToken.None);
-        Assert.Empty(transactions ?? []);
+        // Assert - the bet is reported as failed
+        Assert.False(result.Success);
+        Assert.Contains("уже сделали ставку", result.Message);
     }
 
     /// <summary>
     /// Verifies that when vote creation fails, no vote record is created in the database.
     /// </summary>
-    [Fact(Skip = "Ef inmemory does not support transactions")]
+    [Fact]
     public async Task PlaceBetAsync_VoteCreationFails_NoVoteCreated()
     {
         // Arrange
@@ -219,64 +213,106 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
             timeProvider);
 
         // Act
-        try
-        {
-            await handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected to throw
-        }
+        var result = await handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None);
 
         // Assert - no vote should exist
+        Assert.False(result.Success);
         var votes = await voteRepository.GetVotesByDuelIdAsync(1, CancellationToken.None);
-        Assert.Empty(votes ?? []);
+        Assert.Empty(votes);
     }
 
+    #endregion
+
+    #region PlaceBetAsync - Vote Id
+
     /// <summary>
-    /// Verifies that when vote creation fails, the user's balance is not decreased
-    /// (transaction is fully rolled back).
+    /// Verifies that PlaceBetAsync returns the actual vote id of the created vote record.
     /// </summary>
-    [Fact(Skip = "Ef inmemory does not support transactions")]
-    public async Task PlaceBetAsync_VoteCreationFails_BalanceUnchanged()
+    [Fact]
+    public async Task PlaceBetAsync_ValidBet_ReturnsActualVoteId()
     {
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-
-        var duelRepository = _currentScope.ServiceProvider.GetRequiredService<IDuelRepository>();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IDuelHandler>();
+        var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
-        var userRepository = _currentScope.ServiceProvider.GetRequiredService<IUserRepository>();
-        var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<ITransactionRepository>();
-        var timeProvider = _currentScope.ServiceProvider.GetRequiredService<TimeProvider>();
 
-        var initialAccount = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
-        Assert.NotNull(initialAccount);
-        var initialBalance = initialAccount!.Balance;
-
-        var failingVoteRepository = new FailingVoteRepository();
-        var handler = new DuelHandler(
-            duelRepository,
-            accountRepository,
-            userRepository,
-            transactionRepository,
-            failingVoteRepository,
-            timeProvider);
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
 
         // Act
-        try
-        {
-            await handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None);
-        }
-        catch (InvalidOperationException)
-        {
-            // Expected to throw
-        }
+        var result = await handler.PlaceBetAsync(1001, 1, 1, 100m, CancellationToken.None);
 
-        // Assert - balance should be unchanged
-        var newAccount = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
-        Assert.NotNull(newAccount);
-        Assert.Equal(initialBalance, newAccount.Balance);
+        // Assert - the returned VoteId matches the id of the persisted vote
+        Assert.True(result.Success);
+        var vote = await voteRepository.GetVoteAsync(1, account.Id, CancellationToken.None);
+        Assert.NotNull(vote);
+        Assert.Equal(vote.VoteId, result.VoteId);
+    }
+
+    #endregion
+
+    #region PlaceBetAsync - Option Ownership
+
+    /// <summary>
+    /// Verifies that PlaceBetAsync rejects an option that belongs to another duel.
+    /// </summary>
+    [Fact]
+    public async Task PlaceBetAsync_OptionFromAnotherDuel_ReturnsFailure()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IDuelHandler>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
+        var initialBalance = account.Balance;
+
+        // Act - bet on duel 1 but with option 3 which belongs to duel 2
+        var result = await handler.PlaceBetAsync(1001, 1, 3, 100m, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Contains("Вариант ответа не найден", result.Message);
+
+        // Assert - no money was debited
+        var newBalance = await accountRepository.GetUserBalanceAsync(1001, CancellationToken.None);
+        Assert.Equal(initialBalance, newBalance);
+    }
+
+    #endregion
+
+    #region PlaceBetAsync - Planned Duel
+
+    /// <summary>
+    /// Verifies that PlaceBetAsync rejects a duel that is not active yet (Planned status).
+    /// </summary>
+    [Fact]
+    public async Task PlaceBetAsync_PlannedDuel_ReturnsFailure()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _currentScope.ServiceProvider.GetRequiredService<IDuelHandler>();
+        var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
+
+        var account = await accountRepository.GetAccountByExternalUserIdAsync(1001, (byte)AuthSystem.Tg, CancellationToken.None);
+        Assert.NotNull(account);
+        var initialBalance = account.Balance;
+
+        // Act - duel 4 is seeded with Planned status
+        var result = await handler.PlaceBetAsync(1001, 4, 7, 100m, CancellationToken.None);
+
+        // Assert
+        Assert.False(result.Success);
+        Assert.Contains("Дуэль ещё не началась", result.Message);
+
+        // Assert - no money was debited
+        var newBalance = await accountRepository.GetUserBalanceAsync(1001, CancellationToken.None);
+        Assert.Equal(initialBalance, newBalance);
     }
 
     #endregion
@@ -859,12 +895,6 @@ public class DuelHandlerTests : IClassFixture<DuelHandlerFixture>, IDisposable
         public Task<List<VoteDto>> GetVotesByDuelIdAsync(long duelId, CancellationToken cancellationToken)
         {
             return Task.FromResult<List<VoteDto>>([]);
-        }
-
-        /// <inheritdoc />
-        public Task<VoteEntity?> GetVoteByDuelAndAccountAsync(long duelId, long accountId, CancellationToken cancellationToken)
-        {
-            return Task.FromResult<VoteEntity?>(null);
         }
 
         /// <inheritdoc />

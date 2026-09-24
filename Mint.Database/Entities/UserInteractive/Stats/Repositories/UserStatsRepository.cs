@@ -11,13 +11,15 @@ namespace Mint.Database.Entities.UserInteractive.Stats.Repositories;
 /// <param name="statsCreateMapper">Mapper for creating stats</param>
 /// <param name="statsUpdateMapper">Mapper for updating stats</param>
 /// <param name="statsMapper">Mapper for stats entity</param>
-/// <param name="dbUserStatsMapper"></param>
+/// <param name="dbUserStatsMapper">Mapper for leaderboard stats</param>
+/// <param name="timeProvider">Time provider</param>
 /// <param name="dbContextFactory">Database context factory</param>
 public class UserStatsRepository(
     IDbEntityMapper<UserStatsCreateDto, UserStatsEntity> statsCreateMapper,
     IDbEntityMapper<UserStatsUpdateDto, UserStatsEntity> statsUpdateMapper,
     IDbEntityMapper<UserStatsEntity, UserStatsDto> statsMapper,
     IDbUserStatsMapper dbUserStatsMapper,
+    TimeProvider timeProvider,
     IDbContextFactory<MintDbContext> dbContextFactory) : IUserStatsRepository
 {
     private readonly IDbEntityMapper<UserStatsCreateDto, UserStatsEntity> _statsCreateMapper = statsCreateMapper ?? throw new ArgumentNullException(nameof(statsCreateMapper));
@@ -27,6 +29,8 @@ public class UserStatsRepository(
     private readonly IDbEntityMapper<UserStatsEntity, UserStatsDto> _statsMapper = statsMapper ?? throw new ArgumentNullException(nameof(statsMapper));
 
     private readonly IDbUserStatsMapper _dbUserStatsMapper = dbUserStatsMapper ?? throw new ArgumentNullException(nameof(dbUserStatsMapper));
+
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
     private readonly IDbContextFactory<MintDbContext> _dbContextFactory = dbContextFactory ?? throw new ArgumentNullException(nameof(dbContextFactory));
 
@@ -103,14 +107,14 @@ public class UserStatsRepository(
     }
 
     /// <inheritdoc/>
-    public async Task<bool> UpdateStatsAsync(long externalUserId, UserStatsUpdateDto dto, CancellationToken cancellationToken)
+    public async Task<bool> UpdateStatsAsync(long externalUserId, byte systemType, UserStatsUpdateDto dto, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(dto);
 
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var stats = context.Users
-            .Where(u => u.ExternalUserId == externalUserId)
+            .Where(u => u.ExternalUserId == externalUserId && u.SystemType == systemType)
             .Include(u => u.Stats)
             .Select(u => u.Stats)
             .FirstOrDefault();
@@ -119,15 +123,8 @@ public class UserStatsRepository(
         {
             return false;
         }
-            
-        var updatedEntity = _statsUpdateMapper.Map(dto);
-        stats.RankPoints = updatedEntity.RankPoints;
-        stats.TotalWins = updatedEntity.TotalWins;
-        stats.TotalLosses = updatedEntity.TotalLosses;
-        stats.TotalDraws = updatedEntity.TotalDraws;
-        stats.ReferralCount = updatedEntity.ReferralCount;
-        stats.InvitedByUserId = updatedEntity.InvitedByUserId;
-        stats.UpdatedAt = updatedEntity.UpdatedAt;
+
+        ApplyUpdate(stats, dto);
 
         await context.SaveChangesAsync(cancellationToken);
         return true;
@@ -140,18 +137,48 @@ public class UserStatsRepository(
 
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var stats = context.Accounts
-            .Where(a => a.Id == accountId)
-            .Include(a => a.User)
-            .ThenInclude(u => u.Stats)
-            .Select(a => a.User.Stats)
-            .FirstOrDefault();
-
-        if (stats is null)
+        if (context.Database.IsInMemory())
         {
-            return false;
+            var inMemoryStats = context.Accounts
+                .Where(a => a.Id == accountId)
+                .Include(a => a.User)
+                .ThenInclude(u => u.Stats)
+                .Select(a => a.User.Stats)
+                .FirstOrDefault();
+
+            if (inMemoryStats is null)
+            {
+                return false;
+            }
+
+            ApplyUpdate(inMemoryStats, dto);
+
+            await context.SaveChangesAsync(cancellationToken);
+            return true;
         }
 
+        var updated = await context.UserStats
+            .Where(s => context.Accounts.Any(a => a.Id == accountId && a.UserId == s.UserId))
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(s => s.RankPoints, dto.RankPoints)
+                .SetProperty(s => s.TotalWins, dto.TotalWins)
+                .SetProperty(s => s.TotalLosses, dto.TotalLosses)
+                .SetProperty(s => s.TotalDraws, dto.TotalDraws)
+                .SetProperty(s => s.ReferralCount, dto.ReferralCount)
+                .SetProperty(s => s.InvitedByUserId, dto.InvitedByUserId)
+                .SetProperty(s => s.UpdatedAt, _timeProvider.GetUtcNow()),
+                cancellationToken);
+
+        return updated > 0;
+    }
+
+    /// <summary>
+    /// Applies the update DTO values to the stats entity.
+    /// </summary>
+    /// <param name="stats">Stats entity to update.</param>
+    /// <param name="dto">Update DTO.</param>
+    private void ApplyUpdate(UserStatsEntity stats, UserStatsUpdateDto dto)
+    {
         var updatedEntity = _statsUpdateMapper.Map(dto);
         stats.RankPoints = updatedEntity.RankPoints;
         stats.TotalWins = updatedEntity.TotalWins;
@@ -160,9 +187,6 @@ public class UserStatsRepository(
         stats.ReferralCount = updatedEntity.ReferralCount;
         stats.InvitedByUserId = updatedEntity.InvitedByUserId;
         stats.UpdatedAt = updatedEntity.UpdatedAt;
-
-        await context.SaveChangesAsync(cancellationToken);
-        return true;
     }
 
     /// <inheritdoc/>

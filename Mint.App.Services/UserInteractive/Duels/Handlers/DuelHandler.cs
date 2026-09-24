@@ -1,6 +1,7 @@
 using System.Transactions;
 using AdvApplication.Auth.Users;
 using Mint.App.Services.UserInteractive.Duels.Dto;
+using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Common.Contracts.Users;
@@ -86,14 +87,19 @@ public class DuelHandler(
             return new BetResultDto { Success = false, Message = "Дуэль уже закрыта", TransactionId = 0 };
         }
 
+        if (duel.Status != DuelStatus.Active)
+        {
+            return new BetResultDto { Success = false, Message = "Дуэль ещё не началась", TransactionId = 0 };
+        }
+
         var hasVoted = await _voteRepository.HasUserVotedInDuelAsync(externalUserId, duelId, cancellationToken);
         if (hasVoted)
         {
             return new BetResultDto { Success = false, Message = "Вы уже сделали ставку", TransactionId = 0 };
         }
-        
+
         var option = await _duelRepository.GetOptionByIdAsync(optionId, cancellationToken);
-        if (option == null)
+        if (option == null || option.DuelId != duelId)
         {
             return new BetResultDto { Success = false, Message = "Вариант ответа не найден", TransactionId = 0 };
         }
@@ -119,34 +125,42 @@ public class DuelHandler(
             return new BetResultDto { Success = false, Message = $"Недостаточно средств. Баланс: {account.Balance:N0} 🪙", TransactionId = 0 };
         }
 
-        using var scope = new TransactionScope(
-            TransactionScopeOption.Required,
-            new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
-            TransactionScopeAsyncFlowOption.Enabled);
-
         var transaction = new TransactionCreateDto
         {
             DebitAccountId = account.Id,
-            CreditAccountId = 1,
+            CreditAccountId = AccountConsts.SystemAccountId,
             Amount = amount,
             Description = $"Ставка на дуэль #{duelId}",
             BonusType = BonusType.Bet,
             CreatedAt = _timeProvider.GetUtcNow()
         };
 
+        using var scope = new TransactionScope(
+            TransactionScopeOption.Required,
+            new TransactionOptions { IsolationLevel = IsolationLevel.ReadCommitted },
+            TransactionScopeAsyncFlowOption.Enabled);
+
         var betTransactionId = await _transactionRepository.CreateTransactionAsync(transaction, cancellationToken);
 
-        var vote = new VoteCreateDto
+        long voteId;
+        try
         {
-            DuelId = duelId,
-            ChosenOptionId = optionId,
-            AccountId = account.Id,
-            BetAmount = amount,
-            TransactionId = betTransactionId,
-            CreatedAt = _timeProvider.GetUtcNow()
-        };
+            var vote = new VoteCreateDto
+            {
+                DuelId = duelId,
+                ChosenOptionId = optionId,
+                AccountId = account.Id,
+                BetAmount = amount,
+                TransactionId = betTransactionId,
+                CreatedAt = _timeProvider.GetUtcNow()
+            };
 
-        var voteId = await _voteRepository.CreateVoteAsync(vote, cancellationToken);
+            voteId = await _voteRepository.CreateVoteAsync(vote, cancellationToken);
+        }
+        catch (InvalidOperationException)
+        {
+            return new BetResultDto { Success = false, Message = "Вы уже сделали ставку", TransactionId = 0 };
+        }
 
         scope.Complete();
 
@@ -154,7 +168,7 @@ public class DuelHandler(
         {
             Success = true,
             Message = "Ставка успешно принята!",
-            NewBalance = account.Balance,
+            NewBalance = account.Balance - amount,
             VoteId = voteId,
             TransactionId = betTransactionId
         };
