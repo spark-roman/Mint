@@ -93,7 +93,7 @@ public class UserStatsRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var stats = context.Users
+        var stats = await context.Users
             .AsNoTracking()
             .Include(u => u.Stats)
             .Select(u => new { u.Stats, User = u })
@@ -101,7 +101,7 @@ public class UserStatsRepository(
             .OrderByDescending(u => u.Stats.RankPoints)
             .Take(top)
             .Select(s =>_dbUserStatsMapper.Map(s.Stats, s.User))
-            .ToList();
+            .ToListAsync(cancellationToken);
 
         return stats;
     }

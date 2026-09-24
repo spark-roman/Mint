@@ -325,7 +325,7 @@ public class UserProfilesHandler(
             CreditAccountId = account.Id,
             Amount = referralBonusAmount,
             Description = "Referral bonus",
-            BonusType = BonusType.Streak,
+            BonusType = BonusType.Referral,
             CreatedAt = _timeProvider.GetUtcNow()
         };
 
