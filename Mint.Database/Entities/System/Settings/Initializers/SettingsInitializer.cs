@@ -78,6 +78,20 @@ public sealed class SettingsInitializer
             Key = "MaxBetAmount",
             Value = "10000",
             Description = "Максимальная сумма ставки"
+        },
+        new SystemSettingEntity
+        {
+            Id = 11,
+            Key = "BatchSize",
+            Value = "100",
+            Description = "Размер батчей"
+        },
+        new SystemSettingEntity
+        {
+            Id = 12,
+            Key = "MaxBatchesPerRun",
+            Value = "2000000",
+            Description = "Колличество батчей в одном запуске"
         }
     ];
 

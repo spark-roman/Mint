@@ -68,6 +68,16 @@ public class BonusTypeInitializer
             IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
+        },
+        new BonusTypeEntity
+        {
+            Id = 7,
+            Code = "refund",
+            Name = "Возврат",
+            Description = "Возврат средств пользователю",
+            IsActive = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
         }
     ];
 

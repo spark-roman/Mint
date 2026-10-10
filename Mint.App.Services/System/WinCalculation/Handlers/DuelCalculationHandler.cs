@@ -111,7 +111,15 @@ public sealed class DuelCalculationHandler(
             .Where(v => v.ChosenOptionId != winningOptionId)
             .Select(v => new DuelVoteResultDto
             {
-                PayoutInstruction = null,
+                PayoutInstruction = new TransactionCreateDto
+                {
+                    DebitAccountId = long.MinValue,
+                    CreditAccountId = long.MinValue,
+                    Amount = decimal.Zero,
+                    Description = $"Выплата отсутствует",
+                    BonusType = BonusType.None,
+                    CreatedAt = _timeProvider.GetUtcNow()
+                },
                 VoteAccountId = v.AccountId
             });
 

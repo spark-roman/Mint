@@ -164,7 +164,7 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
         Assert.NotNull(result);
         Assert.Equal(voteId, result.VoteId);
         Assert.Equal(expectedDuelId, result.DuelId);
-        Assert.Equal(expectedAccountId, result.AccountId);
+        Assert.Equal(expectedAccountId, result.CreditAccountId);
         Assert.Equal(expectedAmount, result.Amount);
         Assert.Equal(PayoutStatus.Pending, result.Status);
     }
@@ -296,7 +296,7 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
         Assert.Equal(payoutDto.Id, result.Id);
         Assert.Equal(voteId, result.VoteId);
         Assert.Equal(100500, result.DuelId);
-        Assert.Equal(1, result.AccountId);
+        Assert.Equal(1, result.CreditAccountId);
         Assert.Equal(300.00m, result.Amount);
         Assert.Equal(PayoutStatus.Pending, result.Status);
     }
@@ -378,7 +378,7 @@ public class PayoutRepositoryTests : IClassFixture<PayoutRepositoryFixture>
         // Assert
         Assert.NotNull(result);
         Assert.Equal(2, result.Count);
-        Assert.All(result, payout => Assert.Equal(1, payout.AccountId));
+        Assert.All(result, payout => Assert.Equal(1, payout.CreditAccountId));
     }
 
     /// <summary>

@@ -1,7 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Payouts;
-using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Votes;
@@ -34,7 +34,7 @@ public class PayoutEntity
     /// </summary>
     [Required]
     [Column("account_id")]
-    public long AccountId { get; set; }
+    public long CreditAccountId { get; set; }
 
     /// <summary>
     /// Payout amount.
@@ -52,22 +52,43 @@ public class PayoutEntity
 
     /// <summary>
     /// Identifier of the transaction associated with this payout.
+    /// Null until the payout has been executed by the payout execution job.
     /// </summary>
     [Column("transaction_id")]
     public long? TransactionId { get; set; }
 
     /// <summary>
-    /// Timestamp when the payout was processed.
+    /// Debit account identifier captured when the payout plan was generated.
+    /// Used to build the transaction at the execution phase.
     /// </summary>
-    [Required]
+    [Column("debit_account_id")]
+    public long DebitAccountId { get; set; }
+
+    /// <summary>
+    /// Bonus type identifier captured when the payout plan was generated.
+    /// Used to build the transaction at the execution phase.
+    /// </summary>
+    [Column("bonus_type_id")]
+    public BonusType BonusType { get; set; } = BonusType.None;
+
+    /// <summary>
+    /// Transaction description captured when the payout plan was generated.
+    /// </summary>
+    [Column("description")]
+    public string? Description { get; set; }
+
+    /// <summary>
+    /// Timestamp when the payout was processed.
+    /// Null while the payout is only a plan that has not been executed yet.
+    /// </summary>
     [Column("processed_at")]
-    public DateTimeOffset ProcessedAt { get; set; }
+    public DateTimeOffset? ProcessedAt { get; set; }
 
     /// <summary>
     /// Timestamp when the payout was created.
     /// </summary>
-    [Column("created_at")]
-    public DateTimeOffset CreatedAt { get; set; }
+    [Column("planned_at")]
+    public DateTimeOffset PlannedAt { get; set; }
 
     /// <summary>
     /// Identifier of the winning vote.
@@ -89,15 +110,20 @@ public class PayoutEntity
     public DuelEntity Duel { get; set; } = null!;
 
     /// <summary>
-    /// The account receiving the payout.
-    /// </summary>
-    [ForeignKey(nameof(AccountId))]
-    public AccountEntity Account { get; set; } = null!;
-
-    /// <summary>
     /// The transaction associated with this payout.
     /// </summary>
     [ForeignKey(nameof(TransactionId))]
     public TransactionEntity? Transaction { get; set; }
+
+    /// <summary>
+    /// The reason for the failure of the payout.
+    /// </summary>
+    [Column("failure_reason")]
+    public string? FailureReason { get; set; } 
+
+    /// <summary>
+    /// Number of times the payout has been retried.
+    /// </summary>
+    public int RetryCount { get; set; }
 }
 

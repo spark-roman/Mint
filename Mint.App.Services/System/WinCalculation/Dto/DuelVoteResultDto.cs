@@ -10,7 +10,7 @@ public sealed record DuelVoteResultDto
     /// <summary>
     /// Winning payout transaction
     /// </summary>
-    public TransactionCreateDto? PayoutInstruction { get; init; }
+    public required TransactionCreateDto PayoutInstruction { get; init; }
 
     /// <summary>
     /// Vote account id

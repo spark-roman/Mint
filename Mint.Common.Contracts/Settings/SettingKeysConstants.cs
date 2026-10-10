@@ -69,4 +69,14 @@ public static class SettingKeysConstants
     /// Maximum number of RSS sources to fetch in one cycle.
     /// </summary>
     public const string RssFetchLimit = "RssFetchLimit";
+
+    /// <summary>
+    /// Maximum number of batches that can be run at once.
+    /// </summary>
+    public const string MaxBatchesPerRun = "MaxBatchesPerRun";
+
+    /// <summary>
+    /// Batch size.
+    /// </summary>
+    public const string BatchSize = "BatchSize";
 }

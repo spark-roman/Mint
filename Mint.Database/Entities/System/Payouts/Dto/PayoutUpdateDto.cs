@@ -15,5 +15,11 @@ public sealed record PayoutUpdateDto
 
     /// <summary>Identifier of the associated transaction.</summary>
     public long? TransactionId { get; init; }
+
+    /// <summary>
+    /// Timestamp when the payout was executed.
+    /// Set by the execution job together with <see cref="TransactionId"/>.
+    /// </summary>
+    public DateTimeOffset? ProcessedAt { get; init; }
 }
 

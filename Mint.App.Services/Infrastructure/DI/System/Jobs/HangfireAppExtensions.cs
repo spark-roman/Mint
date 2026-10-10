@@ -29,9 +29,18 @@ public static class HangfireAppExtensions
             });
 
         jobManager.AddOrUpdate(
+            "payout-execution-job",
+            () => serviceProvider.GetRequiredService<PayoutExecutionJob>().ExecuteAsync(),
+            "30 4 * * *",
+            new RecurringJobOptions
+            {
+                TimeZone = TimeZoneInfo.Utc
+            });
+
+        jobManager.AddOrUpdate(
             "duel-publish-job",
             () => serviceProvider.GetRequiredService<DuelPublishJob>().ExecuteAsync(),
-            "30 4 * * *",
+            "30 5 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc
