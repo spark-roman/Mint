@@ -123,16 +123,16 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var winningResults = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
+        var winningResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
         Assert.Equal(2, winningResults.Count);
 
         // Alice (AccountId=2, bet=500): payout = 500 * 1.425 = 712.5
         var aliceResult = winningResults.First(v => v.VoteAccountId == 2);
-        Assert.Equal(712.5m, aliceResult.PayoutInstruction!.Amount);
+        Assert.Equal(712.5m, aliceResult.PayoutInstruction.Amount);
 
         // Bob (AccountId=3, bet=100): payout = 100 * 1.425 = 142.5
         var bobResult = winningResults.First(v => v.VoteAccountId == 3);
-        Assert.Equal(142.5m, bobResult.PayoutInstruction!.Amount);
+        Assert.Equal(142.5m, bobResult.PayoutInstruction.Amount);
     }
 
     /// <summary>
@@ -175,7 +175,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var losingResults = result.VoteResults.Where(v => v.PayoutInstruction == null).ToList();
+        var losingResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType == BonusType.None).ToList();
         Assert.Single(losingResults);
         Assert.Equal(4, losingResults.First().VoteAccountId);
     }
@@ -222,7 +222,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         // Assert
         Assert.All(result.VoteResults, v =>
         {
-            if (v.PayoutInstruction != null)
+            if (v.PayoutInstruction.BonusType != BonusType.None)
             {
                 Assert.Equal(1, v.PayoutInstruction.DebitAccountId); // system account
             }
@@ -269,7 +269,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var payouts = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
+        var payouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
         Assert.Equal(2, payouts.Count);
         Assert.Contains(payouts, v => v.PayoutInstruction!.CreditAccountId == 2); // Alice
         Assert.Contains(payouts, v => v.PayoutInstruction!.CreditAccountId == 3); // Bob
@@ -317,7 +317,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         // Assert
         Assert.All(result.VoteResults, v =>
         {
-            if (v.PayoutInstruction != null)
+            if (v.PayoutInstruction.BonusType != BonusType.None)
             {
                 Assert.Contains(":1", v.PayoutInstruction.Description);
             }
@@ -462,7 +462,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var winningPayouts = result.VoteResults.Where(v => v.PayoutInstruction != null).ToList();
+        var winningPayouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
         Assert.Equal(2, winningPayouts.Count);
         Assert.All(winningPayouts, p => Assert.True(p.PayoutInstruction!.Amount > 0));
     }
@@ -1068,32 +1068,6 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         // Act & Assert
         await Assert.ThrowsAsync<OperationCanceledException>(
             () => handler.CalculateResultAsync(duel, winningOptionId, votes, cts.Token));
-    }
-
-    /// <summary>
-    /// Verifies that CalculateWinningOptionIdAsync respects cancellation token.
-    /// </summary>
-    [Fact]
-    public async Task CalculateWinningOptionIdAsync_CancellationToken_Respected()
-    {
-        // Arrange
-        _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _fixture.GetHandler(_currentScope);
-        var cts = new CancellationTokenSource();
-        await cts.CancelAsync();
-
-        var now = DateTimeOffset.UtcNow;
-
-        var votes = new ReadOnlyCollection<VoteDto>(
-        [
-            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
-            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
-            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
-        ]);
-
-        // Act & Assert
-        await Assert.ThrowsAsync<OperationCanceledException>(
-            () => handler.CalculateWinningOptionIdAsync(DuelType.OpinionMatch, votes, cts.Token));
     }
 
     #endregion

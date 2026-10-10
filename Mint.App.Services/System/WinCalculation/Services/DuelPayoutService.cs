@@ -17,9 +17,9 @@ public sealed class DuelPayoutService(
     {
         try
         {
-            _logger.LogInformation("Starting scheduled duel payouts processing at {Time}", DateTimeOffset.UtcNow);
+            _logger.LogInformation("Starting payouts plan generation at {Time}", DateTimeOffset.UtcNow);
 
-            var settledCount = await _settlementHandler.SettleExpiredDuelsAsync(cancellationToken);
+            var settledCount = await _settlementHandler.PlanDuelPayoutsAsync(cancellationToken);
 
             _logger.LogInformation(
                 "Completed duel payouts processing. Settled {Count} duels at {Time}",
@@ -31,6 +31,29 @@ public sealed class DuelPayoutService(
         catch (Exception ex)
         {
             _logger.LogError(ex, "Failed to process duel payouts");
+            throw;
+        }
+    }
+
+    /// <inheritdoc />
+    public async Task<int> ExecutePendingPayoutsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            _logger.LogInformation("Starting payouts plan execution at {Time}", DateTimeOffset.UtcNow);
+
+            var processedCount = await _settlementHandler.ExecutePendingPayoutsAsync(cancellationToken);
+
+            _logger.LogInformation(
+                "Completed pending payouts processing. Processed {Count} duels at {Time}",
+                processedCount,
+                DateTimeOffset.UtcNow);
+
+            return processedCount;
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to execute pending payouts");
             throw;
         }
     }

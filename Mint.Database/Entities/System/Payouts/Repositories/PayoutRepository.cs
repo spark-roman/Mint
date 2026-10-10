@@ -1,5 +1,7 @@
 using System.Collections.ObjectModel;
+using System.Transactions;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Infrastructure;
 using Mint.Common.Contracts.Mappers;
 using Mint.Common.Contracts.UserInteractive.Payouts;
 using Mint.Database.Entities.System.Payouts.Dto;
@@ -24,10 +26,12 @@ public sealed class PayoutRepository(
     /// <inheritdoc />
     public async Task<PayoutDto> CreateAsync(PayoutCreateDto dto, CancellationToken ct)
     {
+        ArgumentNullException.ThrowIfNull(dto);
+
         await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
         var entity = _createMapper.Map(dto);
-        entity.CreatedAt = DateTimeOffset.UtcNow;
-        entity.Status = PayoutStatus.Completed;
+        entity.PlannedAt = DateTimeOffset.UtcNow;
+        entity.Status = PayoutStatus.Pending;
 
         await context.Payouts.AddAsync(entity, ct);
         await context.SaveChangesAsync(ct);
@@ -46,7 +50,7 @@ public sealed class PayoutRepository(
         var entities = dtos.Select(dto =>
         {
             var entity = _createMapper.Map(dto);
-            entity.CreatedAt = DateTimeOffset.UtcNow;
+            entity.PlannedAt = DateTimeOffset.UtcNow;
             entity.Status = PayoutStatus.Pending;
             return entity;
         }).ToList();
@@ -73,6 +77,8 @@ public sealed class PayoutRepository(
         entity.Status = dto.Status;
         if (dto.TransactionId.HasValue)
             entity.TransactionId = dto.TransactionId;
+        if (dto.ProcessedAt.HasValue)
+            entity.ProcessedAt = dto.ProcessedAt;
 
         context.Payouts.Update(entity);
         await context.SaveChangesAsync(ct);
@@ -129,7 +135,7 @@ public sealed class PayoutRepository(
         var entities = await context.Payouts
             .AsNoTracking()
             .Where(p => p.DuelId == duelId)
-            .OrderByDescending(p => p.CreatedAt)
+            .OrderByDescending(p => p.PlannedAt)
             .ToListAsync(ct);
 
         return entities.Select(_mapper.Map).ToList();
@@ -141,8 +147,8 @@ public sealed class PayoutRepository(
         await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
         var entities = await context.Payouts
             .AsNoTracking()
-            .Where(p => p.AccountId == accountId)
-            .OrderByDescending(p => p.CreatedAt)
+            .Where(p => p.CreditAccountId == accountId)
+            .OrderByDescending(p => p.PlannedAt)
             .ToListAsync(ct);
 
         return entities.Select(_mapper.Map).ToList();
@@ -155,10 +161,90 @@ public sealed class PayoutRepository(
         var entities = await context.Payouts
             .AsNoTracking()
             .Where(p => p.Status == PayoutStatus.Pending)
-            .OrderBy(p => p.CreatedAt)
+            .OrderBy(p => p.PlannedAt)
             .Take(limit)
             .ToListAsync(ct);
 
         return entities.Select(_mapper.Map).ToList();
+    }
+
+    /// <inheritdoc />
+    public async Task<List<PayoutDto>> ClaimPendingPayoutsAsync(int limit, CancellationToken ct)
+    {
+        if (limit <= 0)
+        {
+            return [];
+        }
+
+        var transactionOptions = new TransactionOptions
+        {
+            IsolationLevel = IsolationLevel.ReadCommitted,
+            Timeout = TimeSpan.FromSeconds(30)
+        };
+
+        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
+        
+        await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
+
+        if (context.Database.IsInMemory())
+        {
+            var payoutsForUpdate = await context.Payouts
+                .Where(p => p.Status == PayoutStatus.Pending)
+                .Take(limit)
+                .ToListAsync(ct);
+
+            foreach (var payout in payoutsForUpdate)
+            {
+                payout.Status = PayoutStatus.Processing;
+            }
+
+            await context.SaveChangesAsync(ct);
+        }
+        else
+        {
+            var updated = await context.Payouts
+                .Where(p => p.Status == PayoutStatus.Pending)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Status, PayoutStatus.Processing), ct);
+        }
+
+        var claimed = context.Payouts.Where(p => p.Status == PayoutStatus.Processing).Select(_mapper.Map).ToList();
+
+        scope.Complete();
+
+        return claimed;
+    }
+
+    /// <inheritdoc />
+    public async Task<bool> TryCompleteAsync(long id, long? transactionId, DateTimeOffset processedAt, CancellationToken ct)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
+
+        if (context.Database.IsInMemory())
+        {
+            var payout = await context.Payouts
+                .FirstOrDefaultAsync(p => p.Id == id && p.Status == PayoutStatus.Processing, ct);
+
+            if (payout is null)
+            {
+                return false;
+            }
+
+            payout.Status = PayoutStatus.Completed;
+            payout.TransactionId = transactionId;
+            payout.ProcessedAt = processedAt;
+
+            await context.SaveChangesAsync(ct);
+            return true;
+        }
+
+        var updated = await context.Payouts
+            .Where(p => p.Id == id && p.Status == PayoutStatus.Processing)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(p => p.Status, PayoutStatus.Completed)
+                .SetProperty(p => p.TransactionId, transactionId)
+                .SetProperty(p => p.ProcessedAt, processedAt),
+                ct);
+
+        return updated > 0;
     }
 }

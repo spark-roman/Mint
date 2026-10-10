@@ -6,12 +6,16 @@ namespace Mint.App.Services.System.WinCalculation.Handlers;
 public interface IDuelSettlementHandler
 {
     /// <summary>
-    /// Settles all active duels that have expired.
+    /// Plans payouts for duels.
     /// </summary>
-    Task<int> SettleExpiredDuelsAsync(CancellationToken cancellationToken);
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Count of payouts set</returns>
+    Task<int> PlanDuelPayoutsAsync(CancellationToken cancellationToken);
 
     /// <summary>
-    /// Settles a specific duel by ID.
+    /// Executes pending payouts for duels.
     /// </summary>
-    Task SettleDuelAsync(long duelId, CancellationToken cancellationToken);
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Count of payouts set</returns>
+    Task<int> ExecutePendingPayoutsAsync(CancellationToken cancellationToken);
 }

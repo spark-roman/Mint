@@ -1,8 +1,12 @@
 using Mint.Common.Contracts.Ledger.Accounts;
 using Mint.Common.Contracts.UserInteractive;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
+using Mint.Common.Contracts.UserInteractive.Payouts;
 using Mint.Database;
 using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.System.Payouts;
+using Mint.Database.Entities.System.Settings.Initializers;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories;
 using Mint.Database.Entities.UserInteractive.Votes;
@@ -226,6 +230,7 @@ public static class DuelSettlementHandlerSeeder
         context.Votes.AddRange(
             new VoteEntity
             {
+                Id = 1,
                 AccountId = 2,
                 DuelId = 1,
                 ChosenOptionId = 1,
@@ -234,6 +239,7 @@ public static class DuelSettlementHandlerSeeder
             },
             new VoteEntity
             {
+                Id = 2,
                 AccountId = 3,
                 DuelId = 1,
                 ChosenOptionId = 1,
@@ -242,6 +248,7 @@ public static class DuelSettlementHandlerSeeder
             },
             new VoteEntity
             {
+                Id = 3,
                 AccountId = 4,
                 DuelId = 1,
                 ChosenOptionId = 2,
@@ -398,6 +405,7 @@ public static class DuelSettlementHandlerSeeder
         context.Votes.AddRange(
             new VoteEntity
             {
+                Id = 4,
                 AccountId = 2,
                 DuelId = 5,
                 ChosenOptionId = 1,
@@ -406,11 +414,103 @@ public static class DuelSettlementHandlerSeeder
             },
             new VoteEntity
             {
+                Id = 5,
                 AccountId = 3,
                 DuelId = 5,
                 ChosenOptionId = 2,
                 BetAmount = 300m,
                 CreatedAt = DateTimeOffset.UtcNow.AddHours(-2)
+            });
+
+        context.SaveChanges();
+
+        // Seed duel 6 - expired, with an even vote split (draw)
+        context.Duels.AddRange(
+            new DuelEntity
+            {
+                Id = 6,
+                CategoryId = 1,
+                DuelType = DuelType.OpinionMatch,
+                Question = "Ничья?",
+                Description = "Дуэль с равным распределением голосов",
+                ExpiresAt = DateTimeOffset.UtcNow.AddHours(-1), // expired
+                Status = DuelStatus.Active
+            });
+
+        context.SaveChanges();
+
+        context.DuelOptions.AddRange(
+            new DuelOptionEntity
+            {
+                Id = 11,
+                DuelId = 6,
+                OptionText = "A",
+                OptionCode = "a"
+            },
+            new DuelOptionEntity
+            {
+                Id = 12,
+                DuelId = 6,
+                OptionText = "B",
+                OptionCode = "b"
+            });
+
+        context.SaveChanges();
+
+        context.Votes.AddRange(
+            new VoteEntity
+            {
+                Id = 6,
+                AccountId = 2,
+                DuelId = 6,
+                ChosenOptionId = 11,
+                BetAmount = 100m,
+                CreatedAt = DateTimeOffset.UtcNow.AddHours(-2)
+            },
+            new VoteEntity
+            {
+                Id = 7,
+                AccountId = 3,
+                DuelId = 6,
+                ChosenOptionId = 12,
+                BetAmount = 200m,
+                CreatedAt = DateTimeOffset.UtcNow.AddHours(-2)
+            });
+
+        context.SaveChanges();
+
+        // Seed system settings
+        context.SystemSettings.AddRange(new SettingsInitializer().Get());
+
+        context.SaveChanges();
+
+        // Seed pending payouts for execution tests
+        context.Payouts.AddRange(
+            new PayoutEntity
+            {
+                Id = 1,
+                VoteId = 1,
+                DuelId = 1,
+                CreditAccountId = 2,
+                Amount = 593.75m,
+                Status = PayoutStatus.Pending,
+                DebitAccountId = 1,
+                BonusType = BonusType.Bet,
+                Description = "Выплата за дуэль:1",
+                PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
+            },
+            new PayoutEntity
+            {
+                Id = 2,
+                VoteId = 2,
+                DuelId = 1,
+                CreditAccountId = 3,
+                Amount = 356.25m,
+                Status = PayoutStatus.Pending,
+                DebitAccountId = 1,
+                BonusType = BonusType.Bet,
+                Description = "Выплата за дуэль:1",
+                PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
             });
 
         context.SaveChanges();

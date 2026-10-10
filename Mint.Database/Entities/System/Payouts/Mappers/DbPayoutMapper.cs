@@ -18,12 +18,15 @@ public sealed class DbPayoutMapper : IDbEntityMapper<PayoutEntity, PayoutDto>
             Id = entity.Id,
             VoteId = entity.VoteId,
             DuelId = entity.DuelId,
-            AccountId = entity.AccountId,
+            CreditAccountId = entity.CreditAccountId,
             Amount = entity.Amount,
             Status = entity.Status,
+            DebitAccountId = entity.DebitAccountId,
+            BonusType = entity.BonusType,
+            Description = entity.Description,
             TransactionId = entity.TransactionId,
             ProcessedAt = entity.ProcessedAt,
-            CreatedAt = entity.CreatedAt
+            CreatedAt = entity.PlannedAt
         };
     }
 }

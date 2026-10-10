@@ -5,8 +5,13 @@ using Mint.App.Services.System.DuelsGeneration.Jobs;
 using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.WinCalculation.Handlers;
 using Mint.App.Services.System.WinCalculation.Jobs;
+using Mint.App.Services.System.WinCalculation.Mappers;
 using Mint.App.Services.System.WinCalculation.Services;
 using Mint.App.Services.System.WinCalculation.WinCalculationRules;
+using Mint.Common.Contracts.Mappers;
+using Mint.Database.Entities.Ledger.Transactions.Dto;
+using Mint.Database.Entities.System.Payouts.Dto;
+using Mint.Database.Entities.UserInteractive.Stats.Dto;
 
 namespace Mint.App.Services.Infrastructure.DI.System.Duels;
 
@@ -28,6 +33,10 @@ public static class DuelsExtensions
         services.AddScoped<IDuelPublishService, DuelPublishService>();
         services.AddScoped<DuelPayoutJob>();
         services.AddScoped<DuelPublishJob>();
+        services.AddScoped<PayoutExecutionJob>();
+
+        services.AddSingleton<IDtoMapper<PayoutDto, TransactionCreateDto>, PayoutTransactionMapper>();
+        services.AddSingleton<IDtoMapper<PayoutDto, UserStatsUpdateDto>, PayoutStatsMapper>();
 
         services.RegisterCalculationRulesServices();
     }

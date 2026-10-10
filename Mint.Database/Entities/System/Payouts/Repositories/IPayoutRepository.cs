@@ -31,4 +31,24 @@ public interface IPayoutRepository
 
     /// <summary>Gets pending payouts for processing.</summary>
     Task<List<PayoutDto>> GetPendingPayoutsAsync(int limit, CancellationToken ct);
+
+    /// <summary>
+    /// Atomically claims a batch of pending payout plans for execution by moving them to
+    /// <see cref="Mint.Common.Contracts.UserInteractive.Payouts.PayoutStatus.Processing"/>. Concurrent executors never receive the same payout.
+    /// </summary>
+    /// <param name="limit">Maximum number of payouts to claim.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>Claimed payouts in the order they were created.</returns>
+    Task<List<PayoutDto>> ClaimPendingPayoutsAsync(int limit, CancellationToken ct);
+
+    /// <summary>
+    /// Completes a claimed payout by attaching the transaction it produced.
+    /// The update is applied only while the payout is still in <see cref="Mint.Common.Contracts.UserInteractive.Payouts.PayoutStatus.Processing"/>.
+    /// </summary>
+    /// <param name="id">Payout identifier.</param>
+    /// <param name="transactionId">Identifier of the created transaction.</param>
+    /// <param name="processedAt">Execution timestamp.</param>
+    /// <param name="ct">Cancellation token.</param>
+    /// <returns>True when the payout was completed by this call.</returns>
+    Task<bool> TryCompleteAsync(long id, long? transactionId, DateTimeOffset processedAt, CancellationToken ct);
 }

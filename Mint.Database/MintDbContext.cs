@@ -397,30 +397,43 @@ public class MintDbContext : DbContext
                 .IsRequired();
 
             entity.Property(e => e.ProcessedAt)
-                .IsRequired();
+                .IsRequired(false);
 
-            entity.Property(e => e.CreatedAt)
+            entity.Property(e => e.DebitAccountId)
+                .IsRequired(true);
+
+            entity.Property(e => e.BonusType)
+                .IsRequired(true);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.PlannedAt)
                 .IsRequired();
 
             entity.HasIndex(e => e.VoteId)
+                .IsUnique()
                 .HasDatabaseName("idx_payouts_vote_id");
 
             entity.HasIndex(e => e.DuelId)
                 .HasDatabaseName("idx_payouts_duel_id");
 
-            entity.HasIndex(e => e.AccountId)
+            entity.HasIndex(e => e.CreditAccountId)
                 .HasDatabaseName("idx_payouts_account_id");
 
             entity.HasIndex(e => e.Status)
                 .HasDatabaseName("idx_payouts_status");
 
-            entity.HasIndex(e => e.CreatedAt)
+            entity.HasIndex(e => e.PlannedAt)
                 .HasDatabaseName("idx_payouts_created_at");
+
+            entity.HasIndex(e => new { e.Status, e.PlannedAt })
+                .HasDatabaseName("idx_payouts_status_created_at");
 
             entity.HasIndex(e => new { e.DuelId, e.Status })
                 .HasDatabaseName("idx_payouts_duel_status");
 
-            entity.HasIndex(e => new { e.AccountId, e.Status })
+            entity.HasIndex(e => new { e.CreditAccountId, e.Status })
                 .HasDatabaseName("idx_payouts_account_status");
 
             entity.HasOne(e => e.Vote)
@@ -431,11 +444,6 @@ public class MintDbContext : DbContext
             entity.HasOne(e => e.Duel)
                 .WithMany()
                 .HasForeignKey(e => e.DuelId)
-                .OnDelete(DeleteBehavior.Restrict);
-
-            entity.HasOne(e => e.Account)
-                .WithMany()
-                .HasForeignKey(e => e.AccountId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             entity.HasOne(e => e.Transaction)
