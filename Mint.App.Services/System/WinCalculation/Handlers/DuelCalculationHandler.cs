@@ -120,7 +120,8 @@ public sealed class DuelCalculationHandler(
                     BonusType = BonusType.None,
                     CreatedAt = _timeProvider.GetUtcNow()
                 },
-                VoteAccountId = v.AccountId
+                VoteAccountId = v.AccountId,
+                VoteId = v.VoteId
             });
 
         return new DuelResultDto
