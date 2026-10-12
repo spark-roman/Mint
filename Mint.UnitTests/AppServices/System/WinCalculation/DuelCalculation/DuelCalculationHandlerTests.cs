@@ -166,9 +166,9 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
 
         var votes = new ReadOnlyCollection<VoteDto>(
         [
-            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2) },
-            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2) },
-            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2) }
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2), VoteId = 10 },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2), VoteId = 11 },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2), VoteId = 12 }
         ]);
 
         // Act
@@ -178,6 +178,50 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var losingResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType == BonusType.None).ToList();
         Assert.Single(losingResults);
         Assert.Equal(4, losingResults.First().VoteAccountId);
+    }
+
+    /// <summary>
+    /// Verifies that losing voters have their VoteId set in the result.
+    /// </summary>
+    [Fact]
+    public async Task CalculateResultAsync_LosingVoters_HaveVoteIdSet()
+    {
+        // Arrange
+        _currentScope = _fixture.ServiceProvider.CreateScope();
+        var handler = _fixture.GetHandler(_currentScope);
+
+        var winningOptionId = 1;
+        var now = DateTimeOffset.UtcNow;
+
+        var duel = new DuelDto
+        {
+            Id = 1,
+            CategoryId = 1,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Bitcoin достигнет $100k?",
+            Description = "Достигнет ли Bitcoin цены 100 тысяч долларов?",
+            ExpiresAt = now.AddHours(48),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionDto { Id = 1, OptionCode =  "A", OptionText = "A" },
+                new DuelOptionDto { Id = 2, OptionCode =  "B", OptionText = "B" }
+            ]
+        };
+
+        var votes = new ReadOnlyCollection<VoteDto>(
+        [
+            new VoteDto { AccountId = 2, DuelId = 1, ChosenOptionId = 1, BetAmount = 500m, CreatedAt = now.AddHours(-2), VoteId = 10 },
+            new VoteDto { AccountId = 3, DuelId = 1, ChosenOptionId = 1, BetAmount = 100m, CreatedAt = now.AddHours(-2), VoteId = 11 },
+            new VoteDto { AccountId = 4, DuelId = 1, ChosenOptionId = 2, BetAmount = 300m, CreatedAt = now.AddHours(-2), VoteId = 12 }
+        ]);
+
+        // Act
+        var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
+
+        // Assert
+        var losingResult = result.VoteResults.First(v => v.VoteAccountId == 4);
+        Assert.Equal(12, losingResult.VoteId);
     }
 
     /// <summary>
