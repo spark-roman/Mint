@@ -2,6 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using Mint.Common.Contracts.UserInteractive.Bonuses;
 using Mint.Common.Contracts.UserInteractive.Payouts;
+using Mint.Database.Entities.Ledger.Accounts;
 using Mint.Database.Entities.Ledger.Transactions;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Votes;
@@ -37,6 +38,26 @@ public class PayoutEntity
     public long CreditAccountId { get; set; }
 
     /// <summary>
+    /// Account entity that received the payout.
+    /// </summary>
+    [ForeignKey(nameof(CreditAccountId))]
+    public AccountEntity CreditAccount { get; set; } = null!;
+
+    /// <summary>
+    /// Debit account identifier captured when the payout plan was generated.
+    /// Used to build the transaction at the execution phase.
+    /// </summary>
+    [Column("debit_account_id")]
+    public long DebitAccountId { get; set; }
+
+    /// <summary>
+    /// Debit account entity captured when the payout plan was generated.
+    /// Used to build the transaction at the execution phase.
+    /// </summary>
+    [ForeignKey(nameof(DebitAccountId))]
+    public AccountEntity DebitAccount { get; set; } = null!;
+
+    /// <summary>
     /// Payout amount.
     /// </summary>
     [Required]
@@ -56,13 +77,6 @@ public class PayoutEntity
     /// </summary>
     [Column("transaction_id")]
     public long? TransactionId { get; set; }
-
-    /// <summary>
-    /// Debit account identifier captured when the payout plan was generated.
-    /// Used to build the transaction at the execution phase.
-    /// </summary>
-    [Column("debit_account_id")]
-    public long DebitAccountId { get; set; }
 
     /// <summary>
     /// Bonus type identifier captured when the payout plan was generated.

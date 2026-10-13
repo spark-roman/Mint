@@ -68,29 +68,21 @@ public sealed class DuelSettlementHandler(
     {
         var result = await _duelCalculator.CalculateResultAsync(duel, winningOptionId, votes, cancellationToken);
 
-        foreach (var voteResult in result.VoteResults)
+        var payouts = result.VoteResults.Select(vr => new PayoutCreateDto
         {
-            var payoutCreateDto = new PayoutCreateDto
-            {
-                VoteId = voteResult.VoteId,
-                DuelId = duel.Id,
-                AccountId = voteResult.PayoutInstruction.CreditAccountId,
-                Amount = voteResult.PayoutInstruction.Amount,
-                DebitAccountId = voteResult.PayoutInstruction.DebitAccountId,
-                BonusType = voteResult.PayoutInstruction.BonusType,
-                Description = voteResult.PayoutInstruction.Description,
-                Status = PayoutStatus.Pending,
-                ProcessedAt = null,
-                TransactionId = null
-            };
+            VoteId = vr.VoteId,
+            DuelId = duel.Id,
+            AccountId = vr.PayoutInstruction.CreditAccountId,
+            Amount = vr.PayoutInstruction.Amount,
+            DebitAccountId = vr.PayoutInstruction.DebitAccountId,
+            BonusType = vr.PayoutInstruction.BonusType,
+            Description = vr.PayoutInstruction.Description,
+            Status = PayoutStatus.Pending,
+            ProcessedAt = null,
+            TransactionId = null
+        }).ToList();
 
-            await _payoutRepository.CreateAsync(payoutCreateDto, cancellationToken);
-
-            _logger.LogInformation(
-                "Payout: {Amount} to account {CreditAccountId}",
-                voteResult.PayoutInstruction.Amount,
-                voteResult.VoteAccountId);
-        }
+        await _payoutRepository.CreateManyAsync(new ReadOnlyCollection<PayoutCreateDto>(payouts), cancellationToken);
 
         var (totalPayout, payoutCount)  = result.VoteResults
             .Where(v => v.PayoutInstruction is not null)

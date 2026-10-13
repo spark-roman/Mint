@@ -25,4 +25,9 @@ public enum DuelStatus
     /// The duel is closed for votes.
     /// </summary>
     Closed = 4,
+
+    /// <summary>
+    /// The duel failed.
+    /// </summary>
+    Failed = 5
 }

@@ -450,6 +450,16 @@ public class MintDbContext : DbContext
                 .WithMany()
                 .HasForeignKey(e => e.TransactionId)
                 .OnDelete(DeleteBehavior.SetNull);
+
+            entity.HasOne(e => e.CreditAccount)
+                .WithMany()
+                .HasForeignKey(e => e.CreditAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(e => e.DebitAccount)
+                .WithMany()
+                .HasForeignKey(e => e.DebitAccountId)
+                .OnDelete(DeleteBehavior.Restrict);
         });
         
         modelBuilder.InitData();
