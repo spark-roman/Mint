@@ -194,7 +194,7 @@ public sealed class DuelSettlementHandler(
         return executedCount;
     }
 
-    private readonly List<BonusType> _bonusTypes = [ BonusType.Bet, BonusType.Refund ];
+    private readonly List<BonusType> _bonusTypes = [ BonusType.Payout, BonusType.Refund ];
 
     private async Task<bool> ExecutePayoutAsync(PayoutDto payout, CancellationToken cancellationToken)
     {
