@@ -78,7 +78,17 @@ public class BonusTypeInitializer
             IsActive = true,
             CreatedAt = DateTimeOffset.UtcNow,
             UpdatedAt = DateTimeOffset.UtcNow
-        }
+        },
+        new BonusTypeEntity
+        {
+            Id = 100,
+            Code = "no_ctivity",
+            Name = "Нет движений",
+            Description = "Нет перемещения средств",
+            IsActive = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        },
     ];
 
     /// <summary>

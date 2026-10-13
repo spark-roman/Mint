@@ -100,7 +100,7 @@ public sealed class DuelCalculationHandler(
                 CreditAccountId = v.AccountId,
                 Amount = v.BetAmount * winFactor,
                 Description = $"Выплата за дуэль:{duel.Id}",
-                BonusType = BonusType.Bet,
+                BonusType = BonusType.Payout,
                 CreatedAt = _timeProvider.GetUtcNow()
             },
             VoteAccountId = v.AccountId,
@@ -113,11 +113,11 @@ public sealed class DuelCalculationHandler(
             {
                 PayoutInstruction = new TransactionCreateDto
                 {
-                    DebitAccountId = long.MinValue,
-                    CreditAccountId = long.MinValue,
+                    DebitAccountId = systemAccount.Id,
+                    CreditAccountId = v.AccountId,
                     Amount = decimal.Zero,
                     Description = $"Выплата отсутствует",
-                    BonusType = BonusType.None,
+                    BonusType = BonusType.NoActivity,
                     CreatedAt = _timeProvider.GetUtcNow()
                 },
                 VoteAccountId = v.AccountId,

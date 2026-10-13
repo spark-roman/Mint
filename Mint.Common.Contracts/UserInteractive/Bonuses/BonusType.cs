@@ -48,5 +48,15 @@ public enum BonusType
     /// <summary>
     /// Admin bonus.
     /// </summary>
-    Admin
+    Admin,
+
+    /// <summary>
+    /// Payout.
+    /// </summary>
+    Payout,
+
+    /// <summary>
+    /// No activity.
+    /// </summary>
+    NoActivity = 100,
 }
