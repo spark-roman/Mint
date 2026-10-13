@@ -18,7 +18,7 @@ public class PayoutStatsMapper : IDtoMapper<PayoutDto, UserStatsUpdateDto>
 
         var statsUpdateDto = dto.BonusType switch
         {
-            BonusType.Bet => new UserStatsUpdateDto
+            BonusType.Payout => new UserStatsUpdateDto
             {
                 RankPoints = userStats.RankPoints + dto.Amount,
                 TotalWins = userStats.TotalWins + 1,
