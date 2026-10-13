@@ -81,6 +81,16 @@ public class BonusTypeInitializer
         },
         new BonusTypeEntity
         {
+            Id = 9,
+            Code = "payout",
+            Name = "Выплата",
+            Description = "Выплата за дуэль",
+            IsActive = true,
+            CreatedAt = DateTimeOffset.UtcNow,
+            UpdatedAt = DateTimeOffset.UtcNow
+        },
+        new BonusTypeEntity
+        {
             Id = 100,
             Code = "no_ctivity",
             Name = "Нет движений",
