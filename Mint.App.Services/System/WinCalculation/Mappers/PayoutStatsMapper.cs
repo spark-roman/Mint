@@ -34,7 +34,7 @@ public class PayoutStatsMapper : IDtoMapper<PayoutDto, UserStatsUpdateDto>
                 TotalDraws = userStats.TotalDraws + 1,
                 ReferralCount = userStats.ReferralCount
             },
-            BonusType.None => new UserStatsUpdateDto
+            BonusType.NoActivity => new UserStatsUpdateDto
             {
                 RankPoints = userStats.RankPoints,
                 TotalWins = userStats.TotalWins,
