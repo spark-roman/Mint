@@ -227,7 +227,7 @@ public sealed class DuelSettlementHandler(
 
             transactionId = _bonusTypes.Contains(payout.BonusType)
                 ? await _transactionRepository.CreateTransactionAsync(transaction, cancellationToken)
-                : 0;
+                : null;
 
             var completed = await _payoutRepository.TryCompleteAsync(
                 payout.Id,
