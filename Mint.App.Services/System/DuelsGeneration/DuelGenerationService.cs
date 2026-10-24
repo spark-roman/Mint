@@ -1,6 +1,7 @@
 using System.Text;
 using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Prompts;
@@ -45,7 +46,7 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         IPromptsGenerator promptsGenerator,
         IDtoMapper<DuelGenerationDto, DuelCreateDto> duelMapper,
         IAIResponseProcessor aiResponseProcessor,
-        DeepSeekSettings settings,
+        IOptions<DeepSeekSettings> settings,
         HttpClient httpClient,
         IServiceScopeFactory serviceScopeFactory)
     {
@@ -53,7 +54,7 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         _duelMapper = duelMapper ?? throw new ArgumentNullException(nameof(duelMapper));
         _aiResponseProcessor = aiResponseProcessor ?? throw new ArgumentNullException(nameof(aiResponseProcessor));
         _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
-        _settings = settings ?? throw new ArgumentNullException(nameof(settings));
+        _settings = (settings ?? throw new ArgumentNullException(nameof(settings))).Value;
         _serviceScopeFactory = serviceScopeFactory ?? throw new ArgumentNullException(nameof(serviceScopeFactory));
     }
 

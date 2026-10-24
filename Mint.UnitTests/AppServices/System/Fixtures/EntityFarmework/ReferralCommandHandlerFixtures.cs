@@ -37,7 +37,7 @@ public sealed class ReferralCommandHandlerFixture : IDisposable
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 
         services.AddSingleton(TimeProvider.System);
-        services.RegisterAppServices("salt", 8);
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
         services.Configure<TelegramOptions>(options => options.BotUsername = BotUserName);
 
         _serviceProvider = services.BuildServiceProvider();

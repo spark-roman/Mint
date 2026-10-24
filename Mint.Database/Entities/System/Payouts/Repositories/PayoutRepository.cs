@@ -1,5 +1,4 @@
 using System.Collections.ObjectModel;
-using System.Transactions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Mint.Common.Contracts.Mappers;
@@ -176,14 +175,6 @@ public sealed class PayoutRepository(
             return [];
         }
 
-        var transactionOptions = new TransactionOptions
-        {
-            IsolationLevel = IsolationLevel.ReadCommitted,
-            Timeout = TimeSpan.FromSeconds(30)
-        };
-
-        using var scope = new TransactionScope(TransactionScopeOption.Required, transactionOptions, TransactionScopeAsyncFlowOption.Enabled);
-        
         await using var context = await _dbContextFactory.CreateDbContextAsync(ct);
 
         if (context.Database.IsInMemory())
@@ -199,19 +190,29 @@ public sealed class PayoutRepository(
             }
 
             await context.SaveChangesAsync(ct);
+            return payoutsForUpdate.Select(_mapper.Map).ToList();
         }
-        else
+
+        // Atomic server-side update: claims pending payouts in one query
+        var updated = await context.Payouts
+            .Where(p => p.Status == PayoutStatus.Pending)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Status, PayoutStatus.Processing), ct);
+
+        if (updated == 0)
         {
-            var updated = await context.Payouts
-                .Where(p => p.Status == PayoutStatus.Pending)
-                .ExecuteUpdateAsync(setters => setters.SetProperty(p => p.Status, PayoutStatus.Processing), ct);
+            return [];
         }
 
-        var claimed = context.Payouts.Where(p => p.Status == PayoutStatus.Processing).Select(_mapper.Map).ToList();
+        // Use a fresh context to read the claimed payouts (ExecuteUpdateAsync is not visible to the original context)
+        await using var readContext = await _dbContextFactory.CreateDbContextAsync(ct);
+        var entities = await readContext.Payouts
+            .AsNoTracking()
+            .Where(p => p.Status == PayoutStatus.Processing)
+            .OrderBy(p => p.PlannedAt)
+            .Take(limit)
+            .ToListAsync(ct);
 
-        scope.Complete();
-
-        return claimed;
+        return entities.Select(_mapper.Map).ToList();
     }
 
     /// <inheritdoc />

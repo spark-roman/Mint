@@ -39,7 +39,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
         var transaction = new TransactionCreateDto
         {
-            CreditAccountId = 1,
+            CreditAccountId = 2,
             DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Test transaction",
@@ -158,7 +158,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebitAccountId = 999999, // Non-existent account
             Amount = 100.00m,
             Description = "Non-existent debit account test",
-            BonusType = BonusType.None,
+            BonusType = BonusType.NoActivity,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -185,7 +185,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Non-existent credit account test",
-            BonusType = BonusType.None,
+            BonusType = BonusType.NoActivity,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -227,7 +227,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebitAccountId = 100,
             Amount = 100.00m,
             Description = "Inactive debit account test",
-            BonusType = BonusType.None,
+            BonusType = BonusType.NoActivity,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -269,7 +269,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Inactive credit account test",
-            BonusType = BonusType.None,
+            BonusType = BonusType.NoActivity,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -296,7 +296,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
             DebitAccountId = 1,
             Amount = 100.00m,
             Description = "Same account test",
-            BonusType = BonusType.None,
+            BonusType = BonusType.NoActivity,
             CreatedAt = DateTimeOffset.UtcNow
         };
 
@@ -318,7 +318,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
         var repository = scope.ServiceProvider.GetRequiredService<ITransactionRepository>();
         var transaction = new TransactionCreateDto
         {
-            CreditAccountId = 1,
+            CreditAccountId = 2,
             DebitAccountId = 1,
             Amount = 250.50m,
             Description = "Click transaction",
@@ -368,7 +368,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
-            CreditAccountId = 1,
+            CreditAccountId = 2,
             DebitAccountId = 1,
             Amount = 100.00m,
             Description = "First",
@@ -378,7 +378,7 @@ public class TransactionRepositoryTests : IClassFixture<RepositoryFixture>
 
         await repository.CreateTransactionAsync(new TransactionCreateDto
         {
-            CreditAccountId = 1,
+            CreditAccountId = 2,
             DebitAccountId = 1,
             Amount = -50.00m,
             Description = "Second",

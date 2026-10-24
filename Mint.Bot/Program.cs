@@ -6,7 +6,6 @@ using Mint.Database.Infrastructure.DI;
 using Mint.App.Services.Infrastructure.DI.System.Hangfire;
 using Hangfire;
 using Mint.App.Services.Infrastructure.DI.System.Jobs;
-using Mint.App.Services.Infrastructure.DI.System.Referral;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,9 +24,7 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.AddHangfireServices(connectionString);
 builder.Services.AddDbContextFactory<MintDbContext>(options => options.UseNpgsql(connectionString, options => options.CommandTimeout(600)));
 
-var salt = builder.Configuration["Referral:Salt"] ?? throw new InvalidOperationException("Referral:Salt is not set");
-var minLength = builder.Configuration.GetValue("Referral:MinLength", 8);
-builder.Services.RegisterAppServices(salt, minLength);
+builder.Services.RegisterAppServices(builder.Configuration);
 builder.Services.RegisterDatabaseServices();
 builder.Services.AddLogging();
 builder.RegisterTgBotServices();

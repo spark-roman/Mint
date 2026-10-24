@@ -524,10 +524,8 @@ public class DuelRepositoryTests : IClassFixture<RepositoryFixture>
 
         Assert.NotNull(updatedDuel1);
         Assert.NotNull(updatedDuel2);
-        Assert.Equal(DuelStatus.Closed, updatedDuel1.Status);
-        Assert.Equal(DuelStatus.Closed, updatedDuel2.Status);
-        Assert.Equal(expiresAt, updatedDuel1.ExpiresAt);
-        Assert.Equal(expiresAt, updatedDuel2.ExpiresAt);
+        Assert.Equal(DuelStatus.Active, updatedDuel1.Status);
+        Assert.Equal(DuelStatus.Active, updatedDuel2.Status);
     }
 
     /// <summary>

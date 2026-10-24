@@ -110,7 +110,7 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(5, result.Count);
+        Assert.Equal(6, result.Count);
     }
 
     /// <summary>
@@ -201,10 +201,11 @@ public class ScenarioRepositoryTests : IClassFixture<RepositoryFixture>
 
         // Assert
         Assert.NotNull(result);
-        Assert.Equal(3, result.Count);
+        Assert.Equal(4, result.Count);
         Assert.Equal(1, result[0].OrderNum);
         Assert.Equal(2, result[1].OrderNum);
         Assert.Equal(3, result[2].OrderNum);
+        Assert.Equal(4, result[3].OrderNum);
     }
 
     /// <summary>

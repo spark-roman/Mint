@@ -1,7 +1,7 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.UserInteractive.Profiles.Handlers;
 
-namespace Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
+namespace Mint.App.Services.Infrastructure.DI.UserInteractive.Profiles;
 
 /// <summary>
 /// Register user profile services.

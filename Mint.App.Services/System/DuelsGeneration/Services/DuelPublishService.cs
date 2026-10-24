@@ -16,24 +16,15 @@ public sealed class DuelPublishService(
     /// <inheritdoc />
     public async Task<int> ProcessPlannedDuelsAsync(CancellationToken cancellationToken)
     {
-        try
-        {
-            _logger.LogInformation("Starting publishing duels at {Time}", DateTimeOffset.UtcNow);
+        _logger.LogInformation("Starting publishing duels at {Time}", DateTimeOffset.UtcNow);
 
-            var settledCount = await _duelGenerationHandler.PublishDuelsAsync(cancellationToken);
+        var settledCount = await _duelGenerationHandler.PublishDuelsAsync(cancellationToken);
 
-            _logger.LogInformation(
-                "Published {Count} duels at {Time}",
-                settledCount,
-                DateTimeOffset.UtcNow);
+        _logger.LogInformation(
+            "Published {Count} duels at {Time}",
+            settledCount,
+            DateTimeOffset.UtcNow);
 
-            return settledCount;
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Failed to publish duels");
-            throw;
-        }
+        return settledCount;
     }
 }
-

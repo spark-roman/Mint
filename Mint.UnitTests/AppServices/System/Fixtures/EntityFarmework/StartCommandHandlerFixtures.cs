@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System.Bot;
-using Mint.App.Services.Infrastructure.DI.UserInterective.Profiles;
+using Mint.App.Services.Infrastructure.DI.UserInteractive.Profiles;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
@@ -39,7 +39,7 @@ public sealed class StartCommandHandlerFixture : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices("salt", 8);
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(databaseName));
 

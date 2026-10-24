@@ -105,8 +105,8 @@ public class DuelSettlementHandlerExecutionTests : IClassFixture<DuelSettlementH
 
         // Both seeded payouts debit from account 1.
         Assert.Equal(2, transactions.Count);
-        Assert.Contains(transactions, t => t.CreditAccountId == 2 && t.Amount == 593.75m && t.BonusTypeId == (int)BonusType.Bet);
-        Assert.Contains(transactions, t => t.CreditAccountId == 3 && t.Amount == 356.25m && t.BonusTypeId == (int)BonusType.Bet);
+        Assert.Contains(transactions, t => t.CreditAccountId == 2 && t.Amount == 593.75m && t.BonusTypeId == (int)BonusType.Payout);
+        Assert.Contains(transactions, t => t.CreditAccountId == 3 && t.Amount == 356.25m && t.BonusTypeId == (int)BonusType.Payout);
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ public class DuelSettlementHandlerExecutionTests : IClassFixture<DuelSettlementH
                 Amount = 0m,
                 Status = PayoutStatus.Pending,
                 DebitAccountId = 1,
-                BonusType = BonusType.None,
+                BonusType = BonusType.NoActivity,
                 Description = "No bonus",
                 PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
             });
@@ -320,7 +320,7 @@ public class DuelSettlementHandlerExecutionTests : IClassFixture<DuelSettlementH
                 Amount = 0m,
                 Status = PayoutStatus.Pending,
                 DebitAccountId = 1,
-                BonusType = BonusType.None,
+                BonusType = BonusType.NoActivity,
                 Description = "No bonus",
                 PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
             });

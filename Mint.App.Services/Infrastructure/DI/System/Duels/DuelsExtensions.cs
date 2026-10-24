@@ -1,4 +1,3 @@
-using System.Collections.ObjectModel;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Jobs;
@@ -27,6 +26,8 @@ public static class DuelsExtensions
     public static void RegisterDuelsServices(this IServiceCollection services)
     {
         services.AddScoped<IDuelCalculationHandler, DuelCalculationHandler>();
+        services.AddScoped<IPayoutPlanningHandler, PayoutPlanningHandler>();
+        services.AddScoped<IPayoutExecutionHandler, PayoutExecutionHandler>();
         services.AddScoped<IDuelSettlementHandler, DuelSettlementHandler>();
         services.AddScoped<IDuelGenerationHandler, DuelGenerationHandler>();
         services.AddScoped<IDuelPayoutService, DuelPayoutService>();

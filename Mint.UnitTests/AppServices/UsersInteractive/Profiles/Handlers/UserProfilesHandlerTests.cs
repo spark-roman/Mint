@@ -723,7 +723,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         var referralTransaction = Assert.Single(transactions, t => t.CreditAccountId == createdAccountId);
         Assert.Equal(AccountConsts.SystemAccountId, referralTransaction.DebitAccountId);
         Assert.Equal(5000.00m, referralTransaction.Amount);
-        Assert.Equal(BonusType.Streak, referralTransaction.BounusType);
+        Assert.Equal(BonusType.Referral, referralTransaction.BounusType);
     }
 
     /// <summary>
@@ -863,7 +863,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
 
         var transactionsBefore = await transactionRepository.GetTransactionsByAccountIdAsync(
             referrerAccount.Id, CancellationToken.None) ?? [];
-        var referralTransactionsBefore = transactionsBefore.Count(t => t.BounusType == BonusType.Streak && t.Amount == 5000.00m);
+        var referralTransactionsBefore = transactionsBefore.Count(t => t.BounusType == BonusType.Referral && t.Amount == 5000.00m);
 
         var referralCode = EncodeReferralCode(1001);
 
@@ -875,7 +875,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
             referrerAccount.Id, CancellationToken.None);
         Assert.NotNull(transactionsAfter);
         var referralTransaction = Assert.Single(transactionsAfter, t =>
-            t.BounusType == BonusType.Streak
+            t.BounusType == BonusType.Referral
             && t.Amount == 5000.00m
             && t.CreditAccountId == referrerAccount.Id
             && t.DebitAccountId == AccountConsts.SystemAccountId);
@@ -883,7 +883,7 @@ public class UserProfilesHandlerTests : IClassFixture<UserProfilesHandlerFixture
         Assert.Equal("Referral bonus", referralTransaction.Description);
 
         // Assert - exactly one new referral transaction was added
-        var referralTransactionsAfter = transactionsAfter.Count(t => t.BounusType == BonusType.Streak && t.Amount == 5000.00m);
+        var referralTransactionsAfter = transactionsAfter.Count(t => t.BounusType == BonusType.Referral && t.Amount == 5000.00m);
         Assert.Equal(referralTransactionsBefore + 1, referralTransactionsAfter);
     }
 

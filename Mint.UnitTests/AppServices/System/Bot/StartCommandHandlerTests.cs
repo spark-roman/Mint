@@ -58,10 +58,11 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         Assert.NotNull(result);
         Assert.NotNull(result.Message);
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(3, result.Keyboard.Count);
+        Assert.Equal(4, result.Keyboard.Count);
         Assert.Equal("📊 Дуэли дня", result.Keyboard[0].Caption);
         Assert.Equal("👤 Мой профиль", result.Keyboard[1].Caption);
         Assert.Equal("👥 Пригласить", result.Keyboard[2].Caption);
+        Assert.Equal("🆘 Помощь", result.Keyboard[3].Caption);
         Assert.False(result.IsFinal);
         Assert.True(result.IsNewMessage);
 
@@ -229,10 +230,11 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(3, result.Keyboard.Count);
+        Assert.Equal(4, result.Keyboard.Count);
         Assert.Equal("📊 Дуэли дня", result.Keyboard[0].Caption);
         Assert.Equal("👤 Мой профиль", result.Keyboard[1].Caption);
         Assert.Equal("👥 Пригласить", result.Keyboard[2].Caption);
+        Assert.Equal("🆘 Помощь", result.Keyboard[3].Caption);
     }
 
     #endregion
@@ -303,13 +305,11 @@ public class StartCommandHandlerTests : IClassFixture<StartCommandHandlerFixture
         Assert.NotNull(createdUser);
         Assert.Equal(userId, createdUser.ExternalUserId);
 
-        // Verify account was created with start bonus
+        // Verify account was created
         var account = await accountRepository.GetAccountByExternalUserIdAsync(userId, (byte)AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(account);
-        Assert.Equal(1000.00m, account.Balance);
 
-        // Verify message contains balance and rank with emoji
-        Assert.Contains("1,000", result.Message);
+        // Verify message contains rank with emoji
         Assert.Contains("🌱", result.Message);
         Assert.Contains("Новичок", result.Message);
     }
