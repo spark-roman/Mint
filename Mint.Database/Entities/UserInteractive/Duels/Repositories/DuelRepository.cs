@@ -35,7 +35,7 @@ public class DuelRepository(
     {
         ArgumentNullException.ThrowIfNull(dto);
 
-        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
         var entity = _duelCreateMapper.Map(dto);
 
         await context.Duels.AddAsync(entity, cancellationToken);
@@ -47,7 +47,7 @@ public class DuelRepository(
     /// <inheritdoc/>
     public async Task<DuelDto?> GetDuelByIdAsync(long duelId, CancellationToken cancellationToken)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var duel = await context.Duels
             .Include(d => d.Options)
@@ -59,7 +59,7 @@ public class DuelRepository(
     /// <inheritdoc/>
     public async Task<List<DuelDto>?> GetActiveDuelsForCloseAsync(CancellationToken cancellationToken)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var now = _timeProvider.GetUtcNow();
 
@@ -75,7 +75,7 @@ public class DuelRepository(
     /// <inheritdoc/>
     public async Task<DuelDto?> GetFirstAvailableDuelAsync(int categoryId, long accountId, CancellationToken cancellationToken)
     {
-        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var now = _timeProvider.GetUtcNow();
 

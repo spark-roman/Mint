@@ -27,7 +27,7 @@ public sealed class DuelSettlementHandlerFixture : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices("salt", 8);
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 

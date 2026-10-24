@@ -65,8 +65,11 @@ public class VoteRepositoryTests : IClassFixture<RepositoryFixture>
         // Act
         var result = await voteRepository.CreateVoteAsync(vote, CancellationToken.None);
 
-        // Assert
-        Assert.Equal(duelId, result);
+        // Assert - CreateVoteAsync returns the vote's ID, verify the vote was created with correct duel
+        Assert.True(result > 0);
+        var createdVote = await voteRepository.GetVoteAsync(duelId, 1, CancellationToken.None);
+        Assert.NotNull(createdVote);
+        Assert.Equal(duelId, createdVote.DuelId);
     }
 
     /// <summary>

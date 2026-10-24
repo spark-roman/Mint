@@ -56,7 +56,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
         Assert.Equal(3, result.Keyboard.Count);
         Assert.Equal("🎁 Забрать бонус", result.Keyboard[0].Caption);
         Assert.Equal("📈 Таблица лидеров", result.Keyboard[1].Caption);
-        Assert.Equal("⬅️ Назад в меню", result.Keyboard[2].Caption);
+        Assert.Equal("🔙 Назад в меню", result.Keyboard[2].Caption);
         Assert.False(result.IsFinal);
         Assert.False(result.IsNewMessage);
     }
@@ -190,7 +190,7 @@ public class ProfileCommandHandlerTests : IClassFixture<ProfileCommandHandlerFix
         Assert.Equal(expectedButtons.Count, result.Keyboard.Count);
         Assert.Equal("🎁 Забрать бонус", result.Keyboard[0].Caption);
         Assert.Equal("📈 Таблица лидеров", result.Keyboard[1].Caption);
-        Assert.Equal("⬅️ Назад в меню", result.Keyboard[2].Caption);
+        Assert.Equal("🔙 Назад в меню", result.Keyboard[2].Caption);
     }
 
     #endregion

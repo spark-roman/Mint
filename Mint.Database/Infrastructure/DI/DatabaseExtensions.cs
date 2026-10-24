@@ -12,7 +12,7 @@ namespace Mint.Database.Infrastructure.DI;
 /// <summary>
 /// Database extensions
 /// </summary>
-public static class DatabseExtensions
+public static class DatabaseExtensions
 {
     /// <summary>
     /// Register entity mappers

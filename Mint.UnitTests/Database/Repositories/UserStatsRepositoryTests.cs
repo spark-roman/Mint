@@ -1,3 +1,4 @@
+using Mint.Database.Entities.UserInteractive.Stats;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
 using Mint.Database.Entities.UserInteractive.Stats.Repositories;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
@@ -272,14 +273,16 @@ public class UserStatsRepositoryTests : IClassFixture<RepositoryFixture>
         });
         await context.SaveChangesAsync(CancellationToken.None);
 
-        var webStats = new UserStatsCreateDto
+        // Directly insert stats for the web user (SystemType = 2) since CreateStatsAsync
+        // uses the default system type (Tg) and would create stats for the wrong user
+        context.UserStats.Add(new UserStatsEntity
         {
-            ExternalUserId = 1001,
+            UserId = 10,
             RankPoints = 10,
             TotalWins = 1,
             TotalLosses = 0
-        };
-        await repository.CreateStatsAsync(webStats, CancellationToken.None);
+        });
+        await context.SaveChangesAsync(CancellationToken.None);
 
         var updateStats = new UserStatsUpdateDto
         {

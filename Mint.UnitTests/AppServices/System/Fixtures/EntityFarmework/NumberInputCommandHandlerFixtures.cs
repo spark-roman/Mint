@@ -27,7 +27,7 @@ public sealed class NumberInputCommandHandlerFixtures : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices("salt", 8);
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 
@@ -75,6 +75,8 @@ public sealed class NumberInputCommandHandlerFixtures : IDisposable
         context.Buttons.RemoveRange(context.Buttons);
         context.Duels.RemoveRange(context.Duels);
         context.DuelOptions.RemoveRange(context.DuelOptions);
+        context.Votes.RemoveRange(context.Votes);
+        context.Transactions.RemoveRange(context.Transactions);
         context.Accounts.RemoveRange(context.Accounts);
         context.SystemSettings.RemoveRange(context.SystemSettings);
         await context.SaveChangesAsync(cancellationToken);

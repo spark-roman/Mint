@@ -123,7 +123,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var winningResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
+        var winningResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.NoActivity).ToList();
         Assert.Equal(2, winningResults.Count);
 
         // Alice (AccountId=2, bet=500): payout = 500 * 1.425 = 712.5
@@ -175,7 +175,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var losingResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType == BonusType.None).ToList();
+        var losingResults = result.VoteResults.Where(v => v.PayoutInstruction.BonusType == BonusType.NoActivity).ToList();
         Assert.Single(losingResults);
         Assert.Equal(4, losingResults.First().VoteAccountId);
     }
@@ -266,7 +266,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         // Assert
         Assert.All(result.VoteResults, v =>
         {
-            if (v.PayoutInstruction.BonusType != BonusType.None)
+            if (v.PayoutInstruction.BonusType != BonusType.NoActivity)
             {
                 Assert.Equal(1, v.PayoutInstruction.DebitAccountId); // system account
             }
@@ -313,7 +313,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var payouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
+        var payouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.NoActivity).ToList();
         Assert.Equal(2, payouts.Count);
         Assert.Contains(payouts, v => v.PayoutInstruction!.CreditAccountId == 2); // Alice
         Assert.Contains(payouts, v => v.PayoutInstruction!.CreditAccountId == 3); // Bob
@@ -361,7 +361,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         // Assert
         Assert.All(result.VoteResults, v =>
         {
-            if (v.PayoutInstruction.BonusType != BonusType.None)
+            if (v.PayoutInstruction.BonusType != BonusType.NoActivity)
             {
                 Assert.Contains(":1", v.PayoutInstruction.Description);
             }
@@ -506,7 +506,7 @@ public class DuelCalculationHandlerTests : IClassFixture<DuelCalculationHandlerF
         var result = await handler.CalculateResultAsync(duel, winningOptionId, votes, CancellationToken.None);
 
         // Assert
-        var winningPayouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.None).ToList();
+        var winningPayouts = result.VoteResults.Where(v => v.PayoutInstruction.BonusType != BonusType.NoActivity).ToList();
         Assert.Equal(2, winningPayouts.Count);
         Assert.All(winningPayouts, p => Assert.True(p.PayoutInstruction!.Amount > 0));
     }

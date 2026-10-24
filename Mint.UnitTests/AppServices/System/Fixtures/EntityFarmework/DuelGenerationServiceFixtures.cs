@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.System.DuelsGeneration;
+using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
@@ -31,10 +32,16 @@ public sealed class DuelGenerationServiceFixture : IDisposable
         var services = new ServiceCollection();
 
         services.RegisterDatabaseServices();
-        services.RegisterAppServices("salt", 8);
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
 
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
+
+        services.AddSingleton(new DeepSeekSettings
+        {
+            DeepSeekApiUrl = new Uri("https://api.deepseek.com/v1"),
+            Token = "test-token"
+        });
 
         _httpClientHandler = new MockHttpMessageHandler();
         services.RegisterDeepSeekHttpClient(new HttpClient(_httpClientHandler));

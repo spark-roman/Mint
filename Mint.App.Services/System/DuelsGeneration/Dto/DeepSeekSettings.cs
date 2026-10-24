@@ -6,6 +6,11 @@ namespace Mint.App.Services.System.DuelsGeneration.Dto;
 public record DeepSeekSettings
 {
     /// <summary>
+    /// Configuration section name
+    /// </summary>
+    public const string SectionName = "DeepSeekSettings";
+
+    /// <summary>
     /// DeepSeek API URL
     /// </summary>
     public required Uri DeepSeekApiUrl { get; init; }

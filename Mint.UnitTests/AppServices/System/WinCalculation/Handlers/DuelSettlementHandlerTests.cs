@@ -233,9 +233,10 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         // Duel 1: option 1 wins (2 votes: account 2 bet 500, account 3 bet 300).
         // Total pot = 1000, house cut = 50, prize pool = 950, win factor = 950/800 = 1.1875.
         // Account 2 payout = 500 * 1.1875 = 593.75; Account 3 payout = 300 * 1.1875 = 356.25.
-        // Account 4 voted for option 2 (loser) - gets a zero amount placeholder.
+        // Account 4 voted for option 2 (loser) - gets a zero amount payout with NoActivity.
+        // Seeder already created 2 payouts, handler adds 3 more = 5 total.
         Assert.Equal(5, payouts.Count);
-        Assert.Contains(payouts, p => p.CreditAccountId == long.MinValue && p.Amount == 0.0m);
+        Assert.Contains(payouts, p => p.CreditAccountId == 4 && p.Amount == 0.0m && p.BonusType == BonusType.NoActivity);
         Assert.Contains(payouts, p => p.CreditAccountId == 2 && p.Amount == 593.75m);
         Assert.Contains(payouts, p => p.CreditAccountId == 3 && p.Amount == 356.25m);
     }
@@ -282,15 +283,15 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         var factory = _currentScope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
         await using var context = await factory.CreateDbContextAsync();
 
-        // Account 4 voted for option 2 which lost - the payout is planned for the placeholder account.
+        // Account 4 voted for option 2 which lost - gets a zero amount payout with NoActivity bonus type.
         var payoutForAccount4 = await context.Payouts
             .AnyAsync(p => p.DuelId == 1 && p.CreditAccountId == 4);
-        Assert.False(payoutForAccount4);
+        Assert.True(payoutForAccount4);
 
-        var placeholder = await context.Payouts.SingleAsync(p => p.DuelId == 1 && p.Amount == 0);
-        Assert.Equal(long.MinValue, placeholder.CreditAccountId);
-        Assert.Equal(long.MinValue, placeholder.DebitAccountId);
-        Assert.Equal(BonusType.None, placeholder.BonusType);
+        var loserPayout = await context.Payouts.SingleAsync(p => p.DuelId == 1 && p.CreditAccountId == 4 && p.Amount == 0);
+        Assert.Equal(4, loserPayout.CreditAccountId);
+        Assert.Equal(1, loserPayout.DebitAccountId);
+        Assert.Equal(BonusType.NoActivity, loserPayout.BonusType);
     }
 
     /// <summary>
@@ -342,7 +343,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
         var factory = _currentScope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
         await using var context = await factory.CreateDbContextAsync();
 
-        // Votes 1 and 2 are the winning votes for duel 1 (option 1).
+        // All 3 votes (1, 2, 3) have payout records.
         var payoutVoteIds = await context.Payouts
             .Where(p => p.DuelId == 1)
             .Select(p => p.VoteId)
@@ -350,9 +351,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
         Assert.Contains(1, payoutVoteIds);
         Assert.Contains(2, payoutVoteIds);
-
-        // Vote 3 (account 4, option 2) is a losing vote - its plan carries no vote reference.
-        Assert.DoesNotContain(3, payoutVoteIds);
+        Assert.Contains(3, payoutVoteIds);
     }
 
     /// <summary>
@@ -407,7 +406,7 @@ public class DuelSettlementHandlerTests : IClassFixture<DuelSettlementHandlerFix
 
         Assert.Equal(4, winningPayouts.Count);
         Assert.All(winningPayouts, p => Assert.Equal(1, p.DebitAccountId));
-        Assert.All(winningPayouts, p => Assert.Equal(BonusType.Bet, p.BonusType));
+        Assert.All(winningPayouts, p => Assert.Equal(BonusType.Payout, p.BonusType));
         Assert.All(winningPayouts, p => Assert.Equal("Выплата за дуэль:1", p.Description));
     }
 

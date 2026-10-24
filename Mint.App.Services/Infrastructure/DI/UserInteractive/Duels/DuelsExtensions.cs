@@ -3,7 +3,7 @@ using Mint.App.Services.UserInteractive.Bonuses.Handlers;
 using Mint.App.Services.UserInteractive.Bonuses.Rules;
 using Mint.App.Services.UserInteractive.Duels.Handlers;
 
-namespace Mint.App.Services.Infrastructure.DI.UserInterective.Bonuses;
+namespace Mint.App.Services.Infrastructure.DI.UserInteractive.Bonuses;
 
 /// <summary>
 /// Register bonus services.

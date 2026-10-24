@@ -495,7 +495,7 @@ public static class DuelSettlementHandlerSeeder
                 Amount = 593.75m,
                 Status = PayoutStatus.Pending,
                 DebitAccountId = 1,
-                BonusType = BonusType.Bet,
+                BonusType = BonusType.Payout,
                 Description = "Выплата за дуэль:1",
                 PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
             },
@@ -508,7 +508,7 @@ public static class DuelSettlementHandlerSeeder
                 Amount = 356.25m,
                 Status = PayoutStatus.Pending,
                 DebitAccountId = 1,
-                BonusType = BonusType.Bet,
+                BonusType = BonusType.Payout,
                 Description = "Выплата за дуэль:1",
                 PlannedAt = DateTimeOffset.UtcNow.AddHours(-1)
             });

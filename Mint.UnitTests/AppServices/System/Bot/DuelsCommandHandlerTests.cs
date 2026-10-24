@@ -81,7 +81,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         Assert.Equal("category_tech", result.Keyboard[1].Action);
         Assert.Contains("Спорт", result.Keyboard[2].Caption);
         Assert.Equal("category_sports", result.Keyboard[2].Action);
-        Assert.Equal("⬅️ Назад в меню", result.Keyboard[3].Caption);
+        Assert.Equal("🔙 Назад в меню", result.Keyboard[3].Caption);
         Assert.Equal("main_menu", result.Keyboard[3].Action);
     }
 
