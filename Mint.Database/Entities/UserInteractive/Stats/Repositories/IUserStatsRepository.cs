@@ -1,3 +1,4 @@
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
 
 namespace Mint.Database.Entities.UserInteractive.Stats.Repositories;
@@ -66,4 +67,12 @@ public interface IUserStatsRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>User rank</returns>
     Task<int> GetUserRankByPointsAsync(decimal rankPoints, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets the history of all duels the user voted in.
+    /// </summary>
+    /// <param name="accountId">Account ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of duel history entries, sorted by vote date (newest first)</returns>
+    Task<List<DuelHistoryDto>> GetDuelHistoryAsync(long accountId, CancellationToken cancellationToken);
 }

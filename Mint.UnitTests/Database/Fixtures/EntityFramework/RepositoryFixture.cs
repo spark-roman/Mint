@@ -74,6 +74,8 @@ public class RepositoryFixture
         context.Scenarios.RemoveRange(context.Scenarios);
         context.Steps.RemoveRange(context.Steps);
         context.Buttons.RemoveRange(context.Buttons);
+        context.Votes.RemoveRange(context.Votes);
+        context.Payouts.RemoveRange(context.Payouts);
 
         await context.SaveChangesAsync(cancellationToken);
 

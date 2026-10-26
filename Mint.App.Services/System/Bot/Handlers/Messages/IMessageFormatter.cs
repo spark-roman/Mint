@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.App.Services.UserInteractive.Referral.Dto;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
@@ -72,4 +73,13 @@ public interface IMessageFormatter
     /// <param name="referralData">Referral data containing the referral code, count, and amount.</param>
     /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
     public Task<string> FormatReferralMessageAsync(string messageTemplate, ReferralDataDto referralData, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Formats a message template with duel history data.
+    /// </summary>
+    /// <param name="messageTemplate">Message template containing placeholders to be replaced.</param>
+    /// <param name="history">List of duel history entries.</param>
+    /// <param name="cancellationToken">Cancellation token to cancel the operation.</param>
+    /// <returns>Formatted message string with duel history entries.</returns>
+    Task<string> FormatDuelHistoryAsync(string messageTemplate, IReadOnlyList<DuelHistoryDto> history, CancellationToken cancellationToken);
 }

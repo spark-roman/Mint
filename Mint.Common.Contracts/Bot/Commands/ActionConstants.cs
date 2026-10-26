@@ -26,6 +26,9 @@ public static class ActionConstants
     /// <summary>Action for displaying the leaderboard.</summary>
     public const string Leaderboard = "leaderboard";
 
+    /// <summary>Action for displaying the duel history.</summary>
+    public const string DuelHistory = "duel_history";
+
     /// <summary>Action for displaying the help menu.</summary>
     public const string Help = "help";
 
