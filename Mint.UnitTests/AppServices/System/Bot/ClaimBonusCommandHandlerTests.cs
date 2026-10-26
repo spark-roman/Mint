@@ -50,7 +50,7 @@ public class ClaimBonusCommandHandlerTests : IClassFixture<ClaimBonusCommandHand
         Assert.False(result.IsFinal);
         Assert.Contains("Ежедневный бонус", result.Message);
         Assert.NotNull(result.Keyboard);
-        Assert.Equal(3, result.Keyboard.Count);
+        Assert.Equal(4, result.Keyboard.Count);
     }
 
     /// <summary>

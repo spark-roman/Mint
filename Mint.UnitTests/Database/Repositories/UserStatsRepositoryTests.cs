@@ -5,8 +5,15 @@ using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Common.Contracts.Users;
+using Mint.Common.Contracts.UserInteractive.Bonuses;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database;
 using Mint.Database.Entities.Users;
+using Mint.Database.Entities.Ledger.Accounts;
+using Mint.Database.Entities.Ledger.Transactions;
+using Mint.Database.Entities.UserInteractive.Duels;
+using Mint.Database.Entities.UserInteractive.Votes;
+using Mint.Database.Entities.System.Payouts;
 
 namespace Mint.UnitTests.Database.Repositories;
 
@@ -400,4 +407,481 @@ public class UserStatsRepositoryTests : IClassFixture<RepositoryFixture>
         // Assert
         Assert.False(result);
     }
+
+    #region GetDuelHistoryAsync
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns an empty list when the account has no votes.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_NoVotes_ReturnsEmptyList()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns an empty list when the account has only open duels.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_OpenDuels_ReturnsEmptyList()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var duel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Is TON going up?",
+            Description = "Will TON go up?",
+            ExpiresAt = DateTimeOffset.UtcNow.AddDays(1),
+            Status = DuelStatus.Active
+        };
+        context.Duels.Add(duel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var vote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = duel.Id,
+            Duel = duel,
+            ChosenOptionId = 0,
+            BetAmount = 100m,
+            TransactionId = 1,
+            CreatedAt = DateTimeOffset.UtcNow
+        };
+        context.Votes.Add(vote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Empty(result);
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns a history entry with Win result
+    /// when the payout BonusType is Payout.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_WinResult_ReturnsWin()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var now = DateTimeOffset.UtcNow;
+        var expiresAt = now.AddMinutes(-1);
+
+        var duel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Is TON going up?",
+            Description = "Will TON go up?",
+            ExpiresAt = expiresAt,
+            Status = DuelStatus.Closed
+        };
+        context.Duels.Add(duel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var vote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = duel.Id,
+            Duel = duel,
+            ChosenOptionId = 0,
+            BetAmount = 100m,
+            TransactionId = 1,
+            CreatedAt = now.AddMinutes(-2)
+        };
+        context.Votes.Add(vote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var payout = new PayoutEntity
+        {
+            DuelId = duel.Id,
+            Duel = duel,
+            CreditAccountId = 1,
+            DebitAccountId = 2,
+            Amount = 200m,
+            Status = 0,
+            BonusType = BonusType.Payout,
+            VoteId = vote.Id,
+            Vote = vote,
+            PlannedAt = now
+        };
+        context.Payouts.Add(payout);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(DuelVoteResultType.Win, result[0].Result);
+        Assert.Equal(100m, result[0].BetAmount);
+        Assert.Equal(200m, result[0].PayoutAmount);
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns a history entry with Draw result
+    /// when the payout BonusType is Refund.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_DrawResult_ReturnsDraw()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var now = DateTimeOffset.UtcNow;
+        var expiresAt = now.AddMinutes(-1);
+
+        var duel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Is BTC going up?",
+            Description = "Will BTC go up?",
+            ExpiresAt = expiresAt,
+            Status = DuelStatus.Closed
+        };
+        context.Duels.Add(duel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var vote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = duel.Id,
+            Duel = duel,
+            ChosenOptionId = 0,
+            BetAmount = 50m,
+            TransactionId = 1,
+            CreatedAt = now.AddMinutes(-2)
+        };
+        context.Votes.Add(vote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var payout = new PayoutEntity
+        {
+            DuelId = duel.Id,
+            Duel = duel,
+            CreditAccountId = 1,
+            DebitAccountId = 2,
+            Amount = 50m,
+            Status = 0,
+            BonusType = BonusType.Refund,
+            VoteId = vote.Id,
+            Vote = vote,
+            PlannedAt = now
+        };
+        context.Payouts.Add(payout);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(DuelVoteResultType.Draw, result[0].Result);
+        Assert.Equal(50m, result[0].BetAmount);
+        Assert.Equal(50m, result[0].PayoutAmount);
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns a history entry with Loss result
+    /// when the payout BonusType is NoActivity.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_LossResult_ReturnsLoss()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var now = DateTimeOffset.UtcNow;
+        var expiresAt = now.AddMinutes(-1);
+
+        var duel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Is ETH going up?",
+            Description = "Will ETH go up?",
+            ExpiresAt = expiresAt,
+            Status = DuelStatus.Closed
+        };
+        context.Duels.Add(duel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var vote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = duel.Id,
+            Duel = duel,
+            ChosenOptionId = 0,
+            BetAmount = 75m,
+            TransactionId = 1,
+            CreatedAt = now.AddMinutes(-2)
+        };
+        context.Votes.Add(vote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var payout = new PayoutEntity
+        {
+            DuelId = duel.Id,
+            Duel = duel,
+            CreditAccountId = 1,
+            DebitAccountId = 2,
+            Amount = 0m,
+            Status = 0,
+            BonusType = BonusType.NoActivity,
+            VoteId = vote.Id,
+            Vote = vote,
+            PlannedAt = now
+        };
+        context.Payouts.Add(payout);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Single(result);
+        Assert.Equal(DuelVoteResultType.Loss, result[0].Result);
+        Assert.Equal(75m, result[0].BetAmount);
+        Assert.Equal(0m, result[0].PayoutAmount);
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync returns multiple entries when the account
+    /// has votes in multiple closed duels with the same ExpiresAt.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_MultipleDuelsSameExpiresAt_ReturnsAll()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var now = DateTimeOffset.UtcNow;
+        var expiresAt = now.AddMinutes(-1);
+
+        // Create two duels with the same ExpiresAt
+        for (int i = 0; i < 2; i++)
+        {
+            var duel = new DuelEntity
+            {
+                CategoryId = category.Id,
+                Category = category,
+                DuelType = DuelType.OpinionMatch,
+                Question = $"Duel question {i}?",
+                Description = $"Description {i}",
+                ExpiresAt = expiresAt,
+                Status = DuelStatus.Closed
+            };
+            context.Duels.Add(duel);
+        }
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        var votes = new List<VoteEntity>();
+        for (int i = 0; i < 2; i++)
+        {
+            var vote = new VoteEntity
+            {
+                AccountId = 1,
+                Account = context.Accounts.First(a => a.Id == 1),
+                DuelId = context.Duels.Skip(i).First().Id,
+                Duel = context.Duels.Skip(i).First(),
+                ChosenOptionId = 0,
+                BetAmount = 100m,
+                TransactionId = 1,
+                CreatedAt = now.AddMinutes(-2 - i)
+            };
+            context.Votes.Add(vote);
+            await context.SaveChangesAsync(CancellationToken.None);
+            votes.Add(vote);
+        }
+
+        // Add payouts for both votes
+        foreach (var vote in votes)
+        {
+            var payout = new PayoutEntity
+            {
+                DuelId = vote.DuelId,
+                Duel = vote.Duel,
+                CreditAccountId = 1,
+                DebitAccountId = 2,
+                Amount = 200m,
+                Status = 0,
+                BonusType = BonusType.Payout,
+                VoteId = vote.Id,
+                Vote = vote,
+                PlannedAt = now
+            };
+            context.Payouts.Add(payout);
+        }
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert
+        Assert.Equal(2, result.Count);
+        Assert.All(result, r =>
+        {
+            Assert.Equal(DuelVoteResultType.Win, r.Result);
+            Assert.Equal(100m, r.BetAmount);
+            Assert.Equal(200m, r.PayoutAmount);
+        });
+    }
+
+    /// <summary>
+    /// Verifies that GetDuelHistoryAsync only returns duels with the latest ExpiresAt
+    /// when the account has closed duels with different ExpiresAt values.
+    /// </summary>
+    [Fact]
+    public async Task GetDuelHistoryAsync_DifferentExpiresAt_ReturnsOnlyLatest()
+    {
+        // Arrange
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<IUserStatsRepository>();
+        await _fixture.ResetAsync(CancellationToken.None);
+
+        var dbContextFactory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<MintDbContext>>();
+        using var context = await dbContextFactory.CreateDbContextAsync(CancellationToken.None);
+
+        var category = await context.UserCategories.FirstAsync();
+        var now = DateTimeOffset.UtcNow;
+
+        // Create an older closed duel
+        var olderDuel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Old duel?",
+            Description = "Old",
+            ExpiresAt = now.AddMinutes(-3),
+            Status = DuelStatus.Closed
+        };
+        context.Duels.Add(olderDuel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Create a newer closed duel
+        var newerDuel = new DuelEntity
+        {
+            CategoryId = category.Id,
+            Category = category,
+            DuelType = DuelType.OpinionMatch,
+            Question = "New duel?",
+            Description = "New",
+            ExpiresAt = now.AddMinutes(-1),
+            Status = DuelStatus.Closed
+        };
+        context.Duels.Add(newerDuel);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Vote for the older duel
+        var olderVote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = olderDuel.Id,
+            Duel = olderDuel,
+            ChosenOptionId = 0,
+            BetAmount = 100m,
+            TransactionId = 1,
+            CreatedAt = now.AddMinutes(-4)
+        };
+        context.Votes.Add(olderVote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Vote for the newer duel
+        var newerVote = new VoteEntity
+        {
+            AccountId = 1,
+            Account = context.Accounts.First(a => a.Id == 1),
+            DuelId = newerDuel.Id,
+            Duel = newerDuel,
+            ChosenOptionId = 0,
+            BetAmount = 50m,
+            TransactionId = 2,
+            CreatedAt = now.AddMinutes(-2)
+        };
+        context.Votes.Add(newerVote);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Add payout for the newer vote only
+        var payout = new PayoutEntity
+        {
+            DuelId = newerDuel.Id,
+            Duel = newerDuel,
+            CreditAccountId = 1,
+            DebitAccountId = 2,
+            Amount = 100m,
+            Status = 0,
+            BonusType = BonusType.Payout,
+            VoteId = newerVote.Id,
+            Vote = newerVote,
+            PlannedAt = now
+        };
+        context.Payouts.Add(payout);
+        await context.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetDuelHistoryAsync(accountId: 1, CancellationToken.None);
+
+        // Assert - only the newer duel should be returned
+        Assert.Single(result);
+        Assert.Equal(newerDuel.Id, result[0].DuelId);
+        Assert.Equal(DuelVoteResultType.Win, result[0].Result);
+    }
+
+    #endregion
 }

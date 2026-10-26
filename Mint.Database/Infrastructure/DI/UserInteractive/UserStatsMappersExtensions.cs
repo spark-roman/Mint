@@ -22,5 +22,6 @@ public static class UserStatsMappersExtensions
         services.AddSingleton<IDbEntityMapper<UserStatsEntity, UserStatsDto>, DbStatsMapper>();
         services.AddSingleton<IDbUserStatsMapper, DbUserStatsMapper>();
         services.AddSingleton<IDbEntityMapper<RankConfigEntity, RankConfigDto>, DbRankConfigMapper>();
+        services.AddSingleton<IDbDuelHistoryMapper, DbDuelHistoryMapper>();
     }
 }

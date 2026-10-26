@@ -4,6 +4,7 @@ using System.Text;
 using Mint.App.Services.UserInteractive.Duels.Dto;
 using Mint.App.Services.UserInteractive.Profiles.Dto;
 using Mint.App.Services.UserInteractive.Referral.Dto;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.Bot.Handlers.Messages;
@@ -196,5 +197,66 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
 
         return await Task.FromResult(formattedMessage);
+    }
+
+    /// <inheritdoc />
+    public async Task<string> FormatDuelHistoryAsync(
+        string messageTemplate,
+        IReadOnlyList<DuelHistoryDto> history,
+        CancellationToken cancellationToken)
+    {
+        ArgumentNullException.ThrowIfNull(history);
+
+        var entries = BuildDuelHistoryEntries(history);
+        var duelDate = history.Count > 0 ? history[0].VotedAt.Date : DateTime.UtcNow.Date;
+
+        var replacements = new Dictionary<string, string>
+        {
+            ["{{duel_history_entries}}"] = entries,
+            ["{{duel_history_date}}"] = $"Последнее закрытие: {duelDate:dd.MM.yyyy}",
+            ["{{total_duels}}"] = history.Count.ToString(CultureInfo.InvariantCulture),
+            ["{{wins}}"] = history.Count(h => h.Result == DuelVoteResultType.Win).ToString(CultureInfo.InvariantCulture),
+            ["{{losses}}"] = history.Count(h => h.Result == DuelVoteResultType.Loss).ToString(CultureInfo.InvariantCulture),
+            ["{{draws}}"] = history.Count(h => h.Result == DuelVoteResultType.Draw).ToString(CultureInfo.InvariantCulture)
+        };
+
+        var formattedMessage = replacements.Aggregate(
+            messageTemplate,
+            (current, kvp) => current.Replace(kvp.Key, kvp.Value, StringComparison.InvariantCultureIgnoreCase));
+
+        return await Task.FromResult(formattedMessage);
+    }
+
+    private static string BuildDuelHistoryEntries(IReadOnlyList<DuelHistoryDto> history)
+    {
+        if (history == null || history.Count == 0)
+        {
+            return "📊 <i>Статистика пуста. Сыграйте свою первую дуэль!</i>";
+        }
+
+        var sb = new StringBuilder();
+        var recentDuels = history.Take(10).ToList();
+
+        foreach (var duel in recentDuels)
+        {
+            var resultEmoji = duel.Result switch
+            {
+                DuelVoteResultType.Win => "✅",
+                DuelVoteResultType.Loss => "❌",
+                DuelVoteResultType.Draw => "🤝",
+                _ => "⏳"
+            };
+
+            sb.AppendLine(CultureInfo.CurrentCulture, $"{resultEmoji} **#{duel.DuelId}** | {duel.CategoryName}");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"   💰 Ставка: {duel.BetAmount:N0} 🪙 | Выплата: {duel.PayoutAmount:N0} 🪙");
+            sb.AppendLine(CultureInfo.CurrentCulture, $"   📅 {duel.VotedAt:dd.MM.yyyy HH:mm}");
+        }
+
+        if (history.Count > 10)
+        {
+            sb.AppendLine(CultureInfo.CurrentCulture, $"\n<i>...и ещё {history.Count - 10} дуэль(ей)</i>");
+        }
+
+        return sb.ToString();
     }
 }

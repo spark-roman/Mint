@@ -17,5 +17,6 @@ public static class DuelsExtensions
     public static void RegisterDuelsHandlers(this IServiceCollection services)
     {
         services.AddScoped<IDuelHandler, DuelHandler>();
+        services.AddScoped<IDuelHistoryHandler, DuelHistoryHandler>();
     }
 }

@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Mint.Common.Contracts.Mappers;
+using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Stats.Dto;
 using Mint.Database.Entities.UserInteractive.Stats.Mappers;
 
@@ -12,6 +13,7 @@ namespace Mint.Database.Entities.UserInteractive.Stats.Repositories;
 /// <param name="statsUpdateMapper">Mapper for updating stats</param>
 /// <param name="statsMapper">Mapper for stats entity</param>
 /// <param name="dbUserStatsMapper">Mapper for leaderboard stats</param>
+/// <param name="duelHistoryMapper">Mapper for duel history</param>
 /// <param name="timeProvider">Time provider</param>
 /// <param name="dbContextFactory">Database context factory</param>
 public class UserStatsRepository(
@@ -19,6 +21,7 @@ public class UserStatsRepository(
     IDbEntityMapper<UserStatsUpdateDto, UserStatsEntity> statsUpdateMapper,
     IDbEntityMapper<UserStatsEntity, UserStatsDto> statsMapper,
     IDbUserStatsMapper dbUserStatsMapper,
+    IDbDuelHistoryMapper duelHistoryMapper,
     TimeProvider timeProvider,
     IDbContextFactory<MintDbContext> dbContextFactory) : IUserStatsRepository
 {
@@ -29,6 +32,8 @@ public class UserStatsRepository(
     private readonly IDbEntityMapper<UserStatsEntity, UserStatsDto> _statsMapper = statsMapper ?? throw new ArgumentNullException(nameof(statsMapper));
 
     private readonly IDbUserStatsMapper _dbUserStatsMapper = dbUserStatsMapper ?? throw new ArgumentNullException(nameof(dbUserStatsMapper));
+
+    private readonly IDbDuelHistoryMapper _duelHistoryMapper = duelHistoryMapper ?? throw new ArgumentNullException(nameof(duelHistoryMapper));
 
     private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
 
@@ -199,5 +204,63 @@ public class UserStatsRepository(
             .CountAsync(s => s.RankPoints > rankPoints, cancellationToken);
 
         return higherCount + 1;
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<DuelHistoryDto>> GetDuelHistoryAsync(long accountId, CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        // Find the latest ExpiresAt among closed duels this user voted in
+        var hasClosedDuels = await context.Votes
+            .AnyAsync(v => v.AccountId == accountId && v.Duel != null && v.Duel.Status == DuelStatus.Closed, cancellationToken);
+
+        if (!hasClosedDuels)
+        {
+            return [];
+        }
+
+        var latestClosedExpiresAt = await context.Votes
+            .Where(v => v.AccountId == accountId && v.Duel != null && v.Duel.Status == DuelStatus.Closed)
+            .Select(v => v.Duel!.ExpiresAt)
+            .MaxAsync(cancellationToken);
+
+        if (latestClosedExpiresAt == default)
+        {
+            return [];
+        }
+
+        // Get all votes for closed duels with the latest ExpiresAt
+        var votes = await context.Votes
+            .Where(v => v.AccountId == accountId &&
+                        v.Duel != null &&
+                        v.Duel.Status == DuelStatus.Closed &&
+                        v.Duel.ExpiresAt == latestClosedExpiresAt)
+            .Include(v => v.Duel)
+                .ThenInclude(d => d!.Category)
+            .OrderByDescending(v => v.CreatedAt)
+            .Select(v => new DuelHistoryProjectionDto
+            {
+                Id = v.Id,
+                DuelId = v.DuelId,
+                CategoryName = v.Duel != null && v.Duel.Category != null ? v.Duel.Category.Name : string.Empty,
+                BetAmount = v.BetAmount,
+                CreatedAt = v.CreatedAt
+            })
+            .ToListAsync(cancellationToken);
+
+        if (votes.Count == 0)
+        {
+            return [];
+        }
+
+        // Get all payouts for these votes
+        var voteIds = votes.Select(v => v.Id).ToList();
+        var payouts = await context.Payouts
+            .Where(p => voteIds.Contains(p.VoteId))
+            .ToDictionaryAsync(p => p.VoteId, cancellationToken);
+
+        // Map to DTOs
+        return votes.Select(v => _duelHistoryMapper.Map(v, payouts)).ToList();
     }
 }
