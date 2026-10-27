@@ -235,9 +235,8 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         }
 
         var sb = new StringBuilder();
-        var recentDuels = history.Take(10).ToList();
 
-        foreach (var duel in recentDuels)
+        foreach (var duel in history)
         {
             var resultEmoji = duel.Result switch
             {
@@ -250,11 +249,6 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
             sb.AppendLine(CultureInfo.CurrentCulture, $"{resultEmoji} **#{duel.DuelId}** | {duel.CategoryName}");
             sb.AppendLine(CultureInfo.CurrentCulture, $"   💰 Ставка: {duel.BetAmount:N0} 🪙 | Выплата: {duel.PayoutAmount:N0} 🪙");
             sb.AppendLine(CultureInfo.CurrentCulture, $"   📅 {duel.VotedAt:dd.MM.yyyy HH:mm}");
-        }
-
-        if (history.Count > 10)
-        {
-            sb.AppendLine(CultureInfo.CurrentCulture, $"\n<i>...и ещё {history.Count - 10} дуэль(ей)</i>");
         }
 
         return sb.ToString();
