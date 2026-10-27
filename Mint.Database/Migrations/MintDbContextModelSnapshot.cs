@@ -128,7 +128,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 14L,
                             Action = "duel_history",
-                            Caption = "📊 Статистика",
+                            Caption = "💼 Итог дня",
                             OrderNum = (short)3,
                             ParentStepId = 2L,
                             Type = (short)1
