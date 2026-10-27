@@ -415,7 +415,7 @@ namespace Mint.Database.Migrations
                         {
                             Id = 11L,
                             IsFinal = false,
-                            Message = "📊 **СТАТИСТИКА**\n\n{{duel_history_entries}}\n\n───────────────────────\n👤 Всего дуэлей: {{total_duels}}\n✅ Побед: {{wins}} | ❌ Поражений: {{losses}} | 🤝 Ничьих: {{draws}}",
+                            Message = "💼 **ИТОГ ДНЯ**\n\n{{duel_history_entries}}\n\n───────────────────────\n👤 Всего дуэлей: {{total_duels}}\n✅ Побед: {{wins}} | ❌ Поражений: {{losses}} | 🤝 Ничьих: {{draws}}\n\n───────────────────────\n📈 RP: {{rp_change}}\n💰 Ставки: {{total_bets}} 🪙\n📥 Поступления: {{total_income}} 🪙\n💵 Итого: {{net_total}}",
                             OrderNum = (short)3,
                             ScenarioId = 2L,
                             StepTypeId = (short)4

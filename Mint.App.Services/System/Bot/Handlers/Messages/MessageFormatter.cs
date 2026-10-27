@@ -210,14 +210,27 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         var entries = BuildDuelHistoryEntries(history);
         var duelDate = history.Count > 0 ? history[0].VotedAt.Date : DateTime.UtcNow.Date;
 
+        var wins = history.Count(h => h.Result == DuelVoteResultType.Win);
+        var losses = history.Count(h => h.Result == DuelVoteResultType.Loss);
+        var draws = history.Count(h => h.Result == DuelVoteResultType.Draw);
+
+        var totalBets = history.Sum(h => h.BetAmount);
+        var totalIncome = history.Sum(h => h.PayoutAmount);
+        var rpChange = history.Where(h => h.Result == DuelVoteResultType.Win).Sum(h => h.PayoutAmount);
+        var netTotal = totalIncome - totalBets;
+
         var replacements = new Dictionary<string, string>
         {
             ["{{duel_history_entries}}"] = entries,
             ["{{duel_history_date}}"] = $"Последнее закрытие: {duelDate:dd.MM.yyyy}",
             ["{{total_duels}}"] = history.Count.ToString(CultureInfo.InvariantCulture),
-            ["{{wins}}"] = history.Count(h => h.Result == DuelVoteResultType.Win).ToString(CultureInfo.InvariantCulture),
-            ["{{losses}}"] = history.Count(h => h.Result == DuelVoteResultType.Loss).ToString(CultureInfo.InvariantCulture),
-            ["{{draws}}"] = history.Count(h => h.Result == DuelVoteResultType.Draw).ToString(CultureInfo.InvariantCulture)
+            ["{{wins}}"] = wins.ToString(CultureInfo.InvariantCulture),
+            ["{{losses}}"] = losses.ToString(CultureInfo.InvariantCulture),
+            ["{{draws}}"] = draws.ToString(CultureInfo.InvariantCulture),
+            ["{{rp_change}}"] = FormatRpChange(rpChange),
+            ["{{total_bets}}"] = totalBets.ToString(CultureInfo.InvariantCulture),
+            ["{{total_income}}"] = totalIncome.ToString(CultureInfo.InvariantCulture),
+            ["{{net_total}}"] = FormatNetTotal(netTotal)
         };
 
         var formattedMessage = replacements.Aggregate(
@@ -231,7 +244,7 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
     {
         if (history == null || history.Count == 0)
         {
-            return "📊 <i>Статистика пуста. Сыграйте свою первую дуэль!</i>";
+            return "💼 <i>Итог дня пуст. Сыграйте свою первую дуэль!</i>";
         }
 
         var sb = new StringBuilder();
@@ -252,5 +265,17 @@ public sealed class MessageFormatter(TimeProvider timeProvider) : IMessageFormat
         }
 
         return sb.ToString();
+    }
+
+    private static string FormatRpChange(decimal rpChange)
+    {
+        var sign = rpChange >= 0 ? "+" : "";
+        return $"{sign}{rpChange:N0} 🪙";
+    }
+
+    private static string FormatNetTotal(decimal netTotal)
+    {
+        var sign = netTotal >= 0 ? "+" : "";
+        return $"{sign}{netTotal:N0} 🪙";
     }
 }

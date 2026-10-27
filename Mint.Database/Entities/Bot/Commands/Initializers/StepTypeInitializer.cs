@@ -228,7 +228,7 @@ public sealed class BotInitializer
             OrderNum = 3,
             StepTypeId = 4,
             Message = """
-                📊 **СТАТИСТИКА**
+                💼 **ИТОГ ДНЯ**
                 📅 {{duel_history_date}}
 
                 {{duel_history_entries}}
@@ -236,6 +236,12 @@ public sealed class BotInitializer
                 ───────────────────────
                 👤 Всего дуэлей: {{total_duels}}
                 ✅ Побед: {{wins}} | ❌ Поражений: {{losses}} | 🤝 Ничьих: {{draws}}
+
+                ───────────────────────
+                📈 RP: {{rp_change}}
+                💰 Ставки: {{total_bets}} 🪙
+                📥 Поступления: {{total_income}} 🪙
+                💵 Итого: {{net_total}}
                 """,
             IsFinal = false
         }
@@ -252,7 +258,7 @@ public sealed class BotInitializer
         // ========== profile (ParentStepId = 2) ==========
         new ButtonEntity { Id = 4, ParentStepId = 2, OrderNum = 1, Caption = "🎁 Забрать бонус", Action = "claim_bonus" },
         new ButtonEntity { Id = 5, ParentStepId = 2, OrderNum = 2, Caption = "📈 Таблица лидеров", Action = "leaderboard" },
-        new ButtonEntity { Id = 14, ParentStepId = 2, OrderNum = 3, Caption = "📊 Статистика", Action = "duel_history" },
+        new ButtonEntity { Id = 14, ParentStepId = 2, OrderNum = 3, Caption = "💼 Итог дня", Action = "duel_history" },
         new ButtonEntity { Id = 6, ParentStepId = 2, OrderNum = 4, Caption = "🔙 Назад в меню", Action = "main_menu" },
 
         new ButtonEntity { Id = 12, ParentStepId = 5, OrderNum = 3, Caption = "🔙 Назад в меню", Action = "main_menu" },

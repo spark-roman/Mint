@@ -96,7 +96,7 @@ namespace Mint.Database.Migrations
             migrationBuilder.InsertData(
                 table: "steps",
                 columns: new[] { "id", "data", "is_final", "message", "order_num", "scenario_id", "step_type_id" },
-                values: new object[] { 11L, null, false, "📊 **СТАТИСТИКА**\n\n{{duel_history_entries}}\n\n───────────────────────\n👤 Всего дуэлей: {{total_duels}}\n✅ Побед: {{wins}} | ❌ Поражений: {{losses}} | 🤝 Ничьих: {{draws}}", (short)3, 2L, (short)4 });
+                values: new object[] { 11L, null, false, "💼 **ИТОГ ДНЯ**\n\n{{duel_history_entries}}\n\n───────────────────────\n👤 Всего дуэлей: {{total_duels}}\n✅ Побед: {{wins}} | ❌ Поражений: {{losses}} | 🤝 Ничьих: {{draws}}\n\n───────────────────────\n📈 RP: {{rp_change}}\n💰 Ставки: {{total_bets}} 🪙\n📥 Поступления: {{total_income}} 🪙\n💵 Итого: {{net_total}}", (short)3, 2L, (short)4 });
 
             migrationBuilder.UpdateData(
                 table: "system_settings",
