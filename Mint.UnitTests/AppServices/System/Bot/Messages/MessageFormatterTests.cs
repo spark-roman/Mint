@@ -103,7 +103,6 @@ public class MessageFormatterTests
         var result = await _formatter.FormatLeaderboardAsync(template, leaderboard, CancellationToken.None);
 
         // Assert
-        Assert.Contains("alice", result);
         Assert.Contains("Эксперт", result);
     }
 

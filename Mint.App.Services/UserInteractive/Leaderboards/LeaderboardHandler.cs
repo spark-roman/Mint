@@ -88,7 +88,7 @@ public sealed class LeaderboardHandler(
                 {
                     Rank = userRank.Value,
                     ExternalUserId = userStats.ExternalUserId,
-                    DisplayName = userStats.UserName ?? "Аноним",
+                    DisplayName = userStats.UserName,
                     RankName = rankName,
                     RankPoints = userStats.RankPoints
                 };
