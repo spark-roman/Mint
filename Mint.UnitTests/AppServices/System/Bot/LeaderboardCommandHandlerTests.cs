@@ -143,7 +143,7 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         Assert.NotNull(leaderboardResult.UserEntry);
         Assert.Equal(1, leaderboardResult.UserRank);
         Assert.Equal(1001, leaderboardResult.UserEntry.ExternalUserId);
-        Assert.Equal("alice_j", leaderboardResult.UserEntry.DisplayName);
+        Assert.Equal("Alice", leaderboardResult.UserEntry.DisplayName);
     }
 
     /// <summary>
@@ -393,7 +393,7 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         Assert.NotNull(result);
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1005, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(leaderboardResult.UserEntry);
-        Assert.Equal("eve_d", leaderboardResult.UserEntry.DisplayName);
+        Assert.Equal("Eve", leaderboardResult.UserEntry.DisplayName);
         Assert.Equal(1300m, leaderboardResult.UserEntry.RankPoints);
         Assert.NotNull(leaderboardResult.UserRank);
         Assert.Equal(2, leaderboardResult.UserRank); // Eve is 2nd (Alice=1500, Eve=1300)
@@ -419,7 +419,7 @@ public class LeaderboardCommandHandlerTests : IClassFixture<LeaderboardCommandHa
         Assert.NotNull(result);
         var leaderboardResult = await leaderboardHandler.GetLeaderboardAsync(15, 1003, Mint.Common.Contracts.Users.AuthSystem.Tg, CancellationToken.None);
         Assert.NotNull(leaderboardResult.UserEntry);
-        Assert.Equal("charlie_b", leaderboardResult.UserEntry.DisplayName);
+        Assert.Equal("Charlie", leaderboardResult.UserEntry.DisplayName);
         Assert.Equal(1200m, leaderboardResult.UserEntry.RankPoints);
         Assert.NotNull(leaderboardResult.UserRank);
         Assert.Equal(3, leaderboardResult.UserRank); // Charlie is 3rd (Alice=1500, Eve=1300, Charlie=1200)

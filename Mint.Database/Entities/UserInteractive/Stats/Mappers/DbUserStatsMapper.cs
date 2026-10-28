@@ -26,7 +26,7 @@ public class DbUserStatsMapper : IDbUserStatsMapper
             TotalDraws = statsEntity.TotalDraws,
             ReferralCount = statsEntity.ReferralCount,
             UpdatedAt = statsEntity.UpdatedAt,
-            UserName = userEntity.UserName ?? userEntity.FirstName ?? "Аноним",
+            UserName = userEntity.FirstName ?? userEntity.LastName ?? "Аноним",
         };
     }
 }

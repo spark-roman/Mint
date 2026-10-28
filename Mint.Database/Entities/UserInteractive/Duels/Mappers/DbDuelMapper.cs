@@ -34,6 +34,7 @@ public class DbDuelMapper : IDbEntityMapper<DuelEntity, DuelDto>
             Description = entity.Description,
             ExpiresAt = entity.ExpiresAt,
             Status = entity.Status,
+            CategoryName = entity.Category?.Name ?? string.Empty,
             Options = entity.Options.Select(_optionMapper.Map).ToList()
         };
     }
