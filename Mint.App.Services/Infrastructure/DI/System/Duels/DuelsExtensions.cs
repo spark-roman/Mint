@@ -32,9 +32,13 @@ public static class DuelsExtensions
         services.AddScoped<IDuelGenerationHandler, DuelGenerationHandler>();
         services.AddScoped<IDuelPayoutService, DuelPayoutService>();
         services.AddScoped<IDuelPublishService, DuelPublishService>();
+        services.AddScoped<IDuelPayoutJob, DuelPayoutJob>();
         services.AddScoped<DuelPayoutJob>();
+        services.AddScoped<IDuelPublishJob, DuelPublishJob>();
         services.AddScoped<DuelPublishJob>();
+        services.AddScoped<IPayoutExecutionJob, PayoutExecutionJob>();
         services.AddScoped<PayoutExecutionJob>();
+        services.AddScoped<DuelPayoutPipelineJob>();
 
         services.AddSingleton<IDtoMapper<PayoutDto, TransactionCreateDto>, PayoutTransactionMapper>();
         services.AddSingleton<IDtoMapper<PayoutDto, UserStatsUpdateDto>, PayoutStatsMapper>();

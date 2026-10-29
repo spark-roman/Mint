@@ -77,10 +77,10 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
         Assert.Equal(4, result.Keyboard.Count);
         Assert.Contains("Криптовалюта", result.Keyboard[0].Caption);
         Assert.Equal("category_crypto", result.Keyboard[0].Action);
-        Assert.Contains("Технологии", result.Keyboard[1].Caption);
-        Assert.Equal("category_tech", result.Keyboard[1].Action);
-        Assert.Contains("Спорт", result.Keyboard[2].Caption);
-        Assert.Equal("category_sports", result.Keyboard[2].Action);
+        Assert.Contains("Спорт", result.Keyboard[1].Caption);
+        Assert.Equal("category_sports", result.Keyboard[1].Action);
+        Assert.Contains("Технологии", result.Keyboard[2].Caption);
+        Assert.Equal("category_tech", result.Keyboard[2].Action);
         Assert.Equal("🔙 Назад в меню", result.Keyboard[3].Caption);
         Assert.Equal("main_menu", result.Keyboard[3].Action);
     }
@@ -210,7 +210,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("🔴 ") || b.Caption.StartsWith("🟢 "));
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("📂 ") || b.Caption.StartsWith("🔥 ") || b.Caption.StartsWith("⏳ ") || b.Caption.StartsWith("🏁 "));
         Assert.Equal(3, categoryButtons.Count());
     }
 
@@ -284,7 +284,7 @@ public class DuelsCommandHandlerTests : IClassFixture<DuelsCommandHandlerFixture
 
         // Assert
         Assert.NotNull(result.Keyboard);
-        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("🔴 ") || b.Caption.StartsWith("🟢 ")).ToList();
+        var categoryButtons = result.Keyboard.Where(b => b.Caption.StartsWith("🏁 ") || b.Caption.StartsWith("🔥 ")).ToList();
         for (int i = 0; i < categoryButtons.Count; i++)
         {
             Assert.Equal((short)i, categoryButtons[i].OrderNum);

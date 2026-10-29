@@ -8,7 +8,7 @@ namespace Mint.App.Services.System.WinCalculation.Jobs;
 /// Hangfire job for processing duel payouts.
 /// </summary>
 public sealed class DuelPayoutJob(IDuelPayoutService payoutService, ILogger<DuelPayoutJob> logger)
-    : HangfireJobBase(logger)
+    : HangfireJobBase(logger), IDuelPayoutJob
 {
     private readonly IDuelPayoutService _payoutService = payoutService
         ?? throw new ArgumentNullException(nameof(payoutService));
