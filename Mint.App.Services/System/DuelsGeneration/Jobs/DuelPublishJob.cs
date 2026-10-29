@@ -8,7 +8,7 @@ namespace Mint.App.Services.System.DuelsGeneration.Jobs;
 /// Hangfire job for publishing duels.
 /// </summary>
 public sealed class DuelPublishJob(IDuelPublishService publishService, ILogger<DuelPublishJob> logger)
-    : HangfireJobBase(logger)
+    : HangfireJobBase(logger), IDuelPublishJob
 {
     private readonly IDuelPublishService _publishService = publishService
         ?? throw new ArgumentNullException(nameof(publishService));

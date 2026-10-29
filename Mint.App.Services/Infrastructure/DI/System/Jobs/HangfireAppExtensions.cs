@@ -20,27 +20,9 @@ public static class HangfireAppExtensions
         var jobManager = serviceProvider.GetRequiredService<IRecurringJobManager>();
 
         jobManager.AddOrUpdate(
-            "duel-payout-job",
-            () => serviceProvider.GetRequiredService<DuelPayoutJob>().ExecuteAsync(),
-            "0 4 * * *",
-            new RecurringJobOptions
-            {
-                TimeZone = TimeZoneInfo.Utc
-            });
-
-        jobManager.AddOrUpdate(
-            "payout-execution-job",
-            () => serviceProvider.GetRequiredService<PayoutExecutionJob>().ExecuteAsync(),
-            "30 4 * * *",
-            new RecurringJobOptions
-            {
-                TimeZone = TimeZoneInfo.Utc
-            });
-
-        jobManager.AddOrUpdate(
-            "duel-publish-job",
-            () => serviceProvider.GetRequiredService<DuelPublishJob>().ExecuteAsync(),
-            "30 5 * * *",
+            "duel-jobs",
+            () => serviceProvider.GetRequiredService<DuelPayoutPipelineJob>().ExecuteAsync(),
+            "23 18 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc

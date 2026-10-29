@@ -1,6 +1,8 @@
+using Microsoft.EntityFrameworkCore;
 using Mint.Database.Entities.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
+using Mint.Database.Entities.UserInteractive.Votes;
 using Mint.UnitTests.Database.Fixtures.EntityFramework;
 using Microsoft.Extensions.DependencyInjection;
 using Mint.Common.Contracts.UserInteractive;
@@ -421,7 +423,7 @@ namespace Mint.UnitTests.Database.Repositories;
         foreach (var category in result.Where(c => c.CategoryId > 1))
         {
             Assert.False(category.HasAvailableDuels);
-            Assert.Equal("🔴", category.StatusEmoji);
+            Assert.Equal("📂", category.StatusEmoji);
         }
     }
 
@@ -447,7 +449,7 @@ namespace Mint.UnitTests.Database.Repositories;
         Assert.NotNull(result);
         var aiCategory = result.First(c => c.CategoryCode == "ai");
         Assert.True(aiCategory.HasAvailableDuels);
-        Assert.Equal("🟢", aiCategory.StatusEmoji);
+        Assert.Equal("🔥", aiCategory.StatusEmoji);
     }
 
     /// <summary>
@@ -491,7 +493,8 @@ namespace Mint.UnitTests.Database.Repositories;
         Assert.NotNull(result);
         var aiCategory = result.First(c => c.CategoryCode == "finance");
         Assert.False(aiCategory.HasAvailableDuels);
-        Assert.Equal("🔴", aiCategory.StatusEmoji);
+        Assert.True(aiCategory.HasExpiredDuels);
+        Assert.Equal("⏳", aiCategory.StatusEmoji);
     }
 
     /// <summary>
@@ -534,7 +537,8 @@ namespace Mint.UnitTests.Database.Repositories;
         Assert.NotNull(result);
         var hardwareCategory = result.First(c => c.CategoryCode == "hardware");
         Assert.False(hardwareCategory.HasAvailableDuels);
-        Assert.Equal("🔴", hardwareCategory.StatusEmoji);
+        Assert.True(hardwareCategory.HasClosedDuels);
+        Assert.Equal("🏁", hardwareCategory.StatusEmoji);
     }
 
     /// <summary>
@@ -558,6 +562,111 @@ namespace Mint.UnitTests.Database.Repositories;
         Assert.Contains(1, ids);
         Assert.Contains(2, ids);
         Assert.Contains(12, ids);
+    }
+
+    /// <summary>
+    /// Verifies that GetCategoriesWithDuelStatusAsync returns HasAvailableDuels = false
+    /// when user has already voted in all active duels.
+    /// </summary>
+    [Fact]
+    public async Task GetCategoriesWithDuelStatusAsync_UserVotedInAll_ReturnsFalseForAvailable()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<Mint.Database.MintDbContext>();
+        var now = DateTimeOffset.UtcNow;
+
+        // Create an active duel and vote for it
+        var duel = new DuelEntity
+        {
+            Id = 100,
+            CategoryId = 12,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Вопрос",
+            Description = "Описание",
+            ExpiresAt = now.AddHours(24),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionEntity { Id = 1, OptionText = "Да", OptionCode = "yes" },
+                new DuelOptionEntity { Id = 2, OptionText = "Нет", OptionCode = "no" }
+            ]
+        };
+        dbContext.Duels.Add(duel);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Get user account ID
+        var userAccount = await dbContext.Accounts
+            .Where(a => a.User.ExternalUserId == 1001)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync(CancellationToken.None);
+
+        var vote = new VoteEntity
+        {
+            Id = 1,
+            AccountId = userAccount,
+            DuelId = duel.Id,
+            ChosenOptionId = 1,
+            BetAmount = 100m,
+            TransactionId = 1,
+            CreatedAt = now
+        };
+        dbContext.Votes.Add(vote);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetCategoriesWithDuelStatusAsync(1001, now.AddHours(48), CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var financeCategory = result.First(c => c.CategoryCode == "finance");
+        Assert.False(financeCategory.HasAvailableDuels);
+        Assert.True(financeCategory.HasExpiredDuels);
+        Assert.Equal("⏳", financeCategory.StatusEmoji);
+    }
+
+    /// <summary>
+    /// Verifies that GetCategoriesWithDuelStatusAsync returns correct emoji for mixed statuses.
+    /// </summary>
+    [Fact]
+    public async Task GetCategoriesWithDuelStatusAsync_MixedDuels_ReturnsCorrectEmoji()
+    {
+        // Arrange
+        await _fixture.ResetAsync();
+        using var scope = _fixture.ServiceProvider.CreateScope();
+        var repository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
+        var dbContext = scope.ServiceProvider.GetRequiredService<Mint.Database.MintDbContext>();
+        var now = DateTimeOffset.UtcNow;
+
+        // Create duels with different statuses in category 12 (ai)
+        var availableDuel = new DuelEntity
+        {
+            Id = 200,
+            CategoryId = 12,
+            DuelType = DuelType.OpinionMatch,
+            Question = "Доступный",
+            Description = "Описание",
+            ExpiresAt = now.AddHours(24),
+            Status = DuelStatus.Active,
+            Options =
+            [
+                new DuelOptionEntity { Id = 1, OptionText = "Да", OptionCode = "yes" },
+                new DuelOptionEntity { Id = 2, OptionText = "Нет", OptionCode = "no" }
+            ]
+        };
+        dbContext.Duels.Add(availableDuel);
+        await dbContext.SaveChangesAsync(CancellationToken.None);
+
+        // Act
+        var result = await repository.GetCategoriesWithDuelStatusAsync(1001, now, CancellationToken.None);
+
+        // Assert
+        Assert.NotNull(result);
+        var aiCategory = result.First(c => c.CategoryCode == "ai");
+        Assert.True(aiCategory.HasAvailableDuels);
+        Assert.Equal("🔥", aiCategory.StatusEmoji);
     }
 
     #endregion

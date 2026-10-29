@@ -137,7 +137,6 @@ public sealed class CategoryRepository(
         return category is null ? null : _categoryMapper.Map(category);
     }
 
-
     /// <inheritdoc/>
     public async Task<List<CategoryStatusDto>> GetCategoriesWithDuelStatusAsync(long externalUserId, DateTimeOffset expireDate, CancellationToken cancellationToken)
     {
@@ -146,19 +145,58 @@ public sealed class CategoryRepository(
         var categories = await context.UserCategories
             .AsNoTracking()
             .Where(c => c.IsActiveForAI)
-            .Select(c => new CategoryStatusDto
+            .OrderBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+
+        var categoryIds = categories.Select(c => c.Id).ToList();
+
+        var duels = await context.Duels
+            .AsNoTracking()
+            .Where(d => categoryIds.Contains(d.CategoryId))
+            .Include(d => d.Votes)
+            .ToListAsync(cancellationToken);
+
+        var userAccountId = await context.Accounts
+            .AsNoTracking()
+            .Where(a => a.User.ExternalUserId == externalUserId)
+            .Select(a => a.Id)
+            .FirstOrDefaultAsync(cancellationToken);
+
+        return categories.Select(c =>
+        {
+            var categoryDuels = duels.Where(d => d.CategoryId == c.Id).ToList();
+
+            var hasAvailableDuels = categoryDuels.Any(d =>
+                d.Status == DuelStatus.Active
+                && d.ExpiresAt > expireDate
+                && !d.Votes.Any(v => v.AccountId == userAccountId));
+
+            var hasExpiredDuels = categoryDuels.Any(d =>
+                d.Status == DuelStatus.Active
+                && d.ExpiresAt <= expireDate);
+
+            var hasClosedDuels = categoryDuels.Any(d =>
+                d.Status == DuelStatus.Closed);
+
+            var statusEmoji = GetCategoryStatusEmoji(hasAvailableDuels, hasExpiredDuels, hasClosedDuels);
+
+            return new CategoryStatusDto
             {
                 CategoryId = c.Id,
                 CategoryName = c.Name,
                 CategoryCode = c.Code,
-                IsActive = c.IsActiveForAI,
                 CategoryEmoji = "📂",
-                HasAvailableDuels = c.Duels.Any(d => d.Status == DuelStatus.Active
-                    && d.ExpiresAt > expireDate
-                    && !d.Votes.Any(v => v.Account.User.ExternalUserId == externalUserId))
-            })
-            .ToListAsync(cancellationToken);
-            
-        return categories;
+                IsActive = c.IsActiveForAI,
+                HasAvailableDuels = hasAvailableDuels,
+                HasExpiredDuels = hasExpiredDuels,
+                HasClosedDuels = hasClosedDuels,
+                StatusEmoji = statusEmoji
+            };
+        }).ToList();
+    }
+
+    private static string GetCategoryStatusEmoji(bool hasAvailableDuels, bool hasExpiredDuels, bool hasClosedDuels)
+    {
+        return hasAvailableDuels ? "🔥" : hasExpiredDuels ? "⏳" : hasClosedDuels ? "🏁" : "📂";
     }
 }

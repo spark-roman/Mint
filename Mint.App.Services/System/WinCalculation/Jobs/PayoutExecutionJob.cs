@@ -8,7 +8,7 @@ namespace Mint.App.Services.System.WinCalculation.Jobs;
 /// Hangfire job for executing payout plans that the settlement phase left as pending.
 /// </summary>
 public sealed class PayoutExecutionJob(IDuelPayoutService payoutService, ILogger<PayoutExecutionJob> logger)
-    : HangfireJobBase(logger)
+    : HangfireJobBase(logger), IPayoutExecutionJob
 {
     private readonly IDuelPayoutService _payoutService = payoutService
         ?? throw new ArgumentNullException(nameof(payoutService));

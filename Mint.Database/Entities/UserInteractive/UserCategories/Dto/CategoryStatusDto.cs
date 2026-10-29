@@ -33,10 +33,20 @@ public record CategoryStatusDto
     /// <summary>
     /// Category status emoji
     /// </summary>
-    public string? StatusEmoji => HasAvailableDuels ? "🟢" : "🔴";
+    public required string StatusEmoji { get; init; }
 
     /// <summary>
-    /// Category has available duels
+    /// Category has available duels (active, not expired, user hasn't voted)
     /// </summary>
     public bool HasAvailableDuels { get; init; }
+
+    /// <summary>
+    /// Category has expired duels (active but expired)
+    /// </summary>
+    public bool HasExpiredDuels { get; init; }
+
+    /// <summary>
+    /// Category has closed duels
+    /// </summary>
+    public bool HasClosedDuels { get; init; }
 }
