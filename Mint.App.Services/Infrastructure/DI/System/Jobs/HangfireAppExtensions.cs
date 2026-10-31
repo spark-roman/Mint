@@ -22,7 +22,7 @@ public static class HangfireAppExtensions
         jobManager.AddOrUpdate(
             "duel-jobs",
             () => serviceProvider.GetRequiredService<DuelPayoutPipelineJob>().ExecuteAsync(),
-            "23 18 * * *",
+            "0 4 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc
