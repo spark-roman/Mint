@@ -27,5 +27,9 @@ public static class HangfireAppExtensions
             {
                 TimeZone = TimeZoneInfo.Utc
             });
+
+        jobManager.RemoveIfExists("duel-payout-job");
+        jobManager.RemoveIfExists("payout-execution-job");
+        jobManager.RemoveIfExists("duel-publish-job");
     }
 }
