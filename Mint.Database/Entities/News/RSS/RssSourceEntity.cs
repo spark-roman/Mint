@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 namespace Mint.Database.Entities.News.RSS;
 
 /// <summary>
-/// Represents an RSS source entity.
+/// Represents an RSS source.
 /// </summary>
 [Table("rss_sources")]
 public class RssSourceEntity
@@ -21,6 +21,7 @@ public class RssSourceEntity
     /// </summary>
     [Required]
     [Column("name")]
+    [StringLength(200)]
     public required string Name { get; set; }
 
     /// <summary>
@@ -28,16 +29,18 @@ public class RssSourceEntity
     /// </summary>
     [Required]
     [Column("url")]
+    [StringLength(500)]
     public required Uri Url { get; set; }
 
     /// <summary>
     /// Category code of the RSS source.
     /// </summary>
     [Column("category_code")]
+    [StringLength(50)]
     public string? CategoryCode { get; set; }
 
     /// <summary>
-    /// Indicates whether the RSS source is active.
+    /// Whether the RSS source is active.
     /// </summary>
     [Column("is_active")]
     public bool IsActive { get; set; } = true;
@@ -49,26 +52,14 @@ public class RssSourceEntity
     public int Priority { get; set; } = 0;
 
     /// <summary>
-    /// Language of the RSS source (ru, en, etc.).
+    /// Language of the RSS source.
     /// </summary>
     [Column("language")]
-    [MaxLength(10)]
-    public string Language { get; set; } = "en";
+    [StringLength(10)]
+    public string? Language { get; set; }
 
     /// <summary>
-    /// Creation timestamp.
+    /// News items from this RSS source.
     /// </summary>
-    [Column("created_at")]
-    public DateTimeOffset CreatedAt { get; set; }
-
-    /// <summary>
-    /// Last update timestamp.
-    /// </summary>
-    [Column("updated_at")]
-    public DateTimeOffset UpdatedAt { get; set; }
-
-    /// <summary>
-    /// Collection of news items from this source.
-    /// </summary>
-    public virtual ICollection<NewsEntity> News { get; init; } = [];
+    public virtual ICollection<NewsEntity> News { get; } = new List<NewsEntity>();
 }

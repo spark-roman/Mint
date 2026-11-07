@@ -3,25 +3,22 @@ using Mint.Database.Entities.News.RSS.Dto;
 namespace Mint.Database.Entities.News.RSS.Repositories;
 
 /// <summary>
-/// Repository for RSS source operations.
+/// Repository interface for working with RSS sources.
 /// </summary>
 public interface IRssSourceRepository
 {
-    /// <summary>Gets all active RSS sources.</summary>
+    /// <summary>
+    /// Get all active RSS sources.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of active RSS source DTOs</returns>
     Task<List<RssSourceDto>> GetActiveSourcesAsync(CancellationToken cancellationToken);
 
-    /// <summary>Gets an RSS source by its identifier.</summary>
+    /// <summary>
+    /// Get RSS source by ID.
+    /// </summary>
+    /// <param name="id">Source ID</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>RSS source DTO or null if not found</returns>
     Task<RssSourceDto?> GetByIdAsync(long id, CancellationToken cancellationToken);
-
-    /// <summary>Gets an RSS source by its URL.</summary>
-    Task<RssSourceDto?> GetByUrlAsync(Uri url, CancellationToken cancellationToken);
-
-    /// <summary>Creates a new RSS source.</summary>
-    Task<RssSourceDto> CreateAsync(RssSourceCreateDto dto, CancellationToken cancellationToken);
-
-    /// <summary>Updates an existing RSS source.</summary>
-    Task<RssSourceDto> UpdateAsync(RssSourceDto dto, CancellationToken cancellationToken);
-
-    /// <summary>Deletes an RSS source.</summary>
-    Task DeleteAsync(long id, CancellationToken cancellationToken);
 }

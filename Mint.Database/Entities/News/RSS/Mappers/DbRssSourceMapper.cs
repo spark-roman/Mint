@@ -21,9 +21,7 @@ public sealed class DbRssSourceMapper : IDbEntityMapper<RssSourceEntity, RssSour
             CategoryCode = entity.CategoryCode,
             IsActive = entity.IsActive,
             Priority = entity.Priority,
-            Language = entity.Language,
-            CreatedAt = entity.CreatedAt,
-            UpdatedAt = entity.UpdatedAt
+            Language = entity.Language
         };
     }
 }

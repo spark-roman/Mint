@@ -6,8 +6,6 @@ namespace Mint.App.Services.System.DuelsGeneration.Validators;
 /// <inheritdoc/>
 public class DuelGenerationValidator : IDuelGenerationValidator
 {
-    private static readonly string[] _options = ["a", "b", "c", "d"];
-
     /// <inheritdoc/>
     public GenerationValidationResult Validate(Collection<DuelGenerationDto>? duels)
     {
@@ -40,18 +38,10 @@ public class DuelGenerationValidator : IDuelGenerationValidator
                 return new GenerationValidationResult { IsValid = false, Message = $"Category code is empty" };
             }
 
-            var codes = duel.Options.Select(o => o.Code).ToList();
-            if (codes.Distinct().Count() != codes.Count)
+            var options = duel.Options.ToList();
+            if (options.Distinct().Count() != options.Count)
             {
-                return new GenerationValidationResult { IsValid = false, Message = $"Duplicate option codes in duel '{duel.Question}'" };
-            }
-                
-            foreach (var code in codes)
-            {
-                if (!_options.Contains(code))
-                {
-                    return new GenerationValidationResult { IsValid = false, Message = $"Invalid option code '{code}' in duel '{duel.Question}'" };
-                }
+                return new GenerationValidationResult { IsValid = false, Message = $"Duplicate options in duel '{duel.Question}'" };
             }
 
             if (duel.DuelType != 1 && duel.DuelType != 2)

@@ -2,6 +2,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Jobs;
 using Mint.App.Services.System.DuelsGeneration.Services;
+using Mint.App.Services.System.News.Jobs;
 using Mint.App.Services.System.WinCalculation.Handlers;
 using Mint.App.Services.System.WinCalculation.Jobs;
 using Mint.App.Services.System.WinCalculation.Mappers;
@@ -36,9 +37,13 @@ public static class DuelsExtensions
         services.AddScoped<DuelPayoutJob>();
         services.AddScoped<IDuelPublishJob, DuelPublishJob>();
         services.AddScoped<DuelPublishJob>();
+        services.AddScoped<IDuelGenerationJob, DuelGenerationJob>();
+        services.AddScoped<DuelGenerationJob>();
         services.AddScoped<IPayoutExecutionJob, PayoutExecutionJob>();
         services.AddScoped<PayoutExecutionJob>();
         services.AddScoped<DuelPayoutPipelineJob>();
+        services.AddScoped<INewsCollectionJob, NewsCollectionJob>();
+        services.AddScoped<NewsCollectionJob>();
 
         services.AddSingleton<IDtoMapper<PayoutDto, TransactionCreateDto>, PayoutTransactionMapper>();
         services.AddSingleton<IDtoMapper<PayoutDto, UserStatsUpdateDto>, PayoutStatsMapper>();

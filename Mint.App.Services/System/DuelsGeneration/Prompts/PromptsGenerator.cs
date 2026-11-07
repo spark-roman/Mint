@@ -9,15 +9,15 @@ namespace Mint.App.Services.System.DuelsGeneration.Prompts;
 public partial class PromptsGenerator : IPromptsGenerator
 {
     /// <inheritdoc/>
-    public string GetSystemPrompt(AiPromptDto prompt)
+    public string GetSystemPrompt(AiPromptDto prompt, DateTimeOffset newsDate)
     {
         ArgumentNullException.ThrowIfNull(prompt);
 
-        return prompt.SystemPromptTemplate;
+        return prompt.SystemPromptTemplate.Replace("{{news_date}}", newsDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase);
     }
 
     /// <inheritdoc/>
-    public string GetUserPrompt(AiPromptDto prompt, CategoryDto category, int count)
+    public string GetUserPrompt(AiPromptDto prompt, CategoryDto category, int count, DateTimeOffset newsDate)
     {
         ArgumentNullException.ThrowIfNull(prompt);
         ArgumentNullException.ThrowIfNull(category);
@@ -27,8 +27,10 @@ public partial class PromptsGenerator : IPromptsGenerator
         var result = template
             .Replace("{{count}}", count.ToString(CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase)
             .Replace("{{category_name}}", category.Name, StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{category_code}}", category.Code, StringComparison.InvariantCultureIgnoreCase)
             .Replace("{{category_description}}", category.Description ?? "Без описания", StringComparison.InvariantCultureIgnoreCase)
-            .Replace("{{search_keywords}}", category.SearchKeywords ?? "", StringComparison.InvariantCultureIgnoreCase);
+            .Replace("{{search_keywords}}", category.SearchKeywords ?? "", StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{news_date}}", newsDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase);
 
         result = ProcessConditionalBlocks(result, category);
 

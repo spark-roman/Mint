@@ -8,7 +8,6 @@ using Mint.Common.Contracts.Mappers;
 using Mint.Common.Contracts.UserInteractive.Duels;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Moq;
-using OptionDto = Mint.App.Services.System.DuelsGeneration.Dto.OptionGenerationDto;
 
 namespace Mint.UnitTests.AppServices.System.DuelsGeneration.Processors;
 
@@ -44,11 +43,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing rapidly in code generation.",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var duelsCollection = new Collection<DuelGenerationDto> { duelDto };
@@ -63,16 +58,16 @@ public class DeepseekResponseProcessorTests
             ExpiresAt = DateTimeOffset.MaxValue,
             Options = new Collection<DuelOptionCreateDto>
             {
-                new() { OptionCode = "a", OptionText = "Yes" },
-                new() { OptionCode = "b", OptionText = "No" }
+                new() { OptionCode = "0", OptionText = "Yes" },
+                new() { OptionCode = "1", OptionText = "No" }
             }
         };
 
         _mockValidator.Setup(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >())).Returns(new GenerationValidationResult { IsValid = true, Message = null });
-        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>())).Returns(expectedDuel);
+        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>())).Returns(expectedDuel);
 
         // Act
-        var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
+        var result = await _processor.Process(responseContent, categoryId: 1, expiresAt: DateTimeOffset.UtcNow.AddDays(7));
 
         // Assert
         result.Should().NotBeNull();
@@ -82,7 +77,7 @@ public class DeepseekResponseProcessorTests
         first.Description.Should().Be("AI is advancing rapidly in code generation.");
         first.Options.Should().HaveCount(2);
         _mockValidator.Verify(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >()), Times.Once);
-        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()), Times.Once);
     }
 
     /// <summary>
@@ -98,11 +93,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing.",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var duel2 = new DuelGenerationDto
@@ -111,11 +102,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 2,
             Question = "Will Bitcoin hit $200k?",
             Description = "Institutional adoption is growing.",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var duelsCollection = new Collection<DuelGenerationDto> { duel1, duel2 };
@@ -124,7 +111,7 @@ public class DeepseekResponseProcessorTests
         _mockValidator.Setup(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >()))
             .Returns(new GenerationValidationResult { IsValid = true, Message = null });
 
-        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()))
+        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()))
             .Returns((DuelGenerationDto dto, object[] args) =>
             {
                 return dto.Question switch
@@ -160,13 +147,13 @@ public class DeepseekResponseProcessorTests
             });
 
         // Act
-        var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
+        var result = await _processor.Process(responseContent, categoryId: 1, expiresAt: DateTimeOffset.UtcNow.AddDays(7));
 
         // Assert
         result.Should().HaveCount(2);
         result.First().Question.Should().Be("Will AI replace programmers?");
         result.ElementAt(1).Question.Should().Be("Will Bitcoin hit $200k?");
-        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()), Times.Exactly(2));
+        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()), Times.Exactly(2));
     }
 
     /// <summary>
@@ -182,10 +169,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 1,
             Question = "Test?",
             Description = "Test",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" }
-            }
+            Options = new Collection<string> { "Yes" }
         };
 
         var duelsCollection = new Collection<DuelGenerationDto> { duelDto };
@@ -195,8 +179,8 @@ public class DeepseekResponseProcessorTests
             .Returns(new GenerationValidationResult { IsValid = false, Message = "Options count must be 2-4" });
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _processor.Process(responseContent, 1, 7));
-        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _processor.Process(responseContent, 1, DateTimeOffset.UtcNow.AddDays(7)));
+        _mockMapper.Verify(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()), Times.Never);
     }
 
     /// <summary>
@@ -213,7 +197,7 @@ public class DeepseekResponseProcessorTests
             .Returns(new GenerationValidationResult { IsValid = false, Message = "No duels to validate" });
 
         // Act & Assert
-        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _processor.Process(responseContent, 1, 7));
+        await Assert.ThrowsAsync<InvalidOperationException>(async () => await _processor.Process(responseContent, 1, DateTimeOffset.UtcNow.AddDays(7)));
     }
 
     /// <summary>
@@ -226,7 +210,7 @@ public class DeepseekResponseProcessorTests
         var invalidJson = "not valid json";
 
         // Act & Assert
-        await Assert.ThrowsAsync<JsonException>(async () => await _processor.Process(invalidJson, 1, 7));
+        await Assert.ThrowsAsync<JsonException>(async () => await _processor.Process(invalidJson, 1, DateTimeOffset.UtcNow.AddDays(7)));
         _mockValidator.Verify(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >()), Times.Never);
     }
 
@@ -237,7 +221,7 @@ public class DeepseekResponseProcessorTests
     public async Task Process_NullInput_ThrowsArgumentNullException()
     {
         // Act & Assert
-        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _processor.Process(null!, 1, 7));
+        await Assert.ThrowsAsync<ArgumentNullException>(async () => await _processor.Process(null!, 1, DateTimeOffset.UtcNow.AddDays(7)));
     }
 
     /// <summary>
@@ -250,7 +234,7 @@ public class DeepseekResponseProcessorTests
         var emptyContent = string.Empty;
 
         // Act & Assert
-        await Assert.ThrowsAnyAsync<Exception>(async () => await _processor.Process(emptyContent, 1, 7));
+        await Assert.ThrowsAnyAsync<Exception>(async () => await _processor.Process(emptyContent, 1, DateTimeOffset.UtcNow.AddDays(7)));
     }
 
     /// <summary>
@@ -266,11 +250,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 1,
             Question = "Test?",
             Description = "Test",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var duelsCollection = new Collection<DuelGenerationDto> { duelDto };
@@ -279,7 +259,7 @@ public class DeepseekResponseProcessorTests
         _mockValidator.Setup(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >()))
             .Returns(new GenerationValidationResult { IsValid = true, Message = null });
 
-        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()))
+        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()))
             .Returns(new DuelCreateDto
             {
                 CategoryId = 1,
@@ -291,7 +271,7 @@ public class DeepseekResponseProcessorTests
             });
 
         // Act
-        var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
+        var result = await _processor.Process(responseContent, categoryId: 1, expiresAt: DateTimeOffset.UtcNow.AddDays(7));
 
         // Assert
         result.First().DuelType.Should().Be(DuelType.OpinionMatch);
@@ -310,11 +290,7 @@ public class DeepseekResponseProcessorTests
             DuelType = 2,
             Question = "Test?",
             Description = "Test",
-            Options = new Collection<OptionDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var duelsCollection = new Collection<DuelGenerationDto> { duelDto };
@@ -323,7 +299,7 @@ public class DeepseekResponseProcessorTests
         _mockValidator.Setup(v => v.Validate(It.IsAny<Collection<DuelGenerationDto>? >()))
             .Returns(new GenerationValidationResult { IsValid = true, Message = null });
 
-        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<int>()))
+        _mockMapper.Setup(m => m.Map(It.IsAny<DuelGenerationDto>(), It.IsAny<int>(), It.IsAny<DateTimeOffset>()))
             .Returns(new DuelCreateDto
             {
                 CategoryId = 1,
@@ -335,7 +311,7 @@ public class DeepseekResponseProcessorTests
             });
 
         // Act
-        var result = await _processor.Process(responseContent, categoryId: 1, daysToLive: 7);
+        var result = await _processor.Process(responseContent, categoryId: 1, expiresAt: DateTimeOffset.UtcNow.AddDays(7));
 
         // Assert
         result.First().DuelType.Should().Be(DuelType.FactPrediction);

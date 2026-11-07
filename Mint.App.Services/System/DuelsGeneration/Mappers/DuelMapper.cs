@@ -1,3 +1,4 @@
+using System.Globalization;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.Common.Contracts.Mappers;
 using Mint.Common.Contracts.UserInteractive.Duels;
@@ -6,10 +7,8 @@ using Mint.Database.Entities.UserInteractive.Duels.Dto;
 namespace Mint.App.Services.System.DuelsGeneration.Mappers;
 
 /// <inheritdoc />
-public class DuelMapper(TimeProvider timeProvider) : IDtoMapper<DuelGenerationDto, DuelCreateDto>
+public class DuelMapper : IDtoMapper<DuelGenerationDto, DuelCreateDto>
 {
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
-
     /// <inheritdoc />
     public DuelCreateDto Map(DuelGenerationDto dto, params object[] args)
     {
@@ -17,9 +16,7 @@ public class DuelMapper(TimeProvider timeProvider) : IDtoMapper<DuelGenerationDt
         ArgumentNullException.ThrowIfNull(args);
         
         var categoryId = (int)args[0];
-        var daysToLive = (int)args[1];
-
-        var expiresAt = _timeProvider.GetUtcNow().AddDays(daysToLive);
+        var expiresAt = (DateTimeOffset)args[1];
         
         var duelType = dto.DuelType switch
         {
@@ -38,8 +35,8 @@ public class DuelMapper(TimeProvider timeProvider) : IDtoMapper<DuelGenerationDt
             Options = [..dto.Options.Select((opt, index) =>
             new DuelOptionCreateDto
             {
-                OptionText = opt.Text,
-                OptionCode = opt.Code
+                OptionText = opt,
+                OptionCode = index.ToString(CultureInfo.InvariantCulture)
             })]
         };
     }

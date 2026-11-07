@@ -5,6 +5,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;

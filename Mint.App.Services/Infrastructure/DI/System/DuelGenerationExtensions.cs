@@ -1,9 +1,14 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.GigaChat;
+using Mint.App.Services.System.DuelsGeneration.GigaChat.Dto;
+using Mint.App.Services.System.DuelsGeneration.GigaChat.Mappers;
+using Mint.App.Services.System.DuelsGeneration.GigaChat.Validators;
 using Mint.App.Services.System.DuelsGeneration.Mappers;
 using Mint.App.Services.System.DuelsGeneration.Processors;
 using Mint.App.Services.System.DuelsGeneration.Prompts;
+using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.DuelsGeneration.Validators;
 using Mint.Common.Contracts.Mappers;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
@@ -27,6 +32,25 @@ public static class DuelGenerationExtensions
         services.AddSingleton<IDuelGenerationService, DuelGenerationService>();
         services.AddSingleton<IDuelGenerationValidator, DuelGenerationValidator>();
         services.AddSingleton<IAIResponseProcessor, DeepseekResponseProcessor>();
+    }
+
+    /// <summary>
+    /// Register GigaChat services
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static void RegisterGigaChatServices(this IServiceCollection services)
+    {
+        services.AddSingleton<IGigaChatService, GigaChatService>();
+        services.AddSingleton<IGigaChatDuelValidator, GigaChatDuelValidator>();
+    }
+
+    /// <summary>
+    /// Register GigaChat mappers
+    /// </summary>
+    /// <param name="services">Service collection</param>
+    public static void RegisterGigaChatMappers(this IServiceCollection services)
+    {
+        services.AddSingleton<IDtoMapper<GigaChatDuelDto, DuelCreateDto>, GigaChatDuelMapper>();
     }
 
     /// <summary>

@@ -1,6 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Mint.App.Services.System.News.Handlers;
 using Mint.App.Services.System.News.RSS.Handlers;
+using Mint.App.Services.System.News.Tavily;
+using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 using Sagara.FeedReader.Extensions;
 
 namespace Mint.App.Services.Infrastructure.DI.System.News;
@@ -18,7 +20,14 @@ public static class NewsExtensions
     {
         services.AddFeedReaderServices();
 
+        services.AddHttpClient<ITavilyClient, TavilyClient>(client =>
+        {
+            client.Timeout = TimeSpan.FromMinutes(2);
+        });
+
+        services.AddSingleton(TimeProvider.System);
         services.AddScoped<IRssFeedReader, RssFeedReader>();
+        services.AddScoped<ICategoryRepository, CategoryRepository>();
         services.AddScoped<INewsCollector, NewsCollector>();
     }
 }

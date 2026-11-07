@@ -1,7 +1,7 @@
 namespace Mint.Database.Entities.News.RSS.Dto;
 
 /// <summary>
-/// Data transfer object for creating a new RSS source.
+/// DTO for creating an RssSource.
 /// </summary>
 public sealed record RssSourceCreateDto
 {
@@ -11,22 +11,22 @@ public sealed record RssSourceCreateDto
     public required string Name { get; init; }
 
     /// <summary>
-    /// URL of the RSS source.
+    /// URL of the RSS feed.
     /// </summary>
     public required Uri Url { get; init; }
 
     /// <summary>
-    /// Code of the category to which this RSS source belongs.
+    /// Category code of the RSS source.
     /// </summary>
     public string? CategoryCode { get; init; }
 
     /// <summary>
-    /// Priority of the RSS source (higher = more important).
+    /// Priority of the RSS source.
     /// </summary>
     public int Priority { get; init; }
 
     /// <summary>
-    /// Language of the RSS source (ru, en, etc.).
+    /// Language of the RSS source.
     /// </summary>
-    public string Language { get; init; } = "en";
+    public string? Language { get; init; }
 }

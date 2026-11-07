@@ -12,8 +12,9 @@ public interface IPromptsGenerator
     /// Generate final system prompt
     /// </summary>
     /// <param name="prompt">Prompt with template</param>
+    /// <param name="newsDate">News date for the {{news_date}} placeholder</param>
     /// <returns>Final system prompt for AI</returns>
-    string GetSystemPrompt(AiPromptDto prompt);
+    string GetSystemPrompt(AiPromptDto prompt, DateTimeOffset newsDate);
 
     /// <summary>
     /// Generate final user prompt
@@ -21,6 +22,7 @@ public interface IPromptsGenerator
     /// <param name="prompt">Prompt with template</param>
     /// <param name="category">Category of the prompt</param>
     /// <param name="count">Count of generated results</param>
+    /// <param name="newsDate">News date for the {{news_date}} placeholder</param>
     /// <returns>Final user prompt</returns> 
-    string GetUserPrompt(AiPromptDto prompt, CategoryDto category, int count);
+    string GetUserPrompt(AiPromptDto prompt, CategoryDto category, int count, DateTimeOffset newsDate);
 }

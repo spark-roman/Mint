@@ -138,6 +138,17 @@ public sealed class NewsRepository(
     }
 
     /// <inheritdoc />
+    public async Task<HashSet<string>> GetAllLinksAsync(CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return (await context.News
+            .AsNoTracking()
+            .Select(n => n.Link)
+            .ToListAsync(cancellationToken)).ToHashSet();
+    }
+
+    /// <inheritdoc />
     public async Task<bool> ExistsByLinkAsync(string link, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

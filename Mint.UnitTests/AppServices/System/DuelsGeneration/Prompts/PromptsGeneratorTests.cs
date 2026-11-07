@@ -52,7 +52,7 @@ public class PromptsGeneratorTests
     public void GetSystemPrompt_NullPrompt_ThrowsArgumentNullException()
     {
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => _generator.GetSystemPrompt(null!));
+        Assert.Throws<ArgumentNullException>(() => _generator.GetSystemPrompt(null!, default));
     }
 
     /// <summary>
@@ -66,7 +66,7 @@ public class PromptsGeneratorTests
         var prompt = CreatePrompt(expected, "");
 
         // Act
-        var result = _generator.GetSystemPrompt(prompt);
+        var result = _generator.GetSystemPrompt(prompt, default);
 
         // Assert
         Assert.Equal(expected, result);
@@ -83,7 +83,7 @@ public class PromptsGeneratorTests
         var prompt = CreatePrompt(template, "");
 
         // Act
-        var result = _generator.GetSystemPrompt(prompt);
+        var result = _generator.GetSystemPrompt(prompt, default);
 
         // Assert
         Assert.Equal(template, result);
@@ -103,7 +103,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech");
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => _generator.GetUserPrompt(null!, category, 3));
+        Assert.Throws<ArgumentNullException>(() => _generator.GetUserPrompt(null!, category, 3, default));
     }
 
     /// <summary>
@@ -116,7 +116,7 @@ public class PromptsGeneratorTests
         var prompt = CreatePrompt("", "");
 
         // Act & Assert
-        Assert.Throws<ArgumentNullException>(() => _generator.GetUserPrompt(prompt, null!, 3));
+        Assert.Throws<ArgumentNullException>(() => _generator.GetUserPrompt(prompt, null!, 3, default));
     }
 
     /// <summary>
@@ -130,7 +130,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 5);
+        var result = _generator.GetUserPrompt(prompt, category, 5, default);
 
         // Assert
         Assert.Contains("Generate 5 duels.", result);
@@ -147,7 +147,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 1);
+        var result = _generator.GetUserPrompt(prompt, category, 1, default);
 
         // Assert
         Assert.Contains("Generate 1 duel.", result);
@@ -164,7 +164,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("Neural Networks & AI", "tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Category: Neural Networks & AI", result);
@@ -181,7 +181,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", "Description for tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Desc: Description for tech", result);
@@ -198,7 +198,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", description: null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Desc: Без описания", result);
@@ -215,7 +215,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, "AI, crypto");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Keywords: AI, crypto", result);
@@ -238,7 +238,7 @@ public class PromptsGeneratorTests
             "AI, crypto");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 5);
+        var result = _generator.GetUserPrompt(prompt, category, 5, default);
 
         // Assert
         Assert.Contains("Count: 5", result);
@@ -252,6 +252,42 @@ public class PromptsGeneratorTests
     #region Conditional Blocks
 
     /// <summary>
+    /// Verifies that {{news_date}} is replaced in system prompt.
+    /// </summary>
+    [Fact]
+    public void GetSystemPrompt_ReplacesNewsDate()
+    {
+        // Arrange
+        var template = "News from {{news_date}}";
+        var prompt = CreatePrompt(template, "");
+        var newsDate = new DateTimeOffset(2026, 11, 4, 0, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var result = _generator.GetSystemPrompt(prompt, newsDate);
+
+        // Assert
+        Assert.Contains("News from 04.11.2026", result);
+    }
+
+    /// <summary>
+    /// Verifies that {{news_date}} is replaced in user prompt.
+    /// </summary>
+    [Fact]
+    public void GetUserPrompt_ReplacesNewsDate()
+    {
+        // Arrange
+        var prompt = CreatePrompt("", "Today is {{news_date}}");
+        var category = CreateCategory("tech", "tech");
+        var newsDate = new DateTimeOffset(2026, 11, 4, 0, 0, 0, TimeSpan.Zero);
+
+        // Act
+        var result = _generator.GetUserPrompt(prompt, category, 3, newsDate);
+
+        // Assert
+        Assert.Contains("Today is 04.11.2026", result);
+    }
+
+    /// <summary>
     /// Verifies that {{#if}} block is rendered when search_keywords has value.
     /// </summary>
     [Fact]
@@ -263,7 +299,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, "AI, crypto");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Keywords: AI, crypto", result);
@@ -281,7 +317,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.DoesNotContain("Keywords:", result);
@@ -301,7 +337,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", "Some description", null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("Some description", result);
@@ -319,7 +355,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.DoesNotContain("Description here", result);
@@ -339,7 +375,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", "Tech desc", "AI");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.Contains("KW: AI", result);
@@ -359,7 +395,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.DoesNotContain("KW:", result);
@@ -383,7 +419,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.DoesNotContain("\n\n\n", result);
@@ -401,7 +437,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert
         Assert.DoesNotContain("\n\n", result);
@@ -424,7 +460,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, null);
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert - else block remains untouched since it's not supported
         Assert.DoesNotContain("KW:", result);
@@ -445,7 +481,7 @@ public class PromptsGeneratorTests
         var category = CreateCategory("tech", "tech", null, "AI");
 
         // Act
-        var result = _generator.GetUserPrompt(prompt, category, 3);
+        var result = _generator.GetUserPrompt(prompt, category, 3, default);
 
         // Assert - the whole block is replaced with content ({{else}} is part of content), {{/if}} consumed
         Assert.Contains("Use: AI{{else}}Fallback", result);

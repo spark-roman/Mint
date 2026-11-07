@@ -10,6 +10,8 @@ using Mint.App.Services.Infrastructure.DI.UserInteractive.Bonuses;
 using Mint.App.Services.Infrastructure.DI.UserInteractive.Leaderboards;
 using Mint.App.Services.Infrastructure.DI.UserInteractive.Profiles;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.GigaChat;
+using Mint.App.Services.System.News.Tavily;
 
 namespace Mint.App.Services.Infrastructure.DI;
 
@@ -28,10 +30,14 @@ public static class RegisterAppServicesExtensions
         ArgumentNullException.ThrowIfNull(configuration);
 
         services.Configure<DeepSeekSettings>(configuration.GetSection(DeepSeekSettings.SectionName));
+        services.Configure<GigaChatSettings>(configuration.GetSection(GigaChatSettings.SectionName));
         services.Configure<ReferralSettings>(configuration.GetSection(ReferralSettings.SectionName));
+        services.Configure<TavilySettings>(configuration.GetSection(TavilySettings.SectionName));
 
         services.RegisterDuelGenerationServices();
+        services.RegisterGigaChatServices();
         services.RegisterDuelMappers();
+        services.RegisterGigaChatMappers();
 
         services.RegisterBotServices();
 
