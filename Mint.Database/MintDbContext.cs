@@ -389,6 +389,21 @@ public class MintDbContext : DbContext
                 .OnDelete(DeleteBehavior.SetNull);
         });
 
+        modelBuilder.Entity<CategoryEntity>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            entity.Property(e => e.Description)
+                .HasMaxLength(500);
+
+            entity.Property(e => e.Code)
+                .IsRequired();
+        });
+
         modelBuilder.Entity<PayoutEntity>(entity =>
         {
             entity.HasKey(e => e.Id);
