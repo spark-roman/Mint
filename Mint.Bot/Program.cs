@@ -48,10 +48,10 @@ await app.ApplyMigrations();
 app.UseHangfireDashboard("/hangfire");
 
 // News generation endpoint
-app.MapPost("/api/news/collect", async (INewsCollector collector, CancellationToken ct) =>
+app.MapPost("/api/news/collect", async (ITavilyNewsCollectionHandler collector, CancellationToken ct) =>
 {
     var targetDate = DateTimeOffset.UtcNow.Date;
-    var result = await collector.CollectFromTavilyAsync(targetDate, ct);
+    var result = await collector.CollectAsync(ct);
     return Results.Ok(new
     {
         result.TotalFetched,

@@ -138,6 +138,18 @@ public sealed class NewsRepository(
     }
 
     /// <inheritdoc />
+    public async Task<HashSet<string>> GetLinksSinceAsync(DateTimeOffset since, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        return (await context.News
+            .AsNoTracking()
+            .Where(n => n.PublishedAt >= since)
+            .Select(n => n.Link)
+            .ToListAsync(cancellationToken)).ToHashSet();
+    }
+
+    /// <inheritdoc />
     public async Task<HashSet<string>> GetAllLinksAsync(CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

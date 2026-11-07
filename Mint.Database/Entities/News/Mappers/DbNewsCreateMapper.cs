@@ -23,6 +23,7 @@ public sealed class DbNewsCreateMapper : IDbEntityMapper<NewsCreateDto, NewsEnti
             Author = entity.Author,
             CategoryCode = entity.CategoryCode,
             PublishedAt = entity.PublishedAt,
+            RelevanceScore = entity.RelevanceScore,
             CreatedAt = DateTimeOffset.UtcNow
         };
     }
