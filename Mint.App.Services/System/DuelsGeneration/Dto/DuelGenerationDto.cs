@@ -35,5 +35,5 @@ public record DuelGenerationDto
     /// Answer variants 
     /// </summary>
     [JsonPropertyName("options")]
-    public required ICollection<OptionGenerationDto> Options { get; init; }
+    public required ICollection<string> Options { get; init; }
 }

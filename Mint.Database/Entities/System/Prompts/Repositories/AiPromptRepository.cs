@@ -56,12 +56,11 @@ public class AiPromptRepository(
     {
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
-        var prompt = context.AiPrompts
+        var prompt = await context.AiPrompts
             .Include(p => p.Categories.Where(c => c.IsActiveForAI))
-            .Select(_aiPromptMapper.Map)
-            .FirstOrDefault();
+            .SingleAsync(p => p.Id == promptId, cancellationToken);
 
-        return prompt;
+        return _aiPromptMapper.Map(prompt);
     }
 
     /// <inheritdoc/>

@@ -53,11 +53,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Will AI replace programmers?",
                 Description = "AI is advancing rapidly in code generation.",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -84,11 +80,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Will AI replace programmers?",
                 Description = "AI is advancing rapidly in code generation.",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             },
             new DuelGenerationDto
             {
@@ -96,12 +88,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 2,
                 Question = "Will Bitcoin hit $200k?",
                 Description = "Institutional adoption is growing.",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" },
-                    new OptionGenerationDto { Code = "c", Text = "Maybe" }
-                ]
+                Options = ["Yes", "No", "Maybe"]
             }
         };
 
@@ -127,10 +114,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" }
-                ]
+                Options = ["Yes"]
             }
         };
 
@@ -157,14 +141,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "A" },
-                    new OptionGenerationDto { Code = "b", Text = "B" },
-                    new OptionGenerationDto { Code = "c", Text = "C" },
-                    new OptionGenerationDto { Code = "d", Text = "D" },
-                    new OptionGenerationDto { Code = "e", Text = "E" }
-                ]
+                Options = ["A", "B", "C", "D", "E"]
             }
         };
 
@@ -192,11 +169,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = longQuestion,
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -224,11 +197,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = longDescription,
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -255,11 +224,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -272,10 +237,10 @@ public class DuelGenerationValidatorTests
     }
 
     /// <summary>
-    /// Verifies that duplicate option codes return invalid.
+    /// Verifies that duplicate options return invalid.
     /// </summary>
     [Fact]
-    public void Validate_DuplicateOptionCodes_ReturnsInvalid()
+    public void Validate_DuplicateOptions_ReturnsInvalid()
     {
         // Arrange
         var duels = new Collection<DuelGenerationDto>
@@ -286,11 +251,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "a", Text = "No" }
-                ]
+                Options = ["Yes", "Yes"]
             }
         };
 
@@ -300,37 +261,6 @@ public class DuelGenerationValidatorTests
         // Assert
         Assert.False(result.IsValid);
         Assert.Contains("Duplicate", result.Message);
-    }
-
-    /// <summary>
-    /// Verifies that invalid option code returns invalid.
-    /// </summary>
-    [Fact]
-    public void Validate_InvalidOptionCode_ReturnsInvalid()
-    {
-        // Arrange
-        var duels = new Collection<DuelGenerationDto>
-        {
-            new DuelGenerationDto
-            {
-                CategoryCode = "tech",
-                DuelType = 1,
-                Question = "Test?",
-                Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "x", Text = "Yes" },
-                    new OptionGenerationDto { Code = "y", Text = "No" }
-                ]
-            }
-        };
-
-        // Act
-        var result = _validator.Validate(duels);
-
-        // Assert
-        Assert.False(result.IsValid);
-        Assert.Contains("Invalid option code", result.Message);
     }
 
     /// <summary>
@@ -348,11 +278,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 5,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -379,11 +305,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -409,11 +331,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 2,
                 Question = "Test?",
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 
@@ -425,10 +343,10 @@ public class DuelGenerationValidatorTests
     }
 
     /// <summary>
-    /// Verifies that 4 options with valid codes is valid.
+    /// Verifies that 4 options is valid.
     /// </summary>
     [Fact]
-    public void Validate_FourOptionsWithValidCodes_ReturnsValid()
+    public void Validate_FourOptions_ReturnsValid()
     {
         // Arrange
         var duels = new Collection<DuelGenerationDto>
@@ -439,13 +357,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = "Best game of 2026?",
                 Description = "GTA VI, TES VI, Cyberpunk 2 and Half-Life 3 released.",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "GTA VI" },
-                    new OptionGenerationDto { Code = "b", Text = "TES VI" },
-                    new OptionGenerationDto { Code = "c", Text = "Cyberpunk 2" },
-                    new OptionGenerationDto { Code = "d", Text = "Half-Life 3" }
-                ]
+                Options = ["GTA VI", "TES VI", "Cyberpunk 2", "Half-Life 3"]
             }
         };
 
@@ -471,11 +383,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 1,
                 Question = new string('A', 151),
                 Description = "Test description",
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             },
             new DuelGenerationDto
             {
@@ -483,11 +391,7 @@ public class DuelGenerationValidatorTests
                 DuelType = 2,
                 Question = "Test?",
                 Description = new string('B', 501),
-                Options =
-                [
-                    new OptionGenerationDto { Code = "a", Text = "Yes" },
-                    new OptionGenerationDto { Code = "b", Text = "No" }
-                ]
+                Options = ["Yes", "No"]
             }
         };
 

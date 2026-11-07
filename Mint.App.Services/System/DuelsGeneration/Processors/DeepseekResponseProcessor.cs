@@ -34,11 +34,11 @@ public class DeepseekResponseProcessor : IAIResponseProcessor
     /// </summary>
     /// <param name="response">The AI response content containing JSON-serialized duels.</param>
     /// <param name="categoryId">The category ID for the duels.</param>
-    /// <param name="daysToLive">Number of days the duels should live.</param>
+    /// <param name="expiresAt">The exact expiration date/time for the duels.</param>
     /// <returns>A list of duel creation DTOs.</returns>
     /// <exception cref="ArgumentNullException">Thrown when response is null.</exception>
     /// <exception cref="InvalidOperationException">Thrown when validation fails.</exception>
-    public async Task<List<DuelCreateDto>> Process(string response, int categoryId, int daysToLive)
+    public async Task<List<DuelCreateDto>> Process(string response, int categoryId, DateTimeOffset expiresAt)
     {
         ArgumentNullException.ThrowIfNull(response);
 
@@ -53,7 +53,7 @@ public class DeepseekResponseProcessor : IAIResponseProcessor
             throw new InvalidOperationException($"Duels generation validation failed: {validationResult.Message}");
         }
 
-        var duelsCreateDtos = collection.Select(d => _duelMapper.Map(d, categoryId, daysToLive)).ToList();
+        var duelsCreateDtos = collection.Select(d => _duelMapper.Map(d, categoryId, expiresAt)).ToList();
 
         return await Task.FromResult(duelsCreateDtos);
     }

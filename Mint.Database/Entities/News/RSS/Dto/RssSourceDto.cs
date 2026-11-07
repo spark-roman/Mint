@@ -1,12 +1,12 @@
 namespace Mint.Database.Entities.News.RSS.Dto;
 
 /// <summary>
-/// Data transfer object for RSS source.
+/// DTO for RssSource.
 /// </summary>
 public sealed record RssSourceDto
 {
     /// <summary>
-    /// Unique identifier.
+    /// ID of the RSS source.
     /// </summary>
     public required long Id { get; init; }
 
@@ -16,17 +16,17 @@ public sealed record RssSourceDto
     public required string Name { get; init; }
 
     /// <summary>
-    /// URL of the RSS source.
+    /// URL of the RSS feed.
     /// </summary>
     public required Uri Url { get; init; }
 
     /// <summary>
-    /// Code of the category to which this RSS source belongs.
+    /// Category code of the RSS source.
     /// </summary>
     public string? CategoryCode { get; init; }
 
     /// <summary>
-    /// Is the RSS source active.
+    /// Whether the RSS source is active.
     /// </summary>
     public bool IsActive { get; init; }
 
@@ -38,15 +38,5 @@ public sealed record RssSourceDto
     /// <summary>
     /// Language of the RSS source.
     /// </summary>
-    public string Language { get; init; } = "en";
-
-    /// <summary>
-    /// Date and time when the RSS source was created.
-    /// </summary>
-    public DateTimeOffset CreatedAt { get; init; }
-
-    /// <summary>
-    /// Date and time when the RSS source was updated.
-    /// </summary>
-    public DateTimeOffset UpdatedAt { get; init; }
+    public string? Language { get; init; }
 }

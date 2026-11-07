@@ -12,7 +12,7 @@ public interface IAIResponseProcessor
     /// </summary>
     /// <param name="response">The AI response.</param>
     /// <param name="categoryId">The category ID for the duels.</param>
-    /// <param name="daysToLive">Number of days the duels should live.</param>
+    /// <param name="expiresAt">The exact expiration date/time for the duels.</param>
     /// <returns>A list of duel creation DTOs.</returns>
-    Task<List<DuelCreateDto>> Process(string response, int categoryId, int daysToLive);
+    Task<List<DuelCreateDto>> Process(string response, int categoryId, DateTimeOffset expiresAt);
 }

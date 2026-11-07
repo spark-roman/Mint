@@ -18,11 +18,8 @@ public sealed class DbRssSourceCreateMapper : IDbEntityMapper<RssSourceCreateDto
             Name = entity.Name,
             Url = entity.Url,
             CategoryCode = entity.CategoryCode,
-            Language = entity.Language,
             Priority = entity.Priority,
-            IsActive = true,
-            CreatedAt = DateTimeOffset.UtcNow,
-            UpdatedAt = DateTimeOffset.UtcNow
+            Language = entity.Language
         };
     }
 }

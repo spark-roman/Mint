@@ -6,6 +6,7 @@ using Mint.Database.Infrastructure.DI;
 using Mint.App.Services.Infrastructure.DI.System.Hangfire;
 using Hangfire;
 using Mint.App.Services.Infrastructure.DI.System.Jobs;
+using Mint.App.Services.System.News.Handlers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,11 +30,37 @@ builder.Services.RegisterDatabaseServices();
 builder.Services.AddLogging();
 builder.RegisterTgBotServices();
 
+// Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
+
 var app = builder.Build();
+
+// Swagger
+if (app.Environment.IsDevelopment() || app.Environment.EnvironmentName == "staging")
+{
+    app.UseSwagger();
+    app.UseSwaggerUI();
+}
 
 await app.ApplyMigrations();
 
 app.UseHangfireDashboard("/hangfire");
+
+// News generation endpoint
+app.MapPost("/api/news/collect", async (INewsCollector collector, CancellationToken ct) =>
+{
+    var targetDate = DateTimeOffset.UtcNow.Date;
+    var result = await collector.CollectFromTavilyAsync(targetDate, ct);
+    return Results.Ok(new
+    {
+        result.TotalFetched,
+        result.NewSaved,
+        result.SkippedDuplicates,
+        result.FailedSources,
+        result.Errors
+    });
+});
 
 using (var scope = app.Services.CreateScope())
 {

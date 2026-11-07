@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using System.Net;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.UnitTests.AppServices.System.Fixtures.EntityFarmework;
 using Mint.UnitTests.AppServices.System.Fixtures.Seeding;
 using Microsoft.Extensions.DependencyInjection;
@@ -43,11 +44,7 @@ public class DuelGenerationServiceTests : IClassFixture<DuelGenerationServiceFix
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing rapidly in code generation.",
-            Options = new Collection<OptionGenerationDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var jsonResponse = DuelsSeeder.CreateValidApiResponse(new Collection<DuelGenerationDto> { duelDto });
@@ -76,11 +73,7 @@ public class DuelGenerationServiceTests : IClassFixture<DuelGenerationServiceFix
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing rapidly in code generation.",
-            Options = new Collection<OptionGenerationDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var jsonResponse = DuelsSeeder.CreateValidApiResponse(new Collection<DuelGenerationDto> { duelDto });
@@ -113,11 +106,7 @@ public class DuelGenerationServiceTests : IClassFixture<DuelGenerationServiceFix
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing.",
-            Options = new Collection<OptionGenerationDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var jsonResponse = DuelsSeeder.CreateValidApiResponse(new Collection<DuelGenerationDto> { duelDto });
@@ -146,11 +135,7 @@ public class DuelGenerationServiceTests : IClassFixture<DuelGenerationServiceFix
             DuelType = 1,
             Question = "Will AI replace programmers?",
             Description = "AI is advancing.",
-            Options = new Collection<OptionGenerationDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var jsonResponse = DuelsSeeder.CreateValidApiResponse(new Collection<DuelGenerationDto> { duelDto });
@@ -203,11 +188,7 @@ public class DuelGenerationServiceTests : IClassFixture<DuelGenerationServiceFix
             DuelType = 1,
             Question = "Test?",
             Description = "Test",
-            Options = new Collection<OptionGenerationDto>
-            {
-                new() { Code = "a", Text = "Yes" },
-                new() { Code = "b", Text = "No" }
-            }
+            Options = new Collection<string> { "Yes", "No" }
         };
 
         var jsonResponse = DuelsSeeder.CreateValidApiResponse(new Collection<DuelGenerationDto> { duelDto });

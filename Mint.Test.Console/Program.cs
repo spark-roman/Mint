@@ -7,6 +7,7 @@ using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.News.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
 using Mint.Database;
@@ -35,19 +36,10 @@ var host = Host.CreateDefaultBuilder(args)
     })
     .Build();
 
-    //var newsCollector = host.Services.GetRequiredService<INewsCollector>();
-    //var result = await newsCollector.CollectAllAsync(CancellationToken.None);
+    var duelGenService = host.Services.GetRequiredService<IDuelGenerationService>();
 
-    var handler = host.Services.GetRequiredKeyedService<ICommandHandler>(TgCommandType.Referral);
-    var user = new User
-    {
-        Id = 12345,
-        IsBot = false,
-        FirstName = string.Empty,
-        LastName = string.Empty,
-        Username = string.Empty
-    };
+    using var cts = new CancellationTokenSource();
 
-    handler.HandleAsync(user, "ref", CancellationToken.None).GetAwaiter().GetResult();
+    await duelGenService.GenerateDuelsWithGigaChatAsync(1, 1, cts.Token);
 
     Console.ReadKey();
