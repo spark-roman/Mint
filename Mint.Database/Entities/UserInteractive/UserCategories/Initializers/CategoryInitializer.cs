@@ -16,7 +16,7 @@ public class CategoryInitializer
             Name = "Нейросети & ИИ",
             Description = "Прорывы в сфере искусственного интеллекта, генерации контента и автоматизации.",
             IsActiveForAI = true,
-            SearchKeywords = "DeepSeek, ChatGPT, Midjourney, Claude, Sora AI, генерация видео, ИИ-ассистенты, LLM модели, ИИ в программировании, плагины, автоматизация рутины",
+            SearchKeywords = "OpenAI ChatGPT Claude Gemini xAI ИИ нейросети release upgrade leak controversy lawsuit ban safety",
             Code = "ai"
         },
         new CategoryEntity
@@ -26,7 +26,7 @@ public class CategoryInitializer
             Name = "Железо & Гаджеты",
             Description = "Анонсы и тесты смартфонов, ноутбуков, процессоров и носимой электроники.",
             IsActiveForAI = true,
-            SearchKeywords = "Apple iPhone, Samsung Galaxy, процессоры Nvidia, видеокарты AMD, умные часы, VR/AR гарнитуры, портативные консоли, роутеры, утечки дизайнов, краш-тесты",
+            SearchKeywords = "Nvidia AMD Intel Apple Samsung hardware specs smartphone gpu release leak benchmark deficit prices",
             Code = "hardware"
         },
         new CategoryEntity
@@ -36,7 +36,7 @@ public class CategoryInitializer
             Name = "Крипта & Web3",
             Description = "Динамика блокчейн-индустрии, курсы монет и экосистема TON.",
             IsActiveForAI = true,
-            SearchKeywords = "Курс Bitcoin, экосистема TON, Telegram Wallet, Ethereum, новые аирдропы, мемкоины, стейкинг, криптобиржи, DeFi, аппаратные кошельки, майнинг в РФ",
+            SearchKeywords = "bitcoin crypto ethereum hack binance sec scam regulations market crash dump взлом",
             Code = "crypto"
         },
         new CategoryEntity
@@ -46,7 +46,7 @@ public class CategoryInitializer
             Name = "Видеоигры & Стрим",
             Description = "Релизы на ПК и консолях, индустрия развлечений и тренды игровых платформ.",
             IsActiveForAI = true,
-            SearchKeywords = "Steam тренды, PlayStation 5, Xbox, патчи и обновления, GTA 6 слухи, Epic Games Store, популярные стримеры, Twitch, новые трейлеры, инди-игры",
+            SearchKeywords = "gaming news Twitch streamer banned drama controversy game release patch Steam взлом слив",
             Code = "games"
         },
         new CategoryEntity
@@ -56,7 +56,7 @@ public class CategoryInitializer
             Name = "Киберспорт",
             Description = "Турниры, трансферы, скандалы и результаты в соревновательном гейминге.",
             IsActiveForAI = true,
-            SearchKeywords = "The International, PGL Major, Dota 2 трансферы, Counter-Strike 2 матчи, призовые фонды, киберспортивные команды, аналитика матчей, Valorant, League of Legends",
+            SearchKeywords = "esports cs2 dota2 tournament match drama disqualification Valve cheat софт скандал",
             Code = "sports"
         },
         new CategoryEntity
@@ -66,7 +66,7 @@ public class CategoryInitializer
             Name = "Кино & Сериалы",
             Description = "Новинки кинопроката, стриминговые платформы, отзывы и кассовые сборы.",
             IsActiveForAI = true,
-            SearchKeywords = "Премьеры кино, новые сериалы, Кинопоиск рейтинг, трейлеры Netflix, HBO, кассовые сборы, актеры, теории фанатов, сиквелы, аниме новинки",
+            SearchKeywords = "премьера кинотеатры сериал кинопоиск трейлер нетфликс скандал критика провал режиссер актеры",
             Code = "movies"
         },
         new CategoryEntity
@@ -76,7 +76,7 @@ public class CategoryInitializer
             Name = "Мемы & Рунет",
             Description = "Вирусные тренды, локальные мемы, события в социальных сетях и блогосфере.",
             IsActiveForAI = true,
-            SearchKeywords = "Вирусные видео, тренды YouTube, новые шоу, VK Видео, популярные блогеры рунета, интернет-мемы, челленджи, Telegram-тренды, обсуждения в сообществах",
+            SearchKeywords = "вирусится тренд мем ркн блокировка телеграм вконтакте тикток сбой штраф",
             Code = "memes"
         },
         new CategoryEntity
@@ -86,7 +86,7 @@ public class CategoryInitializer
             Name = "Авто & Электрокары",
             Description = "Мировые автомобильные премьеры, технологии и развитие электротранспорта.",
             IsActiveForAI = true,
-            SearchKeywords = "Электромобили, Zeekr, Xiaomi SU7, Tesla новости, китайские автобренды, спорткары, концепт-кары, автопилот, тюнинг, гибридные двигатели, тест-драйвы",
+            SearchKeywords = "автоваз lada автомобили параллельный импорт цены zeekr lixiang электромобили авария утильсбор",
             Code = "cars"
         },
         new CategoryEntity
@@ -96,7 +96,7 @@ public class CategoryInitializer
             Name = "Наука & Космос",
             Description = "Понятные и интересные открытия, космические миссии и новые технологии.",
             IsActiveForAI = true,
-            SearchKeywords = "Запуски SpaceX, телескоп Джеймс Уэбб, Марсианские миссии, квантовые компьютеры, археологические находки, генная инженерия, термоядерный синтез, физика",
+            SearchKeywords = "space NASA discovery astronomy breakthrough SpaceX Марс ученые открытие аномалия сигнал",
             Code = "science"
         },
         new CategoryEntity
@@ -106,7 +106,7 @@ public class CategoryInitializer
             Name = "Футбол & Спорт",
             Description = "Главные события мирового футбола, боевых искусств и больших спортивных лиг.",
             IsActiveForAI = true,
-            SearchKeywords = "Лига Чемпионов, результаты матчей, футбольные трансферы, UFC бои, Формула-1, НХЛ, НБА, громкие рекорды, спортивные скандалы, медиафутбол",
+            SearchKeywords = "рпл футбол судейство скандал матч рфс лига чемпионов гол разгром трансфер drama var",
             Code = "soccer"
         },
         new CategoryEntity
@@ -116,7 +116,7 @@ public class CategoryInitializer
             Name = "Фэшн & Поп-музыка",
             Description = "Тренды уличной моды, дропы кроссовок, громкие музыкальные альбомы и клипы.",
             IsActiveForAI = true,
-            SearchKeywords = "Дропы кроссовок, коллаборации брендов, музыкальные чарты, новые клипы, тренды одежды, рэп-релизы, поп-звезды, музыкальные стриминги, стритвир",
+            SearchKeywords = "pop music billboard fashion week celebrity scandal Грэмми показ моды тренд плагиат",
             Code = "fashion"
         },
         new CategoryEntity
@@ -126,7 +126,7 @@ public class CategoryInitializer
             Name = "Финтех & Маркетплейсы",
             Description = "Потребительские тренды, новые фичи банков, e-commerce и стартапы.",
             IsActiveForAI = true,
-            SearchKeywords = "Обновления Т-Банка, фичи Сбера, тренды Wildberries, Ozon, Мегамаркет, акции ИТ-компаний, новые стартапы, краудфандинг, сервисы доставки, СБП",
+            SearchKeywords = "wildberries ozon сбер вб штраф скандал комиссия финтех банки цб рф цифровой рубль сбой",
             Code = "finance"
         }
     ];

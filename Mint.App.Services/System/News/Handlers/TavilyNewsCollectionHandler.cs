@@ -58,7 +58,7 @@ public sealed class TavilyNewsCollectionHandler(
         {
             try
             {
-                var query = TavilyQueryGenerator.GenerateQuery(category, cutoffDate);
+                var query = TavilyQueryGenerator.GenerateQuery(category);
                 _logger.LogDebug("Searching news for category '{CategoryCode}' with query: {Query}", category.Code, query);
 
                 var newsItems = await _tavilyClient.SearchAsync(query, category.Code, cancellationToken);
