@@ -31,12 +31,22 @@ public record TavilySettings
     public string SearchDepth { get; init; } = "advanced";
 
     /// <summary>
-    /// Include answer in search results
+    /// Search topic (news, general, etc.)
     /// </summary>
-    public bool IncludeAnswer { get; init; }
+    public string? Topic { get; init; }
 
     /// <summary>
-    /// Include images in search results
+    /// Number of days back to search for news
     /// </summary>
-    public bool IncludeImages { get; init; }
+    public int DaysBack { get; init; } = 30;
+
+    /// <summary>
+    /// Search time range (day, week, month, year)
+    /// </summary>
+    public string TimeRange { get; init; } = "month";
+
+    /// <summary>
+    /// Whether to filter by published date
+    /// </summary>
+    public bool? FilterByPublishedDate { get; init; }
 }

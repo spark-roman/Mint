@@ -87,6 +87,12 @@ public class NewsEntity
     public DateTimeOffset CreatedAt { get; set; }
 
     /// <summary>
+    /// Relevance score from Tavily API (0.0 - 1.0, higher = more relevant)
+    /// </summary>
+    [Column("relevance_score")]
+    public double? RelevanceScore { get; set; }
+
+    /// <summary>
     /// RSS source of the news item.
     /// </summary>
     public virtual RssSourceEntity? RssSource { get; set; }

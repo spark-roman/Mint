@@ -370,6 +370,10 @@ public class MintDbContext : DbContext
             entity.HasIndex(e => e.CreatedAt)
                 .HasDatabaseName("idx_news_created_at");
 
+            entity.HasIndex(e => e.RelevanceScore)
+                .IsDescending()
+                .HasDatabaseName("idx_news_relevance_score");
+
             entity.HasIndex(e => e.RssSourceId)
                 .HasDatabaseName("idx_news_rss_source");
 

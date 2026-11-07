@@ -8,12 +8,10 @@ namespace Mint.App.Services.System.News.Jobs;
 /// Hangfire job for collecting news from RSS sources and Tavily API.
 /// </summary>
 public sealed class NewsCollectionJob(
-    INewsCollector newsCollector,
-    TimeProvider timeProvider,
+    ITavilyNewsCollectionHandler tavilyHandler,
     ILogger<NewsCollectionJob> logger) : HangfireJobBase(logger), INewsCollectionJob
 {
-    private readonly INewsCollector _newsCollector = newsCollector ?? throw new ArgumentNullException(nameof(newsCollector));
-    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
+    private readonly ITavilyNewsCollectionHandler _tavilyHandler = tavilyHandler ?? throw new ArgumentNullException(nameof(tavilyHandler));
 
     /// <inheritdoc />
     public Task ExecuteAsync() =>
@@ -21,14 +19,8 @@ public sealed class NewsCollectionJob(
             TimeSpan.FromMinutes(10),
             async ct =>
             {
-                var targetDate = _timeProvider.GetLocalNow().Date;
-
-                // Collect from RSS sources
-                //var rssResult = await _newsCollector.CollectFromRssAsync(ct);
-                //logger.LogInformation("RSS collection: {New} new, {Duplicates} duplicates", rssResult.NewSaved, rssResult.SkippedDuplicates);
-
                 // Collect from Tavily API
-                var tavilyResult = await _newsCollector.CollectFromTavilyAsync(targetDate, ct);
+                var tavilyResult = await _tavilyHandler.CollectAsync(ct);
                 logger.LogInformation("Tavily collection: {New} new, {Duplicates} duplicates", tavilyResult.NewSaved, tavilyResult.SkippedDuplicates);
 
                 return tavilyResult.NewSaved;

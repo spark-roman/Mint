@@ -29,7 +29,17 @@ public interface INewsRepository
     /// <summary>Gets news items published within the last N hours.</summary>
     Task<List<NewsDto>> GetRecentAsync(int hours, int limit, CancellationToken cancellationToken);
 
-    /// <summary>Gets all existing news links for deduplication.</summary>
+    /// <summary>
+    /// Gets all existing news links for deduplication within the specified date range.
+    /// </summary>
+    /// <param name="since">Only get links published after this date</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>HashSet of existing links</returns>
+    Task<HashSet<string>> GetLinksSinceAsync(DateTimeOffset since, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Gets all existing news links for deduplication.
+    /// </summary>
     Task<HashSet<string>> GetAllLinksAsync(CancellationToken cancellationToken);
 
     /// <summary>Checks if a news item exists by link.</summary>

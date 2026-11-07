@@ -26,7 +26,8 @@ public sealed class DbNewsMapper : IDbEntityMapper<NewsEntity, NewsDto>
             PublishedAt = entity.PublishedAt,
             IsProcessed = entity.IsProcessed,
             ProcessedAt = entity.ProcessedAt,
-            CreatedAt = entity.CreatedAt
+            CreatedAt = entity.CreatedAt,
+            RelevanceScore = entity.RelevanceScore
         };
     }
 }

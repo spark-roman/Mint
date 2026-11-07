@@ -28,6 +28,7 @@ public static class NewsExtensions
         services.AddSingleton(TimeProvider.System);
         services.AddScoped<IRssFeedReader, RssFeedReader>();
         services.AddScoped<ICategoryRepository, CategoryRepository>();
-        services.AddScoped<INewsCollector, NewsCollector>();
+        services.AddScoped<IRssNewsCollectionHandler, RssNewsCollectionHandler>();
+        services.AddScoped<ITavilyNewsCollectionHandler, TavilyNewsCollectionHandler>();
     }
 }

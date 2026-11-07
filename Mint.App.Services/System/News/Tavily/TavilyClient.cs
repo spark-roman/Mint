@@ -13,34 +13,39 @@ namespace Mint.App.Services.System.News.Tavily;
 public sealed class TavilyClient(
     IOptions<TavilySettings> settings,
     HttpClient httpClient,
+    TimeProvider timeProvider,
     ILogger<TavilyClient> logger) : ITavilyClient
 {
     private readonly TavilySettings _settings = settings.Value ?? throw new ArgumentNullException(nameof(settings));
     private readonly HttpClient _httpClient = httpClient ?? throw new ArgumentNullException(nameof(httpClient));
+    private readonly TimeProvider _timeProvider = timeProvider ?? throw new ArgumentNullException(nameof(timeProvider));
     private readonly ILogger<TavilyClient> _logger = logger ?? throw new ArgumentNullException(nameof(logger));
 
     /// <inheritdoc />
     public async Task<List<NewsCreateDto>> SearchAsync(string query, string? categoryCode, CancellationToken cancellationToken)
     {
+        var timeRange = CalculateTimeRange(_settings.DaysBack);
+
         var request = new
         {
             api_key = _settings.ApiKey,
             query,
             max_results = _settings.MaxResults,
             search_depth = _settings.SearchDepth,
-            include_answer = _settings.IncludeAnswer,
-            include_images = _settings.IncludeImages
+            topic = _settings.Topic,
+            time_range = timeRange,
+            filter_by_published_date = _settings.FilterByPublishedDate
         };
 
         var requestJson = JsonSerializer.Serialize(request);
-        _logger.LogDebug("Tavily request: {RequestJson}", requestJson);
+        _logger.LogInformation("Tavily request: {RequestJson}", requestJson);
 
         using var content = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         using var response = await _httpClient.PostAsync(_settings.ApiUrl, content, cancellationToken);
 
         var responseJson = await response.Content.ReadAsStringAsync(cancellationToken);
-        _logger.LogDebug("Tavily response: {ResponseJson}", responseJson);
+        _logger.LogInformation("Tavily response: {ResponseJson}", responseJson);
 
         if (!response.IsSuccessStatusCode)
         {
@@ -56,6 +61,7 @@ public sealed class TavilyClient(
             return [];
         }
 
+        var now = _timeProvider.GetUtcNow();
         var newsItems = apiResponse.Results
             .Select(r => new NewsCreateDto
             {
@@ -63,8 +69,9 @@ public sealed class TavilyClient(
                 Link = r.Url.ToString(),
                 Description = r.Content,
                 Content = r.Content,
-                PublishedAt = r.PublicDate ?? DateTimeOffset.UtcNow,
-                CategoryCode = categoryCode
+                PublishedAt = r.PublicDate ?? now,
+                CategoryCode = categoryCode,
+                RelevanceScore = r.Score
             })
             .ToList();
 
@@ -74,5 +81,14 @@ public sealed class TavilyClient(
             newsItems.Count);
 
         return newsItems;
+    }
+
+    private static string CalculateTimeRange(int daysBack)
+    {
+        if (daysBack <= 1) return "day";
+        if (daysBack <= 7) return "week";
+        if (daysBack <= 31) return "month";
+        if (daysBack <= 365) return "year";
+        return "year";
     }
 }
