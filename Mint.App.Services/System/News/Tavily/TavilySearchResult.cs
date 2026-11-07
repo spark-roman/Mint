@@ -32,8 +32,8 @@ public sealed record TavilySearchResult
     public double? Score { get; init; }
 
     /// <summary>
-    /// Publication date
+    /// Publication date (raw string — Tavily may return various ISO 8601 variants)
     /// </summary>
     [JsonPropertyName("published_date")]
-    public DateTimeOffset? PublicDate { get; init; }
+    public string? PublicDateRaw { get; init; }
 }

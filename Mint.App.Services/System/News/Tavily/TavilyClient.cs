@@ -1,3 +1,4 @@
+using System.Globalization;
 using System.Net.Mime;
 using System.Text;
 using System.Text.Json;
@@ -69,7 +70,7 @@ public sealed class TavilyClient(
                 Link = r.Url.ToString(),
                 Description = r.Content,
                 Content = r.Content,
-                PublishedAt = r.PublicDate ?? now,
+                PublishedAt = ParseDate(r.PublicDateRaw, now),
                 CategoryCode = categoryCode,
                 RelevanceScore = r.Score
             })
@@ -81,6 +82,16 @@ public sealed class TavilyClient(
             newsItems.Count);
 
         return newsItems;
+    }
+
+    private static DateTimeOffset ParseDate(string? raw, DateTimeOffset fallback)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return fallback;
+
+        if (DateTimeOffset.TryParse(raw, null, DateTimeStyles.AdjustToUniversal | DateTimeStyles.AssumeUniversal, out var date))
+            return date;
+
+        return fallback;
     }
 
     private static string CalculateTimeRange(int daysBack)
