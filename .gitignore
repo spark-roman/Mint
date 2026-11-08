@@ -36,3 +36,4 @@ Mint.Database/catgories.sql
 Mint.Database/rss_sources.sql
 Mint.Database/job_scheduling.sql
 Mint.Database/create_transaction.sql
+.gigacode_vsc/agent-manager.json
