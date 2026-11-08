@@ -5,13 +5,13 @@ using Mint.App.Services.System.News.Handlers;
 namespace Mint.App.Services.System.News.Jobs;
 
 /// <summary>
-/// Hangfire job for collecting news from RSS sources and Tavily API.
+/// Hangfire job for collecting news from RSS sources, Tavily API, and GNews API.
 /// </summary>
 public sealed class NewsCollectionJob(
-    ITavilyNewsCollectionHandler tavilyHandler,
+    IGoogleNewsCollectionHandler googleHandler,
     ILogger<NewsCollectionJob> logger) : HangfireJobBase(logger), INewsCollectionJob
 {
-    private readonly ITavilyNewsCollectionHandler _tavilyHandler = tavilyHandler ?? throw new ArgumentNullException(nameof(tavilyHandler));
+    private readonly IGoogleNewsCollectionHandler _googleHandler = googleHandler ?? throw new ArgumentNullException(nameof(googleHandler));
 
     /// <inheritdoc />
     public Task ExecuteAsync() =>
@@ -19,11 +19,11 @@ public sealed class NewsCollectionJob(
             TimeSpan.FromMinutes(10),
             async ct =>
             {
-                // Collect from Tavily API
-                var tavilyResult = await _tavilyHandler.CollectAsync(ct);
-                logger.LogInformation("Tavily collection: {New} new, {Duplicates} duplicates", tavilyResult.NewSaved, tavilyResult.SkippedDuplicates);
+                // Collect from GNews API
+                var googleResult = await _googleHandler.CollectAsync(ct);
+                logger.LogInformation("GNews collection: {New} new, {Duplicates} duplicates", googleResult.NewSaved, googleResult.SkippedDuplicates);
 
-                return tavilyResult.NewSaved;
+                return googleResult.NewSaved;
             },
             "NewsCollectionJob");
 }
