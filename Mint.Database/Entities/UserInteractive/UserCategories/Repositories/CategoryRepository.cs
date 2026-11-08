@@ -22,6 +22,20 @@ public sealed class CategoryRepository(
         using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
 
         var categories = await context.UserCategories
+            .Where(c => c.IsActiveForUsers)
+            .AsNoTracking()
+            .OrderBy(c => c.Name)
+            .ToListAsync(cancellationToken);
+
+        return categories.Select(_categoryMapper.Map).ToList();
+    }
+
+    /// <inheritdoc/>
+    public async Task<List<CategoryDto>> GetAllActiveForAIAsync(CancellationToken cancellationToken)
+    {
+        using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var categories = await context.UserCategories
             .Where(c => c.IsActiveForAI)
             .AsNoTracking()
             .OrderBy(c => c.Name)
@@ -144,7 +158,7 @@ public sealed class CategoryRepository(
 
         var categories = await context.UserCategories
             .AsNoTracking()
-            .Where(c => c.IsActiveForAI)
+            .Where(c => c.IsActiveForUsers)
             .OrderBy(c => c.Name)
             .ToListAsync(cancellationToken);
 
@@ -186,7 +200,7 @@ public sealed class CategoryRepository(
                 CategoryName = c.Name,
                 CategoryCode = c.Code,
                 CategoryEmoji = "📂",
-                IsActive = c.IsActiveForAI,
+                IsActive = c.IsActiveForUsers,
                 HasAvailableDuels = hasAvailableDuels,
                 HasExpiredDuels = hasExpiredDuels,
                 HasClosedDuels = hasClosedDuels,

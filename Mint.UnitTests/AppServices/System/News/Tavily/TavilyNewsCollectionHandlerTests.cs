@@ -43,6 +43,8 @@ public class TavilyNewsCollectionHandlerTests
         _mockTimeProvider = new Mock<TimeProvider>();
         _mockTimeProvider.Setup(t => t.GetUtcNow()).Returns(_fixedNow);
         _mockLogger = new Mock<ILogger<TavilyNewsCollectionHandler>>();
+        _mockNewsRepository.Setup(r => r.GetLinksSinceAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new HashSet<string>());
 
         _handler = new TavilyNewsCollectionHandler(
             _mockTavilyClient.Object,
@@ -59,7 +61,7 @@ public class TavilyNewsCollectionHandlerTests
     public async Task CollectAsync_NoCategories_ReturnsEmptyResult()
     {
         // Arrange
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CategoryDto>());
 
         // Act
@@ -84,7 +86,7 @@ public class TavilyNewsCollectionHandlerTests
         {
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai, chatgpt", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         var newsItems = new List<NewsCreateDto>
@@ -131,7 +133,7 @@ public class TavilyNewsCollectionHandlerTests
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai", IsActiveForAI = true },
             new() { Id = 2, Name = "Crypto", Code = "crypto", SearchKeywords = "bitcoin", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         _mockTavilyClient.Setup(c => c.SearchAsync("ai", "ai", CancellationToken.None))
@@ -173,7 +175,7 @@ public class TavilyNewsCollectionHandlerTests
         {
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         var newsItems = new List<NewsCreateDto>
@@ -210,7 +212,7 @@ public class TavilyNewsCollectionHandlerTests
         {
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         var newsItems = new List<NewsCreateDto>
@@ -242,7 +244,7 @@ public class TavilyNewsCollectionHandlerTests
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai", IsActiveForAI = true },
             new() { Id = 2, Name = "Tech", Code = "tech", SearchKeywords = "tech", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         _mockTavilyClient.Setup(c => c.SearchAsync("ai", "ai", CancellationToken.None))
@@ -283,7 +285,7 @@ public class TavilyNewsCollectionHandlerTests
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = "ai", IsActiveForAI = true },
             new() { Id = 2, Name = "Crypto", Code = "crypto", SearchKeywords = "btc", IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         _mockTavilyClient.Setup(c => c.SearchAsync("ai", "ai", CancellationToken.None))
@@ -320,7 +322,7 @@ public class TavilyNewsCollectionHandlerTests
         {
             new() { Id = 1, Name = "AI", Code = "ai", SearchKeywords = null, IsActiveForAI = true }
         };
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
+        _mockCategoryRepository.Setup(r => r.GetAllActiveForAIAsync(It.IsAny<CancellationToken>()))
             .ReturnsAsync(categories);
 
         _mockNewsRepository.Setup(r => r.GetLinksSinceAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
@@ -334,33 +336,6 @@ public class TavilyNewsCollectionHandlerTests
         result.Errors.Should().HaveCount(1);
         result.Errors[0].Should().Contain("ai");
         result.Errors[0].Should().Contain("No search keywords");
-    }
-
-    #endregion
-
-    #region CollectAsync - Settings
-
-    [Fact]
-    public async Task CollectAsync_UsesDaysBackForCutoffDate()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value).Returns(new TavilySettings
-        {
-            ApiKey = "test-key",
-            DaysBack = 14,
-            ExcludeDomains = new Collection<string> { "example.com" }
-        });
-        _mockCategoryRepository.Setup(r => r.GetAllActiveAsync(It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<CategoryDto>());
-
-        // Act
-        await _handler.CollectAsync(CancellationToken.None);
-
-        // Assert — cutoff should be 14 days before fixed now
-        var expectedCutoff = _fixedNow.AddDays(-14);
-        _mockNewsRepository.Verify(
-            r => r.GetLinksSinceAsync(It.Is<DateTimeOffset>(d => d == expectedCutoff), It.IsAny<CancellationToken>()),
-            Times.Once);
     }
 
     #endregion

@@ -400,6 +400,12 @@ public class MintDbContext : DbContext
             entity.Property(e => e.Description)
                 .HasMaxLength(500);
 
+            entity.Property(e => e.IsActiveForAI)
+                .HasDefaultValue(true);
+
+            entity.Property(e => e.IsActiveForUsers)
+                .HasDefaultValue(true);
+
             entity.Property(e => e.Code)
                 .IsRequired();
         });
