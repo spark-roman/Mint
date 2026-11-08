@@ -7,6 +7,7 @@ using Mint.App.Services.Infrastructure.DI.System.Hangfire;
 using Hangfire;
 using Mint.App.Services.Infrastructure.DI.System.Jobs;
 using Mint.App.Services.System.News.Handlers;
+using Mint.App.Services.System.News.Google;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -47,10 +48,22 @@ await app.ApplyMigrations();
 
 app.UseHangfireDashboard("/hangfire");
 
-// News generation endpoint
+// News generation endpoints
 app.MapPost("/api/news/collect", async (ITavilyNewsCollectionHandler collector, CancellationToken ct) =>
 {
-    var targetDate = DateTimeOffset.UtcNow.Date;
+    var result = await collector.CollectAsync(ct);
+    return Results.Ok(new
+    {
+        result.TotalFetched,
+        result.NewSaved,
+        result.SkippedDuplicates,
+        result.FailedSources,
+        result.Errors
+    });
+});
+
+app.MapPost("/api/news/collect-google", async (IGoogleNewsCollectionHandler collector, CancellationToken ct) =>
+{
     var result = await collector.CollectAsync(ct);
     return Results.Ok(new
     {
