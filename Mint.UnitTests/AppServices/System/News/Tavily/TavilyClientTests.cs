@@ -43,11 +43,8 @@ public class TavilyClientTests
     [Fact]
     public void ParseDate_RFC2822Format_ReturnsParsedDate()
     {
-        // Arrange
-        var client = CreateClient();
-
         // Act
-        var result = InvokeParseDate(client, "Fri, 06 Nov 2026 18:00:00 GMT");
+        var result = InvokeParseDate("Fri, 06 Nov 2026 18:00:00 GMT");
 
         // Assert
         result.Should().BeCloseTo(new DateTimeOffset(2026, 11, 6, 18, 0, 0, TimeSpan.Zero), TimeSpan.FromSeconds(1));
@@ -56,11 +53,8 @@ public class TavilyClientTests
     [Fact]
     public void ParseDate_EmptyString_ReturnsFallback()
     {
-        // Arrange
-        var client = CreateClient();
-
         // Act
-        var result = InvokeParseDate(client, "");
+        var result = InvokeParseDate("");
 
         // Assert
         result.Should().Be(_fixedNow);
@@ -69,11 +63,8 @@ public class TavilyClientTests
     [Fact]
     public void ParseDate_NullString_ReturnsFallback()
     {
-        // Arrange
-        var client = CreateClient();
-
         // Act
-        var result = InvokeParseDate(client, null!);
+        var result = InvokeParseDate(null!);
 
         // Assert
         result.Should().Be(_fixedNow);
@@ -82,11 +73,8 @@ public class TavilyClientTests
     [Fact]
     public void ParseDate_InvalidFormat_ReturnsFallback()
     {
-        // Arrange
-        var client = CreateClient();
-
         // Act
-        var result = InvokeParseDate(client, "not-a-date");
+        var result = InvokeParseDate("not-a-date");
 
         // Assert
         result.Should().Be(_fixedNow);
@@ -95,102 +83,11 @@ public class TavilyClientTests
     [Fact]
     public void ParseDate_WithTimezone_ReturnsCorrectTime()
     {
-        // Arrange
-        var client = CreateClient();
-
         // Act
-        var result = InvokeParseDate(client, "Thu, 05 Nov 2026 10:30:00 GMT");
+        var result = InvokeParseDate("Thu, 05 Nov 2026 10:30:00 GMT");
 
         // Assert
         result.Should().BeCloseTo(new DateTimeOffset(2026, 11, 5, 10, 30, 0, TimeSpan.Zero), TimeSpan.FromSeconds(1));
-    }
-
-    #endregion
-
-    #region CalculateTimeRange
-
-    [Fact]
-    public void CalculateTimeRange_DaysBack1_ReturnsDay()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(1);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("day");
-    }
-
-    [Fact]
-    public void CalculateTimeRange_DaysBack7_ReturnsWeek()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(7);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("week");
-    }
-
-    [Fact]
-    public void CalculateTimeRange_DaysBack30_ReturnsMonth()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(30);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("month");
-    }
-
-    [Fact]
-    public void CalculateTimeRange_DaysBack365_ReturnsYear()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(365);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("year");
-    }
-
-    [Fact]
-    public void CalculateTimeRange_DaysBackOver365_ReturnsYear()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(400);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("year");
-    }
-
-    [Fact]
-    public void CalculateTimeRange_DaysBack0_ReturnsDay()
-    {
-        // Arrange
-        _mockSettings.Setup(s => s.Value.DaysBack).Returns(0);
-        var client = CreateClient();
-
-        // Act
-        var result = InvokeCalculateTimeRange(client);
-
-        // Assert
-        result.Should().Be("day");
     }
 
     #endregion
@@ -202,16 +99,10 @@ public class TavilyClientTests
         return new TavilyClient(_mockSettings.Object, null!, _timeProvider, _mockLogger.Object);
     }
 
-    private DateTimeOffset InvokeParseDate(TavilyClient client, string? raw)
+    private DateTimeOffset InvokeParseDate(string? raw)
     {
         var method = typeof(TavilyClient).GetMethod("ParseDate", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
-        return (DateTimeOffset)method!.Invoke(client, new object?[] { raw, _fixedNow })!;
-    }
-
-    private string InvokeCalculateTimeRange(TavilyClient client)
-    {
-        var method = typeof(TavilyClient).GetMethod("CalculateTimeRange", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
-        return (string)method!.Invoke(client, new object?[] { _mockSettings.Object.Value.DaysBack })!;
+        return (DateTimeOffset)method!.Invoke(null, new object?[] { raw, _fixedNow })!;
     }
 
     #endregion

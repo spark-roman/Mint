@@ -8,11 +8,18 @@ namespace Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 public interface ICategoryRepository
 {
     /// <summary>
-    /// Get all active categories
+    /// Get all active categories (visible to users)
     /// </summary>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of active category DTOs</returns>
     Task<List<CategoryDto>> GetAllActiveAsync(CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Get all active categories for AI (news collection, duel generation)
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>List of active category DTOs</returns>
+    Task<List<CategoryDto>> GetAllActiveForAIAsync(CancellationToken cancellationToken);
 
     /// <summary>
     /// Get category by ID

@@ -33,6 +33,11 @@ public record CategoryDto
     public bool IsActiveForAI { get; init; }
 
     /// <summary>
+    /// Whether category is visible to users in the bot
+    /// </summary>
+    public bool IsActiveForUsers { get; init; }
+
+    /// <summary>
     /// AI search keywords
     /// </summary>
     public string? SearchKeywords { get; init; }

@@ -49,7 +49,7 @@ public sealed class TavilyNewsCollectionHandler(
         var existingLinks = await _newsRepository.GetLinksSinceAsync(cutoffDate, cancellationToken);
         _logger.LogDebug("Loaded {LinkCount} existing links since {CutoffDate}", existingLinks.Count, cutoffDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture));
 
-        var categories = await _categoryRepository.GetAllActiveAsync(cancellationToken);
+        var categories = await _categoryRepository.GetAllActiveForAIAsync(cancellationToken);
         _logger.LogInformation("Found {Count} active categories for Tavily collection", categories.Count);
 
         var allNewItems = new List<NewsCreateDto>();

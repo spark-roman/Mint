@@ -19,6 +19,7 @@ public class DbCategoryMapper : IDbEntityMapper<CategoryEntity, CategoryDto>
             Name = entity.Name,
             Description = entity.Description,
             IsActiveForAI = entity.IsActiveForAI,
+            IsActiveForUsers = entity.IsActiveForUsers,
             SearchKeywords = entity.SearchKeywords,
             Code = entity.Code
         };

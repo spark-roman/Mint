@@ -53,6 +53,12 @@ public class CategoryEntity
     public bool IsActiveForAI { get; set; } = true;
 
     /// <summary>
+    /// Whether category is visible to users in the bot. If false, hidden from duels menu.
+    /// </summary>
+    [Column("is_active_for_users")]
+    public bool IsActiveForUsers { get; set; } = true;
+
+    /// <summary>
     /// AI hints for which specific topics to search (e.g., "TON, Bitcoin, Telegram Wallet, Ethereum, аирдропы")
     /// </summary>
     [StringLength(2000)]
