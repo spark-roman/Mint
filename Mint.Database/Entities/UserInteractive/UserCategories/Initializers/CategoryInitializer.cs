@@ -16,7 +16,7 @@ public class CategoryInitializer
             Name = "Нейросети & ИИ",
             Description = "Прорывы в сфере искусственного интеллекта, генерации контента и автоматизации.",
             IsActiveForAI = true,
-            SearchKeywords = "OpenAI ChatGPT Claude Gemini xAI ИИ нейросети release upgrade leak controversy lawsuit ban safety",
+            SearchKeywords = "OpenAI ChatGPT Claude Gemini DeepSeek Grok Anthropic xAI LLM ИИ нейросети ИИ-агенты text-to-video Sora анонс обновление release upgrade leak controversy lawsuit ban safety regulation",
             Code = "ai"
         },
         new CategoryEntity
@@ -26,7 +26,7 @@ public class CategoryInitializer
             Name = "Железо & Гаджеты",
             Description = "Анонсы и тесты смартфонов, ноутбуков, процессоров и носимой электроники.",
             IsActiveForAI = true,
-            SearchKeywords = "Nvidia AMD Intel Apple Samsung hardware specs smartphone gpu release leak benchmark deficit prices",
+            SearchKeywords = "Nvidia AMD Intel Apple Samsung Qualcomm Snapdragon PlayStation Xbox Nintendo консоли гаджеты процессор видеокарта чипсет смартфон specs leak benchmark deficit prices overheating",
             Code = "hardware"
         },
         new CategoryEntity
@@ -36,7 +36,7 @@ public class CategoryInitializer
             Name = "Крипта & Web3",
             Description = "Динамика блокчейн-индустрии, курсы монет и экосистема TON.",
             IsActiveForAI = true,
-            SearchKeywords = "bitcoin crypto ethereum hack binance sec scam regulations market crash dump взлом",
+            SearchKeywords = "bitcoin btc ethereum eth solana binance tether usdt ton blockchain крипта криптовалюта Web3 DeFi hack scam regulations SEC санкции market crash dump pump взлом кража листинг",
             Code = "crypto"
         },
         new CategoryEntity
@@ -46,7 +46,7 @@ public class CategoryInitializer
             Name = "Видеоигры & Стрим",
             Description = "Релизы на ПК и консолях, индустрия развлечений и тренды игровых платформ.",
             IsActiveForAI = true,
-            SearchKeywords = "gaming news Twitch streamer banned drama controversy game release patch Steam взлом слив",
+            SearchKeywords = "gaming news Steam PlayStation Xbox Nintendo Switch Twitch YouTube Kick Epic Games релиз патч streamer блогер banned drama controversy scandal бойкот взлом denuvo слив глитч баг",
             Code = "games"
         },
         new CategoryEntity
@@ -56,7 +56,7 @@ public class CategoryInitializer
             Name = "Киберспорт",
             Description = "Турниры, трансферы, скандалы и результаты в соревновательном гейминге.",
             IsActiveForAI = true,
-            SearchKeywords = "esports cs2 dota2 tournament match drama disqualification Valve cheat софт скандал",
+            SearchKeywords = "esports киберспорт Counter-Strike 2 cs2 dota 2 Valorant League of Legends Worlds PGL ESL Valve турнир матч финал мажор major drama disqualification cheat софт скандал замена трансфер бан",
             Code = "sports"
         },
         new CategoryEntity
@@ -66,7 +66,7 @@ public class CategoryInitializer
             Name = "Кино & Сериалы",
             Description = "Новинки кинопроката, стриминговые платформы, отзывы и кассовые сборы.",
             IsActiveForAI = true,
-            SearchKeywords = "премьера кинотеатры сериал кинопоиск трейлер нетфликс скандал критика провал режиссер актеры",
+            SearchKeywords = "премьера сериал фильм блокбастер тизер трейлер каст актер режиссер Кинопоиск Нетфликс Netflix HBO Кинотеатры дубляж скандал критика разгром провал забастовка цензура спойлер бойкот",
             Code = "movies"
         },
         new CategoryEntity
@@ -76,7 +76,7 @@ public class CategoryInitializer
             Name = "Мемы & Рунет",
             Description = "Вирусные тренды, локальные мемы, события в социальных сетях и блогосфере.",
             IsActiveForAI = true,
-            SearchKeywords = "вирусится тренд мем ркн блокировка телеграм вконтакте тикток сбой штраф",
+            SearchKeywords = "вирусится тренд мем флешмоб паблик каналы блогеры Телеграм Telegram ВКонтакте vk TikTok YouTube рунет Роскомнадзор РКН блокировка замедление сбой штраф запрет скандал хит",
             Code = "memes"
         },
         new CategoryEntity
@@ -86,7 +86,7 @@ public class CategoryInitializer
             Name = "Авто & Электрокары",
             Description = "Мировые автомобильные премьеры, технологии и развитие электротранспорта.",
             IsActiveForAI = true,
-            SearchKeywords = "автоваз lada автомобили параллельный импорт цены zeekr lixiang электромобили авария утильсбор",
+            SearchKeywords = "АвтоВАЗ Lada Zeekr LiXiang Xiaomi SU7 Тесла Tesla Москвич автомобили электромобили авторынок дилеры цены параллельный импорт утильсбор авария отзывы брак штрафы дефицит поломка",
             Code = "cars"
         },
         new CategoryEntity
@@ -96,7 +96,7 @@ public class CategoryInitializer
             Name = "Наука & Космос",
             Description = "Понятные и интересные открытия, космические миссии и новые технологии.",
             IsActiveForAI = true,
-            SearchKeywords = "space NASA discovery astronomy breakthrough SpaceX Марс ученые открытие аномалия сигнал",
+            SearchKeywords = "space NASA discovery astronomy breakthrough Марс Луна открытие телескоп Джеймс Уэбб SpaceX Роскосмос МКС физика биология археология сигнал аномалия вспышка угроза сенсация опровержение ученые",
             Code = "science"
         },
         new CategoryEntity
@@ -106,7 +106,7 @@ public class CategoryInitializer
             Name = "Футбол & Спорт",
             Description = "Главные события мирового футбола, боевых искусств и больших спортивных лиг.",
             IsActiveForAI = true,
-            SearchKeywords = "рпл футбол судейство скандал матч рфс лига чемпионов гол разгром трансфер drama var",
+            SearchKeywords = "спорт футбол хоккей кхл нхл теннис мма ufc бокс фигурные катания рпл лига чемпионов матч судейство скандал разгром драка вар var отмена бойкот пенальти удаление допинг дисквалификация",
             Code = "soccer"
         },
         new CategoryEntity
@@ -116,7 +116,7 @@ public class CategoryInitializer
             Name = "Фэшн & Поп-музыка",
             Description = "Тренды уличной моды, дропы кроссовок, громкие музыкальные альбомы и клипы.",
             IsActiveForAI = true,
-            SearchKeywords = "pop music billboard fashion week celebrity scandal Грэмми показ моды тренд плагиат",
+            SearchKeywords = "pop music fashion week тренд альбом клип показ моды селебрити шоу-бизнес инфлюенсеры Billboard Грэмми Неделя моды celebrity scandal плагиат бойкот отмена критика шок",
             Code = "fashion"
         },
         new CategoryEntity
@@ -126,7 +126,7 @@ public class CategoryInitializer
             Name = "Финтех & Маркетплейсы",
             Description = "Потребительские тренды, новые фичи банков, e-commerce и стартапы.",
             IsActiveForAI = true,
-            SearchKeywords = "wildberries ozon сбер вб штраф скандал комиссия финтех банки цб рф цифровой рубль сбой",
+            SearchKeywords = "wildberries wb ozon мегамаркет яндекс маркет сбер т-банк альфа втб цб рф маркетплейсы финтех банки цифровой рубль онлайн-банкинг штраф скандал комиссия блокировка забастовка сбой мошенники",
             Code = "finance"
         }
     ];

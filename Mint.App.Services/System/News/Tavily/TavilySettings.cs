@@ -1,3 +1,5 @@
+using System.Collections.ObjectModel;
+
 namespace Mint.App.Services.System.News.Tavily;
 
 /// <summary>
@@ -49,4 +51,9 @@ public record TavilySettings
     /// Whether to filter by published date
     /// </summary>
     public bool? FilterByPublishedDate { get; init; }
+
+    /// <summary>
+    /// Domains to exclude from search results
+    /// </summary>
+    public Collection<string> ExcludeDomains { get; init; } = new();
 }

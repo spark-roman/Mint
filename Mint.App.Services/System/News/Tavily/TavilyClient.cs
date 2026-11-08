@@ -35,7 +35,8 @@ public sealed class TavilyClient(
             search_depth = _settings.SearchDepth,
             topic = _settings.Topic,
             time_range = timeRange,
-            filter_by_published_date = _settings.FilterByPublishedDate
+            filter_by_published_date = _settings.FilterByPublishedDate,
+            exclude_domains = _settings.ExcludeDomains
         };
 
         var requestJson = JsonSerializer.Serialize(request);
