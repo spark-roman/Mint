@@ -753,7 +753,7 @@ namespace Mint.Database.Migrations
                             MaxDuelsPerRun = 3,
                             SystemPromptTemplate = "\n                Ты — профессиональный шеф-редактор и ИИ-генератор контента для развлекательного Telegram-бота «Дуэли мнений». \n\n                ТВОЯ ЗАДАЧА:\n                Создать пакет увлекательных карточек для голосования на основе актуальных новостей из мира технологий, криптовалют, игр, спорта, кино и поп-культуры.\n\n                🚫 СТРОГИЙ SAFE-ФИЛЬТР (ЗАПРЕЩЕНО):\n                - Внутренняя и внешняя политика, геополитика\n                - СВО, военные действия, конфликты, оружие\n                - Чрезвычайные ситуации, катастрофы, терроризм\n                - Действия правительства, выборы, законы, санкции\n                - Религия, межнациональные конфликты\n                - Социальная напряженность, протесты\n                - Скандалы, интриги, личные трагедии\n\n                ⚠️ За нарушение любого пункта — блокировка аккаунта!\n\n                ✅ РАЗРЕШЕННЫЕ ТЕМЫ (бери новости отсюда):\n                - Технологии: ИИ, нейросети, робототехника, космос, дроны\n                - Криптовалюты: Bitcoin, Ethereum, TON, блокчейн, DeFi, NFT\n                - Гаджеты: смартфоны, ноутбуки, умные часы, VR/AR, бытовая техника\n                - Игры: новые релизы, киберспорт, игровые консоли, обновления\n                - Спорт: футбол, баскетбол, теннис, Олимпиада (только спортивная часть)\n                - Кино и шоу-бизнес: премьеры, кассовые сборы, сериалы, премии\n                - Поп-культура: мемы, тренды, YouTube-блогеры, TikTok, стриминг\n                - Бизнес и стартапы: успешные кейсы, IPO, инновации, инвестиции\n                - Наука: открытия, исследования, космос, медицина (без политики)\n\n                📰 ИСТОЧНИКИ НОВОСТЕЙ:\n                - TechCrunch, The Verge, Wired (технологии)\n                - Cointelegraph, CoinDesk (криптовалюты)\n                - IGN, GameSpot (игры)\n                - ESPN, Sports.ru (спорт)\n                - Кинопоиск, IMDb (кино)\n                - Habr, DTF (IT и игры)\n                - YouTube-блогеры (поп-культура)\n\n                📋 ТРЕБОВАНИЯ К КАЧЕСТВУ:\n                1. Вопрос должен быть дискуссионным, вызывать желание поспорить\n                2. Описание — содержать факты: кто, что, где, когда\n                3. Варианты ответов — аргументированные, не просто \"да\" и \"нет\"\n                4. Используй разные типы: одни дуэли на основе фактов (Реальность), другие — на основе мнений (Толпа)\n                5. Не повторяй одни и те же темы в рамках одного запроса\n                6. Если нет свежих новостей — используй тренды последних 2-3 месяцев\n\n                🎯 ФОРМАТ ОТВЕТА (критически важно!):\n                Верни ТОЛЬКО валидный JSON-массив объектов.\n                Запрещено: Markdown (```json), пояснения, лишний текст.\n\n                Структура каждого объекта:\n                {\n                \"category_code\": \"код категории (строчными буквами, без пробелов)\",\n                \"duel_type\": 1 или 2,\n                \"question\": \"Интригующий вопрос (до 150 символов)\",\n                \"description\": \"Контекст и факты (до 500 символов)\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Вариант (до 30 символов)\" }\n                ]\n                }\n\n                Где:\n                - category_code: tech, crypto, gadgets, games, sport, cinema, culture, business, science\n                - duel_type: 1 = Толпа (голосование), 2 = Реальность (факт из новостей)\n                - options: от 2 до 4 вариантов. Коды: a, b, c, d\n\n                📌 ПРИМЕРЫ ИДЕАЛЬНЫХ ДУЭЛЕЙ:\n\n                Пример 1 (Толпа, крипта):\n                {\n                \"category_code\": \"crypto\",\n                \"duel_type\": 1,\n                \"question\": \"Биткоин обновил максимум. Продолжит ли рост?\",\n                \"description\": \"16 июня 2026 года биткоин превысил $120,000. Институционалы активно покупают, но эксперты ждут коррекцию.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, пробьет $150,000\" },\n                    { \"code\": \"b\", \"text\": \"Нет, упадет до $90,000\" }\n                ]\n                }\n\n                Пример 2 (Реальность, техно):\n                {\n                \"category_code\": \"tech\",\n                \"duel_type\": 2,\n                \"question\": \"Станет ли iPhone 17 бестселлером года?\",\n                \"description\": \"Apple анонсировала iPhone 17 с ИИ-чипом A19. Предзаказы стартуют через неделю. Аналитики прогнозируют рекорд.\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"Да, побьет рекорды\" },\n                    { \"code\": \"b\", \"text\": \"Нет, цена завышена\" },\n                    { \"code\": \"c\", \"text\": \"Продажи будут средними\" }\n                ]\n                }\n\n                Пример 3 (Толпа, игры, 4 варианта):\n                {\n                \"category_code\": \"games\",\n                \"duel_type\": 1,\n                \"question\": \"Какая игра станет хитом 2026 года?\",\n                \"description\": \"В 2026 выходят GTA VI, TES VI, Cyberpunk 2 и Half-Life 3. Какая победит?\",\n                \"options\": [\n                    { \"code\": \"a\", \"text\": \"GTA VI\" },\n                    { \"code\": \"b\", \"text\": \"TES VI\" },\n                    { \"code\": \"c\", \"text\": \"Cyberpunk 2\" },\n                    { \"code\": \"d\", \"text\": \"Half-Life 3\" }\n                ]\n                }\n\n                ВАЖНО:\n                - Всегда используй реальные или максимально правдоподобные факты\n                - Количество дуэлей = число, указанное в запросе\n                - Не повторяй категории в одном запросе\n                📊 ПРАВИЛА ОПРЕДЕЛЕНИЯ DUEL_TYPE (критически важно!):\n\n                **duel_type: 1 (Толпа / OpinionMatch)** — используй для вопросов, у которых:\n                - НЕТ объективного ответа в будущем\n                - Ответ зависит от мнения, вкуса, предпочтений\n                - Нельзя проверить фактами\n                - Примеры: \"Что лучше?\", \"Стоит ли?\", \"Какой вариант выберет большинство?\"\n\n                **duel_type: 2 (Реальность / FactPrediction)** — используй ТОЛЬКО для вопросов, у которых:\n                - ЕСТЬ конкретный факт, который станет известен в будущем\n                - Есть четкая дата или событие, к которому привязана проверка\n                - Можно однозначно сказать \"да\" или \"нет\" после наступления события\n                - В описании ОБЯЗАНА быть указана дата проверки (\"к январю 2027\", \"в финале чемпионата\")\n                - Примеры: \"Поднимется ли курс BTC до $150,000 к декабрю?\", \"Победит ли 'Дюна 3' в номинации 'Лучший фильм'?\"\n\n                ⚠️ КРИТИЧЕСКОЕ ПРАВИЛО:\n                Если в вопросе есть слова \"станет ли мейнстримом\", \"будет ли популярным\", \"сможет ли заменить\" — это почти всегда ТОЛПА (тип 1), потому что нет четкого критерия для проверки.\n\n                ❗️ Если вы сомневаетесь между типами — выбирайте ТОЛПА (тип 1).",
                             Temperature = 0.6f,
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5370), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3625), new TimeSpan(0, 0, 0, 0, 0)),
                             UserPromptTemplate = "\n                Сгенерируй {{count}} дуэлей для категории \"{{category_name}}\".\n\n                📌 КОД КАТЕГОРИИ: {{category_code}}\n                📝 ОПИСАНИЕ: {{category_description}}\n\n                {{#if search_keywords}}\n                🔍 КЛЮЧЕВЫЕ ТЕМЫ ДЛЯ ПОИСКА: {{search_keywords}}\n                {{/if}}\n\n                ТРЕБОВАНИЯ:\n                1. Используй разные типы дуэлей (duel_type: 1 и 2, примерно поровну)\n                2. Для каждой дуэли дай аргументированные варианты ответов\n                3. Описание должно содержать факты из новостей (или реалистичный контекст)\n                4. Не повторяй темы в рамках этого запроса\n                5. Все варианты ответов должны быть правдоподобными и разными по смыслу\n\n                {{#if search_keywords}}\n                Используй эти ключевые слова для поиска актуальных новостей.\n                {{else}}\n                Придумай интересные темы, соответствующие описанию категории.\n                {{/if}}\n\n                Верни ТОЛЬКО JSON массив, без дополнительного текста.\n                "
                         });
                 });
@@ -893,7 +893,7 @@ namespace Mint.Database.Migrations
                             Id = 1L,
                             Description = "Стартовый бонус новому пользователю",
                             Key = "StartBonus",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5894), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4014), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "5000"
                         },
                         new
@@ -901,7 +901,7 @@ namespace Mint.Database.Migrations
                             Id = 2L,
                             Description = "Ежедневный бонус",
                             Key = "DailyBonus",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5897), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4017), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "1000"
                         },
                         new
@@ -909,7 +909,7 @@ namespace Mint.Database.Migrations
                             Id = 3L,
                             Description = "Бонус за стрик 7 дней",
                             Key = "StreakBonus",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5898), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4018), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "10000"
                         },
                         new
@@ -917,7 +917,7 @@ namespace Mint.Database.Migrations
                             Id = 4L,
                             Description = "Комиссия при расчете выплаты",
                             Key = "HouseCommission",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5898), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4019), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "0.05"
                         },
                         new
@@ -925,7 +925,7 @@ namespace Mint.Database.Migrations
                             Id = 5L,
                             Description = "Время жизни дуэли в часах",
                             Key = "DuelExpirationHours",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5899), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4019), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "24"
                         },
                         new
@@ -933,7 +933,7 @@ namespace Mint.Database.Migrations
                             Id = 6L,
                             Description = "Количество игроков в таблице лидеров",
                             Key = "LeaderboardSize",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5900), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4020), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "15"
                         },
                         new
@@ -941,7 +941,7 @@ namespace Mint.Database.Migrations
                             Id = 7L,
                             Description = "Максимальный процент от баланса для ставки",
                             Key = "MaxBetPercent",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5901), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4021), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "100"
                         },
                         new
@@ -949,7 +949,7 @@ namespace Mint.Database.Migrations
                             Id = 8L,
                             Description = "Бонус за приглашенного друга",
                             Key = "ReferralBonus",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5902), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4022), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "5000"
                         },
                         new
@@ -957,7 +957,7 @@ namespace Mint.Database.Migrations
                             Id = 9L,
                             Description = "Минимальная сумма ставки",
                             Key = "MinBetAmount",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5902), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4023), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "10"
                         },
                         new
@@ -965,7 +965,7 @@ namespace Mint.Database.Migrations
                             Id = 10L,
                             Description = "Максимальная сумма ставки",
                             Key = "MaxBetAmount",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5903), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4023), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "10000"
                         },
                         new
@@ -973,7 +973,7 @@ namespace Mint.Database.Migrations
                             Id = 11L,
                             Description = "Размер батчей",
                             Key = "BatchSize",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5904), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4024), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "100"
                         },
                         new
@@ -981,7 +981,7 @@ namespace Mint.Database.Migrations
                             Id = 12L,
                             Description = "Колличество батчей в одном запуске",
                             Key = "MaxBatchesPerRun",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(5905), new TimeSpan(0, 0, 0, 0, 0)),
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(4025), new TimeSpan(0, 0, 0, 0, 0)),
                             Value = "2000000"
                         });
                 });
@@ -1033,91 +1033,91 @@ namespace Mint.Database.Migrations
                         {
                             Id = 1,
                             Code = "start",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4944), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3386), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за первую регистрацию в боте",
                             IsActive = true,
                             Name = "Стартовый бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4944), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3386), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 2,
                             Code = "daily",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4947), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3389), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за ежедневный вход в бот",
                             IsActive = true,
                             Name = "Ежедневный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4947), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3389), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 3,
                             Code = "streak",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4949), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3390), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Дополнительный бонус за непрерывный стрик 7+ дней",
                             IsActive = true,
                             Name = "Бонус за стрик",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4949), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3391), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 4,
                             Code = "referral",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4951), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3392), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус за приведённого друга",
                             IsActive = true,
                             Name = "Реферальный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4951), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3392), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 5,
                             Code = "rating",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4953), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3394), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Бонус по итогам голосования",
                             IsActive = true,
                             Name = "Рейтинговый бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4953), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3394), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 6,
                             Code = "admin",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4954), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3396), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Ручное начисление администратором",
                             IsActive = true,
                             Name = "Административный бонус",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4955), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3396), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 7,
                             Code = "refund",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4956), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3397), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Возврат средств пользователю",
                             IsActive = true,
                             Name = "Возврат",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4957), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3398), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 9,
                             Code = "payout",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4959), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3399), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Выплата за дуэль",
                             IsActive = true,
                             Name = "Выплата",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4959), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3399), new TimeSpan(0, 0, 0, 0, 0))
                         },
                         new
                         {
                             Id = 100,
                             Code = "no_ctivity",
-                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4961), new TimeSpan(0, 0, 0, 0, 0)),
+                            CreatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3401), new TimeSpan(0, 0, 0, 0, 0)),
                             Description = "Нет перемещения средств",
                             IsActive = true,
                             Name = "Нет движений",
-                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 8, 19, 46, 16, 440, DateTimeKind.Unspecified).AddTicks(4961), new TimeSpan(0, 0, 0, 0, 0))
+                            UpdatedAt = new DateTimeOffset(new DateTime(2026, 11, 10, 21, 30, 1, 951, DateTimeKind.Unspecified).AddTicks(3401), new TimeSpan(0, 0, 0, 0, 0))
                         });
                 });
 
@@ -1462,7 +1462,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Нейросети & ИИ",
-                            SearchKeywords = "OpenAI ChatGPT Claude Gemini DeepSeek Grok Anthropic xAI LLM ИИ нейросети ИИ-агенты text-to-video Sora анонс обновление release upgrade leak controversy lawsuit ban safety regulation"
+                            SearchKeywords = "(нейросеть OR нейросети OR ии OR искусственный интеллект OR chatgpt OR midjourney)"
                         },
                         new
                         {
@@ -1473,7 +1473,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Железо & Гаджеты",
-                            SearchKeywords = "Nvidia AMD Intel Apple Samsung Qualcomm Snapdragon PlayStation Xbox Nintendo консоли гаджеты процессор видеокарта чипсет смартфон specs leak benchmark deficit prices overheating"
+                            SearchKeywords = "(смартфон OR процессор OR видеокарта OR iphone OR nvidia OR apple OR intel OR amd)"
                         },
                         new
                         {
@@ -1484,7 +1484,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Крипта & Web3",
-                            SearchKeywords = "bitcoin btc ethereum eth solana binance tether usdt ton blockchain крипта криптовалюта Web3 DeFi hack scam regulations SEC санкции market crash dump pump взлом кража листинг"
+                            SearchKeywords = "(крипта OR криптовалюта OR биткоин OR эфириум OR майнинг OR блокчейн OR nft OR токен)"
                         },
                         new
                         {
@@ -1495,7 +1495,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Видеоигры & Стрим",
-                            SearchKeywords = "gaming news Steam PlayStation Xbox Nintendo Switch Twitch YouTube Kick Epic Games релиз патч streamer блогер banned drama controversy scandal бойкот взлом denuvo слив глитч баг"
+                            SearchKeywords = "(гейминг OR стрим OR стример OR twitch OR steam OR playstation OR xbox OR релиз игры)"
                         },
                         new
                         {
@@ -1506,7 +1506,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Киберспорт",
-                            SearchKeywords = "esports киберспорт Counter-Strike 2 cs2 dota 2 Valorant League of Legends Worlds PGL ESL Valve турнир матч финал мажор major drama disqualification cheat софт скандал замена трансфер бан"
+                            SearchKeywords = "(киберспорт OR турнир OR дота OR контр страйк OR мажор OR киберспортивный)"
                         },
                         new
                         {
@@ -1517,7 +1517,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Кино & Сериалы",
-                            SearchKeywords = "премьера сериал фильм блокбастер тизер трейлер каст актер режиссер Кинопоиск Нетфликс Netflix HBO Кинотеатры дубляж скандал критика разгром провал забастовка цензура спойлер бойкот"
+                            SearchKeywords = "(кинопремьера OR фильм OR сериал OR дорама OR кинотеатр OR нетфликс OR режиссер)"
                         },
                         new
                         {
@@ -1528,7 +1528,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Мемы & Рунет",
-                            SearchKeywords = "вирусится тренд мем флешмоб паблик каналы блогеры Телеграм Telegram ВКонтакте vk TikTok YouTube рунет Роскомнадзор РКН блокировка замедление сбой штраф запрет скандал хит"
+                            SearchKeywords = "(мем OR мемы OR прикол OR тренд OR блогер OR тикток OR телеграм OR вирусный OR соцсети)"
                         },
                         new
                         {
@@ -1539,7 +1539,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Авто & Электрокары",
-                            SearchKeywords = "АвтоВАЗ Lada Zeekr LiXiang Xiaomi SU7 Тесла Tesla Москвич автомобили электромобили авторынок дилеры цены параллельный импорт утильсбор авария отзывы брак штрафы дефицит поломка"
+                            SearchKeywords = "(электрокар OR электромобиль OR тесла OR авторынок OR кроссовер OR zeekr OR гибрид)"
                         },
                         new
                         {
@@ -1550,7 +1550,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Наука & Космос",
-                            SearchKeywords = "space NASA discovery astronomy breakthrough Марс Луна открытие телескоп Джеймс Уэбб SpaceX Роскосмос МКС физика биология археология сигнал аномалия вспышка угроза сенсация опровержение ученые"
+                            SearchKeywords = "(космос OR наса OR роскосмос OR телескоп OR ракета OR запуск OR астрономы OR квантовый)"
                         },
                         new
                         {
@@ -1561,7 +1561,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Футбол & Спорт",
-                            SearchKeywords = "спорт футбол хоккей кхл нхл теннис мма ufc бокс фигурные катания рпл лига чемпионов матч судейство скандал разгром драка вар var отмена бойкот пенальти удаление допинг дисквалификация"
+                            SearchKeywords = "(футбол OR рпл OR лига чемпионов OR трансфер OR спартак OR зенит OR гол OR матч)"
                         },
                         new
                         {
@@ -1572,7 +1572,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Фэшн & Поп-музыка",
-                            SearchKeywords = "pop music fashion week тренд альбом клип показ моды селебрити шоу-бизнес инфлюенсеры Billboard Грэмми Неделя моды celebrity scandal плагиат бойкот отмена критика шок"
+                            SearchKeywords = "(музыка OR певец OR трек OR альбом OR подиум OR одежда OR фэшн)"
                         },
                         new
                         {
@@ -1583,7 +1583,7 @@ namespace Mint.Database.Migrations
                             IsActiveForAI = true,
                             IsActiveForUsers = true,
                             Name = "Финтех & Маркетплейсы",
-                            SearchKeywords = "wildberries wb ozon мегамаркет яндекс маркет сбер т-банк альфа втб цб рф маркетплейсы финтех банки цифровой рубль онлайн-банкинг штраф скандал комиссия блокировка забастовка сбой мошенники"
+                            SearchKeywords = "(финтех OR маркетплейс OR маркетплейсы OR озон OR вайлдберриз)"
                         });
                 });
 
