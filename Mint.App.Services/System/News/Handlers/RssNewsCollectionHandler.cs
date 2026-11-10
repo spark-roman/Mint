@@ -106,6 +106,18 @@ public sealed class RssNewsCollectionHandler(
 
     private static List<NewsCreateDto> FilterNewItems(IEnumerable<NewsCreateDto> items, HashSet<string> existingLinks)
     {
-        return items.Where(item => !existingLinks.Contains(item.Link)).ToList();
+        return items
+            .Select(item => (Normalized: NewsLinkNormalizer.Normalize(item.Link), item))
+            .Where(x => !existingLinks.Contains(x.Normalized))
+            .Select(x => new NewsCreateDto
+            {
+                Title = x.item.Title,
+                Link = x.Normalized,
+                Description = x.item.Description,
+                Content = x.item.Content,
+                PublishedAt = x.item.PublishedAt,
+                CategoryCode = x.item.CategoryCode
+            })
+            .ToList();
     }
 }

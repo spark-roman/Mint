@@ -21,7 +21,7 @@ public static class HangfireAppExtensions
         var jobManager = serviceProvider.GetRequiredService<IRecurringJobManager>();
 
         // News collection: 06:00 UTC daily
-        /*jobManager.AddOrUpdate(
+        jobManager.AddOrUpdate(
             "news-collection-job",
             () => serviceProvider.GetRequiredService<NewsCollectionJob>().ExecuteAsync(),
             "0 3 * * *",
@@ -31,7 +31,7 @@ public static class HangfireAppExtensions
             });
 
         // Duel generation: 23:30 MSK = 20:30 UTC daily
-        jobManager.AddOrUpdate(
+        /*jobManager.AddOrUpdate(
             "duel-generation-job",
             () => serviceProvider.GetRequiredService<DuelGenerationJob>().ExecuteAsync(),
             "30 20 * * *",

@@ -1,6 +1,4 @@
-using System.Collections.ObjectModel;
 using FluentAssertions;
-using Gnews;
 using Mint.App.Services.System.News.Google;
 
 namespace Mint.UnitTests.AppServices.System.News.Google;
@@ -10,127 +8,91 @@ namespace Mint.UnitTests.AppServices.System.News.Google;
 /// </summary>
 public class GoogleNewsClientTests
 {
-    #region ParseLang
-
     [Fact]
-    public void ParseLang_ValidLanguage_ReturnsEnum()
+    public void BuildQuery_WithAllParameters_ReturnsCorrectQueryString()
     {
+        // Arrange
+        var query = "bitcoin ethereum";
+        var from = "2026-11-01";
+        var to = "2026-11-08";
+        var apiKey = "test-key";
+        var maxResults = 5;
+        var language = "ru";
+        var country = "ru";
+
         // Act
-        var result = InvokeParseLang("Ru");
+        var result = BuildQuery(query, from, to, apiKey, maxResults, language, country);
 
         // Assert
-        result.Should().Be(Gnews.Constants.Lang.Ru);
-    }
-
-    [Fact]
-    public void ParseLang_InvalidLanguage_ReturnsNull()
-    {
-        // Act
-        var result = InvokeParseLang("invalid");
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public void ParseLang_NullLanguage_ReturnsNull()
-    {
-        // Act
-        var result = InvokeParseLang(null!);
-
-        // Assert
-        result.Should().BeNull();
+        result.Should().Contain("q=bitcoin%20ethereum");
+        result.Should().Contain("apikey=test-key");
+        result.Should().Contain("max=5");
+        result.Should().Contain("from=2026-11-01");
+        result.Should().Contain("to=2026-11-08");
+        result.Should().Contain("sortby=relevance");
+        result.Should().Contain("lang=ru");
+        result.Should().Contain("country=ru");
     }
 
     [Fact]
-    public void ParseLang_EmptyLanguage_ReturnsNull()
+    public void BuildQuery_WithoutLanguageAndCountry_ReturnsQueryWithoutFilters()
     {
+        // Arrange
+        var query = "test";
+        var from = "2026-11-01";
+        var to = "2026-11-08";
+        var apiKey = "test-key";
+        var maxResults = 10;
+
         // Act
-        var result = InvokeParseLang("");
+        var result = BuildQuery(query, from, to, apiKey, maxResults, null, null);
 
         // Assert
-        result.Should().BeNull();
+        result.Should().Contain("q=test");
+        result.Should().NotContain("lang=");
+        result.Should().NotContain("country=");
     }
 
     [Fact]
-    public void ParseLang_CaseInsensitive_ReturnsEnum()
+    public void BuildQuery_WithSpecialCharacters_EscapesQuery()
     {
+        // Arrange
+        var query = "премьера OR сериал";
+        var from = "2026-11-01";
+        var to = "2026-11-08";
+        var apiKey = "test-key";
+        var maxResults = 5;
+
         // Act
-        var result = InvokeParseLang("ru");
+        var result = BuildQuery(query, from, to, apiKey, maxResults, "ru", "ru");
 
         // Assert
-        result.Should().Be(Gnews.Constants.Lang.Ru);
-    }
-
-    #endregion
-
-    #region ParseCountry
-
-    [Fact]
-    public void ParseCountry_ValidCountry_ReturnsEnum()
-    {
-        // Act
-        var result = InvokeParseCountry("Ru");
-
-        // Assert
-        result.Should().Be(Gnews.Constants.Country.Ru);
+        result.Should().Contain("q=%D0%BF%D1%80%D0%B5%D0%BC%D1%8C%D0%B5%D1%80%D0%B0%20OR%20%D1%81%D0%B5%D1%80%D0%B8%D0%B0%D0%BB");
     }
 
     [Fact]
-    public void ParseCountry_InvalidCountry_ReturnsNull()
+    public void BuildQuery_WithNOTClause_EscapesCorrectly()
     {
+        // Arrange
+        var query = "film NOT online";
+        var from = "2026-11-01";
+        var to = "2026-11-08";
+        var apiKey = "test-key";
+        var maxResults = 5;
+
         // Act
-        var result = InvokeParseCountry("invalid");
+        var result = BuildQuery(query, from, to, apiKey, maxResults, null, null);
 
         // Assert
-        result.Should().BeNull();
+        result.Should().Contain("q=");
+        result.Should().Contain("film");
+        result.Should().Contain("NOT");
+        result.Should().Contain("online");
     }
 
-    [Fact]
-    public void ParseCountry_NullCountry_ReturnsNull()
+    private static string BuildQuery(string query, string from, string to, string apiKey, int maxResults, string? language, string? country)
     {
-        // Act
-        var result = InvokeParseCountry(null!);
-
-        // Assert
-        result.Should().BeNull();
+        var method = typeof(GoogleNewsClient).GetMethod("BuildQuery", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
+        return (string)method!.Invoke(null, new object?[] { query, from, to, apiKey, maxResults, language, country })!;
     }
-
-    [Fact]
-    public void ParseCountry_EmptyCountry_ReturnsNull()
-    {
-        // Act
-        var result = InvokeParseCountry("");
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    [Fact]
-    public void ParseCountry_CaseInsensitive_ReturnsEnum()
-    {
-        // Act
-        var result = InvokeParseCountry("us");
-
-        // Assert
-        result.Should().Be(Gnews.Constants.Country.Us);
-    }
-
-    #endregion
-
-    #region Helper Methods
-
-    private Gnews.Constants.Lang? InvokeParseLang(string? lang)
-    {
-        var method = typeof(GoogleNewsClient).GetMethod("ParseLang", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
-        return (Gnews.Constants.Lang?)method!.Invoke(null, new object?[] { lang })!;
-    }
-
-    private Gnews.Constants.Country? InvokeParseCountry(string? country)
-    {
-        var method = typeof(GoogleNewsClient).GetMethod("ParseCountry", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
-        return (Gnews.Constants.Country?)method!.Invoke(null, new object?[] { country })!;
-    }
-
-    #endregion
 }

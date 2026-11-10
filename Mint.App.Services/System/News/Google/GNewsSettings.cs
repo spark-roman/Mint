@@ -1,8 +1,3 @@
-using System.Collections.ObjectModel;
-using Gnews;
-using Mint.App.Services.System.News;
-using Mint.Database.Entities.News.Dto;
-
 namespace Mint.App.Services.System.News.Google;
 
 /// <summary>
