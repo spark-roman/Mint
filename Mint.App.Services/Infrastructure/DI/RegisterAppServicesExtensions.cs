@@ -11,6 +11,7 @@ using Mint.App.Services.Infrastructure.DI.UserInteractive.Leaderboards;
 using Mint.App.Services.Infrastructure.DI.UserInteractive.Profiles;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.GigaChat;
+using Mint.App.Services.System.News.Google;
 using Mint.App.Services.System.News.Tavily;
 
 namespace Mint.App.Services.Infrastructure.DI;
@@ -33,6 +34,7 @@ public static class RegisterAppServicesExtensions
         services.Configure<GigaChatSettings>(configuration.GetSection(GigaChatSettings.SectionName));
         services.Configure<ReferralSettings>(configuration.GetSection(ReferralSettings.SectionName));
         services.Configure<TavilySettings>(configuration.GetSection(TavilySettings.SectionName));
+        services.Configure<GNewsSettings>(configuration.GetSection(GNewsSettings.SectionName));
 
         services.RegisterDuelGenerationServices();
         services.RegisterGigaChatServices();
@@ -45,7 +47,7 @@ public static class RegisterAppServicesExtensions
         services.RegisterBonusValidators();
         services.RegisterLeaderboardHandlers();
         services.RegisterDuelsHandlers();
-        services.RegisterNewsServices();
+        services.RegisterNewsServices(configuration);
         services.RegisterDuelsServices();
         services.RegisterSettingsServices();
         services.RegisterReferralServices();

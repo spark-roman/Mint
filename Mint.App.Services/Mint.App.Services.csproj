@@ -4,7 +4,6 @@
     <ProjectReference Include="..\Mint.Database\Mint.Database.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="GNews" />
     <PackageReference Include="Telegram.Bot" />
     <PackageReference Include="Hangfire.AspNetCore" />
     <PackageReference Include="Hangfire.PostgreSql" />

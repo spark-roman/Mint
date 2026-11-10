@@ -53,6 +53,7 @@ public sealed class TavilyNewsCollectionHandler(
         _logger.LogInformation("Found {Count} active categories for Tavily collection", categories.Count);
 
         var allNewItems = new List<NewsCreateDto>();
+        var seenLinks = new HashSet<string>();
 
         foreach (var category in categories)
         {
@@ -64,10 +65,27 @@ public sealed class TavilyNewsCollectionHandler(
                 var newsItems = await _tavilyClient.SearchAsync(query, category.Code, cancellationToken);
                 result.TotalFetched += newsItems.Count;
 
-                var newItems = newsItems.Where(item => !existingLinks.Contains(item.Link)).ToList();
-                result.SkippedDuplicates += newsItems.Count - newItems.Count;
+                var totalItems = newsItems.Count;
+                var newItems = newsItems
+                    .Select(item => (Normalized: NewsLinkNormalizer.Normalize(item.Link), item))
+                    .Where(x => !existingLinks.Contains(x.Normalized))
+                    .Select(x => new NewsCreateDto
+                    {
+                        Title = x.item.Title,
+                        Link = x.Normalized,
+                        Description = x.item.Description,
+                        Content = x.item.Content,
+                        PublishedAt = x.item.PublishedAt,
+                        CategoryCode = x.item.CategoryCode
+                    })
+                    .ToList();
+                result.SkippedDuplicates += totalItems - newItems.Count;
 
-                allNewItems.AddRange(newItems);
+                foreach (var item in newItems)
+                {
+                    if (seenLinks.Add(item.Link))
+                        allNewItems.Add(item);
+                }
             }
             catch (InvalidOperationException ex)
             {
@@ -76,8 +94,6 @@ public sealed class TavilyNewsCollectionHandler(
                 _logger.LogError(ex, "Failed to collect news for category '{CategoryCode}'", category.Code);
             }
         }
-
-        allNewItems = allNewItems.GroupBy(n => n.Link).Select(g => g.First()).ToList();
 
         if (allNewItems.Count > 0)
         {
