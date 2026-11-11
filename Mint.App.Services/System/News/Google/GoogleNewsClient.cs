@@ -75,6 +75,8 @@ public sealed class GoogleNewsClient(
                 .ToList()
                 : [];
 
+            await Task.Delay(TimeSpan.FromSeconds(30), cancellationToken);
+
             if (articleList.Count == 0)
             {
                 _logger.LogWarning("No results returned from GNews for query: {Query}", query);
@@ -95,8 +97,6 @@ public sealed class GoogleNewsClient(
                 .ToList();
 
             _logger.LogInformation("GNews search completed for query '{Query}': {Count} results", query, newsItems.Count);
-
-            await Task.Delay(TimeSpan.FromSeconds(10), cancellationToken);
 
             return newsItems;
         }
