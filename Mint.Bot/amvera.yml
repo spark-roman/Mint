@@ -1,0 +1,11 @@
+meta:
+  environment: docker
+
+build:
+  dockerfile: Dockerfile
+
+run:
+  containerPort: 8080
+  env:
+    - name: Auth__Tg__BotId
+    - name: Auth__Tg__Token
