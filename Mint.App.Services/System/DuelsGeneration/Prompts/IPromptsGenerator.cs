@@ -1,28 +1,27 @@
+using System.Collections.ObjectModel;
+using Mint.Database.Entities.News.Dto;
 using Mint.Database.Entities.System.Prompts.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
 namespace Mint.App.Services.System.DuelsGeneration.Prompts;
 
 /// <summary>
-/// Generates prompts for a given category.
+/// Prompt generator interface
 /// </summary>
 public interface IPromptsGenerator
 {
     /// <summary>
-    /// Generate final system prompt
+    /// Get system prompt for AI generation
     /// </summary>
-    /// <param name="prompt">Prompt with template</param>
-    /// <param name="newsDate">News date for the {{news_date}} placeholder</param>
-    /// <returns>Final system prompt for AI</returns>
     string GetSystemPrompt(AiPromptDto prompt, DateTimeOffset newsDate);
 
     /// <summary>
-    /// Generate final user prompt
+    /// Get user prompt for AI generation
     /// </summary>
-    /// <param name="prompt">Prompt with template</param>
-    /// <param name="category">Category of the prompt</param>
-    /// <param name="count">Count of generated results</param>
-    /// <param name="newsDate">News date for the {{news_date}} placeholder</param>
-    /// <returns>Final user prompt</returns> 
     string GetUserPrompt(AiPromptDto prompt, CategoryDto category, int count, DateTimeOffset newsDate);
+
+    /// <summary>
+    /// Get user prompt for duel generation from news
+    /// </summary>
+    string GetUserPromptFromNews(AiPromptDto prompt, Collection<NewsDto> news, int count, string? categoryName = null, string? categoryCode = null, string? categoryDescription = null);
 }

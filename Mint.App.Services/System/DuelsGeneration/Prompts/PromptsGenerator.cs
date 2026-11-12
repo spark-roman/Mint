@@ -1,5 +1,7 @@
+using System.Collections.ObjectModel;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using Mint.Database.Entities.News.Dto;
 using Mint.Database.Entities.System.Prompts.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 
@@ -33,6 +35,25 @@ public partial class PromptsGenerator : IPromptsGenerator
             .Replace("{{news_date}}", newsDate.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase);
 
         result = ProcessConditionalBlocks(result, category);
+
+        return result;
+    }
+
+    /// <inheritdoc/>
+    public string GetUserPromptFromNews(AiPromptDto prompt, Collection<NewsDto> news, int count, string? categoryName = null, string? categoryCode = null, string? categoryDescription = null)
+    {
+        ArgumentNullException.ThrowIfNull(prompt);
+        ArgumentNullException.ThrowIfNull(news);
+
+        var newsArticles = string.Join("\n---\n", news.Select(n => $"Title: {n.Title}\nDescription: {n.Description}"));
+        var template = prompt.UserPromptTemplate;
+
+        var result = template
+            .Replace("{{count}}", count.ToString(CultureInfo.InvariantCulture), StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{category_name}}", categoryName ?? "", StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{category_code}}", categoryCode ?? "", StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{category_description}}", categoryDescription ?? "Без описания", StringComparison.InvariantCultureIgnoreCase)
+            .Replace("{{news_articles}}", newsArticles, StringComparison.InvariantCultureIgnoreCase);
 
         return result;
     }

@@ -7,6 +7,7 @@ using Mint.App.Services.System.Bot.Dto;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
+using Mint.App.Services.System.DuelsGeneration.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.News.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
@@ -14,6 +15,13 @@ using Mint.Database;
 using Mint.Database.Infrastructure.DI;
 using Mint.Database.Infrastructure.DI.Design;
 using Telegram.Bot.Types;
+
+DateTimeOffset NextDay0630Utc()
+{
+    var today = DateTimeOffset.UtcNow.Date;
+    var tomorrow = today.AddDays(1);
+    return new DateTimeOffset(tomorrow.Year, tomorrow.Month, tomorrow.Day, 6, 30, 0, TimeSpan.Zero);
+}
 
 var host = Host.CreateDefaultBuilder(args)
     .ConfigureAppConfiguration((context, config) =>
@@ -40,6 +48,15 @@ var host = Host.CreateDefaultBuilder(args)
 
     using var cts = new CancellationTokenSource();
 
-    await duelGenService.GenerateDuelsWithGigaChatAsync(1, 1, cts.Token);
+    var duels = await duelGenService.GenerateDuelsWithGigaChatFromNewsAsync(5, NextDay0630Utc(), cts.Token);
+
+    if (duels.Count == 0)
+    {
+        return;
+    }
+
+    var duelGenerationHandler = host.Services.GetRequiredService<IDuelGenerationHandler>();
+
+    await duelGenerationHandler.HandleAsync(duels, cts.Token);
 
     Console.ReadKey();

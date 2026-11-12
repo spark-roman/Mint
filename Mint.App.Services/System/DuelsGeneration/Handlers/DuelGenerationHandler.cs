@@ -17,16 +17,10 @@ public class DuelGenerationHandler(
     {
         ArgumentNullException.ThrowIfNull(duelCreateDtos);
 
-        foreach (var duelCreateDto in duelCreateDtos)
-        {
-            await HandleAsync(duelCreateDto, cancellationToken);
-        }
-    }
+        if (duelCreateDtos.Count == 0)
+            return;
 
-    /// <inheritdoc/>
-    public Task HandleAsync(DuelCreateDto duelCreateDto, CancellationToken cancellationToken)
-    {
-        return _duelRepository.CreateDuelAsync(duelCreateDto, cancellationToken);
+        await _duelRepository.CreateDuelsAsync(duelCreateDtos, cancellationToken);
     }
 
     /// <inheritdoc />

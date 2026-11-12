@@ -1,3 +1,4 @@
+using System.Collections.ObjectModel;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 
 namespace Mint.Database.Entities.UserInteractive.Duels.Repositories;
@@ -29,6 +30,14 @@ public interface IDuelRepository
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>ID of the created duel</returns>
     Task<long> CreateDuelAsync(DuelCreateDto dto, CancellationToken cancellationToken);
+
+    /// <summary>
+    /// Create multiple duels in a single batch
+    /// </summary>
+    /// <param name="dtos">DTOs for creation</param>
+    /// <param name="cancellationToken">Cancellation token</param>
+    /// <returns>Count of created duels</returns>
+    Task<int> CreateDuelsAsync(IReadOnlyCollection<DuelCreateDto> dtos, CancellationToken cancellationToken);
 
     /// <summary>
     /// Get duel by ID

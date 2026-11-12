@@ -8,6 +8,15 @@ using Hangfire;
 using Mint.App.Services.Infrastructure.DI.System.Jobs;
 using Mint.App.Services.System.News.Handlers;
 using Mint.App.Services.System.News.Google;
+using Mint.App.Services.System.DuelsGeneration.Services;
+using Mint.App.Services.System.DuelsGeneration.Handlers;
+
+DateTimeOffset NextDay0630Utc()
+{
+    var today = DateTimeOffset.UtcNow.Date;
+    var tomorrow = today.AddDays(1);
+    return new DateTimeOffset(tomorrow.Year, tomorrow.Month, tomorrow.Day, 6, 30, 0, TimeSpan.Zero);
+}
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -73,6 +82,21 @@ app.MapPost("/api/news/collect-google", async (IGoogleNewsCollectionHandler coll
         result.FailedSources,
         result.Errors
     });
+});
+
+// Duel generation endpoint
+app.MapPost("/api/duels/generate-from-news", async (IDuelGenerationService duelGenService, IDuelGenerationHandler duelHandler, CancellationToken ct) =>
+{
+    var duels = await duelGenService.GenerateDuelsWithGigaChatFromNewsAsync(5, NextDay0630Utc(), ct);
+
+    if (duels.Count == 0)
+    {
+        return Results.Ok(new { Message = "No duels generated" });
+    }
+
+    await duelHandler.HandleAsync(duels, ct);
+
+    return Results.Ok(new { GeneratedDuels = duels.Count });
 });
 
 using (var scope = app.Services.CreateScope())

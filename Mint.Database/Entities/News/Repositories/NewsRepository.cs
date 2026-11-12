@@ -100,6 +100,22 @@ public sealed class NewsRepository(
     }
 
     /// <inheritdoc />
+    public async Task<List<NewsDto>> GetRecentUnprocessedAsync(int limit, string? categoryCode, DateTimeOffset runDate, CancellationToken cancellationToken)
+    {
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var query = await context.News
+            .Where(n => !n.IsProcessed && n.PublishedAt <= runDate)
+            .Where(n => string.IsNullOrEmpty(categoryCode) || n.CategoryCode == categoryCode)
+            .OrderByDescending(n => n.PublishedAt)
+            .Take(limit)
+            .AsNoTracking()
+            .ToListAsync(cancellationToken);
+
+        return query.Select(_mapper.Map).ToList();
+    }
+
+    /// <inheritdoc />
     public async Task MarkAsProcessedAsync(Collection<long> ids, CancellationToken cancellationToken)
     {
         if (ids == null || ids.Count == 0)

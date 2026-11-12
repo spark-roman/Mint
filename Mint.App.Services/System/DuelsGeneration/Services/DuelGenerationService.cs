@@ -14,6 +14,9 @@ using Mint.Database.Entities.System.Prompts.Dto;
 using Mint.Database.Entities.System.Prompts.Repositories;
 using Mint.Database.Entities.UserInteractive.Duels.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
+using Mint.Database.Entities.News.Dto;
+using Mint.Database.Entities.News.Repositories;
+using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 
 namespace Mint.App.Services.System.DuelsGeneration.Services;
 
@@ -214,38 +217,66 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         CancellationToken cancellationToken)
     {
         var scope = _serviceScopeFactory.CreateScope();
-        var newsRepository = scope.ServiceProvider.GetRequiredService<Mint.Database.Entities.News.Repositories.INewsRepository>();
+        var newsRepository = scope.ServiceProvider.GetRequiredService<INewsRepository>();
+        var aiPromptRepository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
+        var categoryRepository = scope.ServiceProvider.GetRequiredService<ICategoryRepository>();
 
-        var unprocessedNews = await newsRepository.GetUnprocessedAsync(50, null, cancellationToken);
+        var activePrompt = await aiPromptRepository.GetPromptAsync(1, cancellationToken)
+            ?? throw new InvalidOperationException("Default AI prompt not found");
 
-        if (unprocessedNews.Count == 0)
+        var categories = await categoryRepository.GetAllActiveForAIAsync(cancellationToken);
+        var allDuels = new List<DuelCreateDto>();
+
+        foreach (var category in categories)
         {
-            _logger.LogInformation("No unprocessed news found for duel generation");
-            return [];
+            var runDate = _timeProvider.GetLocalNow();
+            var unprocessedNews = await newsRepository.GetRecentUnprocessedAsync(count, category.Code, runDate, cancellationToken);
+
+            if (unprocessedNews.Count == 0)
+            {
+                _logger.LogDebug("No unprocessed news found for category '{CategoryCode}'", category.Code);
+                continue;
+            }
+
+            var systemPrompt = _promptsGenerator.GetSystemPrompt(activePrompt, _timeProvider.GetLocalNow());
+            var userPrompt = _promptsGenerator.GetUserPromptFromNews(
+                activePrompt,
+                new Collection<NewsDto>(unprocessedNews),
+                1,
+                categoryName: category.Name,
+                categoryCode: category.Code,
+                categoryDescription: category.Description);
+            var fullPrompt = $"{systemPrompt}\n\n{userPrompt}";
+
+            var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(fullPrompt, count, cancellationToken);
+
+            var validationResult = _duelGenerationValidator.Validate(new Collection<DuelGenerationDto>(gigaChatDuels));
+
+            if (!validationResult.IsValid)
+            {
+                _logger.LogWarning("Validation failed for category '{CategoryCode}': {Message}", category.Code, validationResult.Message);
+                continue;
+            }
+
+            var duelsCreateDtos = gigaChatDuels
+                .Select(d => _duelMapper.Map(d, category.Id, expiresAt))
+                .ToList();
+
+            await newsRepository.MarkAsProcessedAsync(
+                new Collection<long>(unprocessedNews.Select(n => n.Id).ToList()),
+                cancellationToken);
+
+            allDuels.AddRange(duelsCreateDtos);
+
+            _logger.LogInformation(
+                "Generated {Count} duels for category '{CategoryName}' from news",
+                duelsCreateDtos.Count,
+                category.Name);
+
+            break;
         }
 
-        var newsText = string.Join("\n---\n", unprocessedNews.Select(n => $"Title: {n.Title}\nDescription: {n.Description}"));
-
-        var userPrompt = GeneratePromptFromNews(newsText, count);
-
-        var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(userPrompt, count, cancellationToken);
-
-        var validationResult = _duelGenerationValidator.Validate(new Collection<DuelGenerationDto>(gigaChatDuels));
-
-        if (!validationResult.IsValid)
-        {
-            throw new InvalidOperationException($"Duels generation validation failed: {validationResult.Message}");
-        }
-
-        var duelsCreateDtos = gigaChatDuels
-            .Select(d => _duelMapper.Map(d, 0, expiresAt))
-            .ToList();
-
-        await newsRepository.MarkAsProcessedAsync(
-            new Collection<long>(unprocessedNews.Select(n => n.Id).ToList()),
-            cancellationToken);
-
-        return duelsCreateDtos;
+        return allDuels;
     }
 
     private async Task<List<DuelCreateDto>> GenerateDuelsForCategoryWithGigaChatAsync(
@@ -277,24 +308,6 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
             category.Name);
 
         return duelsCreateDtos;
-    }
-
-    private static string GeneratePromptFromNews(string newsText, int count)
-    {
-        return $"""
-            You are an AI assistant that creates engaging opinion duels from news articles.
-            Create {count} duels based on the following news articles.
-
-            NEWS ARTICLES:
-            {newsText}
-
-            For each duel, provide:
-            - Title: A catchy title with emoji
-            - Description: A brief description of the conflict
-            - Options: 2-4 answer variants (e.g., "For", "Against", "Neutral", "Humorous")
-
-            Return the result as a JSON array of objects with fields: Title, Description, Options.
-            """;
     }
 
     private bool _disposed;

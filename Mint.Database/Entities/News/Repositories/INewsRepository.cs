@@ -23,6 +23,9 @@ public interface INewsRepository
     /// <summary>Gets unprocessed news items.</summary>
     Task<List<NewsDto>> GetUnprocessedAsync(int limit, string? categoryCode, CancellationToken cancellationToken);
 
+    /// <summary>Gets recent unprocessed news items published before runDate, ordered by PublishedAt descending.</summary>
+    Task<List<NewsDto>> GetRecentUnprocessedAsync(int limit, string? categoryCode, DateTimeOffset runDate, CancellationToken cancellationToken);
+
     /// <summary>Marks news items as processed.</summary>
     Task MarkAsProcessedAsync(Collection<long> ids, CancellationToken cancellationToken);
 
