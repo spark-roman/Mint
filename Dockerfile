@@ -26,6 +26,18 @@ FROM mcr.microsoft.com/dotnet/aspnet:8.0
 WORKDIR /app
 COPY --from=build /app/publish .
 
+# Сертификаты Минцифры (Russian Trusted CA)
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+    && rm -rf /var/lib/apt/lists/* \
+    && curl -fsSL https://gu-st.ru/content/downloads/Russian_Trusted_Root_CA.cer -o /tmp/Russian_Trusted_Root_CA.cer \
+    && curl -fsSL https://gu-st.ru/content/downloads/Russian_Trusted_Sub_CA.cer -o /tmp/Russian_Trusted_Sub_CA.cer \
+    && curl -fsSL https://gu-st.ru/content/downloads/Russian_Trusted_Sub_CA_2024.cer -o /tmp/Russian_Trusted_Sub_CA_2024.cer \
+    && cp /tmp/Russian_Trusted_Root_CA.cer /usr/local/share/ca-certificates/Russian_Trusted_Root_CA.crt \
+    && cp /tmp/Russian_Trusted_Sub_CA.cer /usr/local/share/ca-certificates/Russian_Trusted_Sub_CA.crt \
+    && cp /tmp/Russian_Trusted_Sub_CA_2024.cer /usr/local/share/ca-certificates/Russian_Trusted_Sub_CA_2024.crt \
+    && update-ca-certificates \
+    && rm -f /tmp/Russian_Trusted_*.cer
+
 # Настройка порта
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
