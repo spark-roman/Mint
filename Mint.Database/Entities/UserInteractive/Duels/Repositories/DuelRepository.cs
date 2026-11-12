@@ -45,6 +45,26 @@ public class DuelRepository(
     }
 
     /// <inheritdoc/>
+    public async Task<int> CreateDuelsAsync(IReadOnlyCollection<DuelCreateDto> dtos, CancellationToken cancellationToken)
+    {
+        if (dtos == null || dtos.Count == 0)
+            return 0;
+
+        await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);
+
+        var entities = dtos.Select(dto =>
+        {
+            var entity = _duelCreateMapper.Map(dto);
+            return entity;
+        }).ToList();
+
+        await context.Duels.AddRangeAsync(entities, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
+
+        return entities.Count;
+    }
+
+    /// <inheritdoc/>
     public async Task<DuelDto?> GetDuelByIdAsync(long duelId, CancellationToken cancellationToken)
     {
         await using var context = await _dbContextFactory.CreateDbContextAsync(cancellationToken);

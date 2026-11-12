@@ -353,6 +353,21 @@ public class MintDbContext : DbContext
             entity.Property(e => e.CategoryCode)
                 .HasMaxLength(50);
 
+            entity.Property(e => e.PublishedAt)
+                .HasConversion(
+                    v => v.UtcDateTime,
+                    v => new DateTimeOffset(v, TimeSpan.Zero));
+
+            entity.Property(e => e.CreatedAt)
+                .HasConversion(
+                    v => v.UtcDateTime,
+                    v => new DateTimeOffset(v, TimeSpan.Zero));
+
+            entity.Property(e => e.ProcessedAt)
+                .HasConversion(
+                    v => v.HasValue ? v.Value.UtcDateTime : (DateTime?)null,
+                    v => v.HasValue ? new DateTimeOffset(v.Value, TimeSpan.Zero) : null);
+
             entity.HasIndex(e => e.Link)
                 .IsUnique()
                 .HasDatabaseName("idx_news_link_unique");
