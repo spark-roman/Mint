@@ -27,7 +27,7 @@ WORKDIR /app
 COPY --from=build /app/publish .
 
 # Сертификаты Минцифры (Russian Trusted CA)
-RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates \
+RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates curl \
     && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL https://gu-st.ru/content/downloads/Russian_Trusted_Root_CA.cer -o /tmp/Russian_Trusted_Root_CA.cer \
     && curl -fsSL https://gu-st.ru/content/downloads/Russian_Trusted_Sub_CA.cer -o /tmp/Russian_Trusted_Sub_CA.cer \
