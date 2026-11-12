@@ -11,13 +11,6 @@ using Mint.App.Services.System.News.Google;
 using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 
-DateTimeOffset NextDay0630Utc()
-{
-    var today = DateTimeOffset.UtcNow.Date;
-    var tomorrow = today.AddDays(1);
-    return new DateTimeOffset(tomorrow.Year, tomorrow.Month, tomorrow.Day, 6, 30, 0, TimeSpan.Zero);
-}
-
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Logging.ClearProviders();
@@ -87,7 +80,9 @@ app.MapPost("/api/news/collect-google", async (IGoogleNewsCollectionHandler coll
 // Duel generation endpoint
 app.MapPost("/api/duels/generate-from-news", async (IDuelGenerationService duelGenService, IDuelGenerationHandler duelHandler, CancellationToken ct) =>
 {
-    var duels = await duelGenService.GenerateDuelsWithGigaChatFromNewsAsync(5, NextDay0630Utc(), ct);
+    var tomorrow = DateTimeOffset.UtcNow.Date.AddDays(1);
+    var expiresAt = new DateTimeOffset(tomorrow.Year, tomorrow.Month, tomorrow.Day, 6, 30, 0, TimeSpan.Zero);
+    var duels = await duelGenService.GenerateDuelsWithGigaChatFromNewsAsync(5, expiresAt, ct);
 
     if (duels.Count == 0)
     {
