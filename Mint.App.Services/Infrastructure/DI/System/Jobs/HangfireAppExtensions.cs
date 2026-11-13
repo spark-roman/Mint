@@ -20,7 +20,6 @@ public static class HangfireAppExtensions
     {
         var jobManager = serviceProvider.GetRequiredService<IRecurringJobManager>();
 
-        // News collection: 06:00 UTC daily
         jobManager.AddOrUpdate(
             "news-collection-job",
             () => serviceProvider.GetRequiredService<NewsCollectionJob>().ExecuteAsync(),
@@ -30,17 +29,15 @@ public static class HangfireAppExtensions
                 TimeZone = TimeZoneInfo.Utc
             });
 
-        // Duel generation: 23:30 MSK = 20:30 UTC daily
-        /*jobManager.AddOrUpdate(
+        jobManager.AddOrUpdate(
             "duel-generation-job",
             () => serviceProvider.GetRequiredService<DuelGenerationJob>().ExecuteAsync(),
-            "30 20 * * *",
+            "30 3 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc
-            });*/
+            });
 
-        // Duel payout pipeline: 04:00 UTC daily
         jobManager.AddOrUpdate(
             "duel-jobs",
             () => serviceProvider.GetRequiredService<DuelPayoutPipelineJob>().ExecuteAsync(),
