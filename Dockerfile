@@ -39,8 +39,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends ca-certificates
     && rm -f /tmp/Russian_Trusted_*.cer
 
 # Настройка порта
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:80
+EXPOSE 80
 
 # Запускаем Mint.Bot.dll
 ENTRYPOINT ["dotnet", "Mint.Bot.dll"]
