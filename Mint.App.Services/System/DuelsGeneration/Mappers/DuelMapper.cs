@@ -37,7 +37,8 @@ public class DuelMapper : IDtoMapper<DuelGenerationDto, DuelCreateDto>
             {
                 OptionText = opt,
                 OptionCode = index.ToString(CultureInfo.InvariantCulture)
-            })]
+            })],
+            NewsId = dto.NewsId
         };
     }
 }

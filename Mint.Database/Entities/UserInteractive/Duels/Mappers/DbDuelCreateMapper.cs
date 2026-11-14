@@ -34,6 +34,7 @@ public class DbDuelCreateMapper : IDbEntityMapper<DuelCreateDto, DuelEntity>
             Description = entity.Description,
             ExpiresAt = entity.ExpiresAt,
             Status = DuelStatus.Active,
+            NewsId = entity.NewsId,
             Options = entity.Options.Select(_optionMapper.Map).ToList()
         };
 

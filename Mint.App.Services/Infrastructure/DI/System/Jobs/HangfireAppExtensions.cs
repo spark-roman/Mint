@@ -32,7 +32,7 @@ public static class HangfireAppExtensions
         jobManager.AddOrUpdate(
             "duel-generation-job",
             () => serviceProvider.GetRequiredService<DuelGenerationJob>().ExecuteAsync(),
-            "30 3 * * *",
+            "0 5 * * *",
             new RecurringJobOptions
             {
                 TimeZone = TimeZoneInfo.Utc

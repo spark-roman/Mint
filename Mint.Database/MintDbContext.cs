@@ -191,6 +191,10 @@ public class MintDbContext : DbContext
             .Property(u => u.Status)
             .HasDefaultValue(DuelStatus.Closed);
 
+        modelBuilder.Entity<DuelEntity>()
+            .Property(d => d.NewsId)
+            .HasColumnName("news_id");
+
         modelBuilder.Entity<DuelOptionEntity>()
             .HasOne(o => o.Duel)
             .WithMany(d => d.Options)

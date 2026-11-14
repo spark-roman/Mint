@@ -2,8 +2,10 @@ using System.Collections.ObjectModel;
 using System.Net.Http.Headers;
 using System.Net.Mime;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using System.Text.Json.Nodes;
+using System.Text.RegularExpressions;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Mint.App.Services.System.DuelsGeneration.Dto;
@@ -23,13 +25,17 @@ public class GigaChatService(
 
     private string? _cachedAccessToken;
     private DateTimeOffset _tokenExpiresAt;
+    private static readonly JsonSerializerOptions _jsonOptions = new()
+    {
+        Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping
+    };
 
     /// <inheritdoc />
-    public async Task<List<DuelGenerationDto>> GenerateDuelsAsync(string userPrompt, int count, CancellationToken cancellationToken)
+    public async Task<List<DuelGenerationDto>> GenerateDuelsAsync(string systemPrompt, string userPrompt, int count, CancellationToken cancellationToken)
     {
         var accessToken = await GetAccessTokenAsync(cancellationToken);
 
-        var requestJson = BuildChatRequest(userPrompt, count);
+        var requestJson = BuildChatRequest(systemPrompt, userPrompt, count);
         using var content = new StringContent(requestJson, Encoding.UTF8, MediaTypeNames.Application.Json);
 
         using var httpRequest = new HttpRequestMessage(HttpMethod.Post, new Uri($"{_settings.BaseUrl}/chat/completions"))
@@ -57,17 +63,54 @@ public class GigaChatService(
 
         var contentText = apiResponse.Choices.First().Message.Content;
 
-        var duels = JsonSerializer.Deserialize<List<DuelGenerationDto>>(contentText);
+        // Clean Markdown code blocks and whitespace
+        contentText = contentText.Trim();
+        contentText = Regex.Replace(contentText, @"^```(?:json)?\s*", "", RegexOptions.IgnoreCase);
+        contentText = Regex.Replace(contentText, @"\s*```$", "", RegexOptions.IgnoreCase);
+        contentText = contentText.Trim();
 
-        return duels ?? [];
+        // Try array first, then single object
+        List<DuelGenerationDto> duels;
+        try
+        {
+            duels = JsonSerializer.Deserialize<List<DuelGenerationDto>>(contentText, _jsonOptions) ?? [];
+        }
+        catch (JsonException ex)
+        {
+            _logger.LogError(ex, "Failed to deserialize GigaChat response as array. Content: {Content}", contentText);
+            // Not an array, try single object
+            try
+            {
+                var single = JsonSerializer.Deserialize<DuelGenerationDto>(contentText, _jsonOptions);
+                duels = single != null ? [single] : [];
+            }
+            catch (JsonException singleEx)
+            {
+                _logger.LogError(singleEx, "Failed to deserialize GigaChat response as single object. Content: {Content}", contentText);
+                duels = [];
+            }
+        }
+
+        if (duels.Count == 0)
+        {
+            _logger.LogWarning("GigaChat returned empty or invalid duels. Raw content: {Content}", contentText);
+            return [];
+        }
+
+        return duels;
     }
 
-    private string BuildChatRequest(string userPrompt, int count)
+    private string BuildChatRequest(string systemPrompt, string userPrompt, int count)
     {
         var root = new JsonObject
         {
             ["model"] = _settings.Model,
             ["messages"] = new JsonArray(
+                new JsonObject
+                {
+                    ["role"] = "system",
+                    ["content"] = systemPrompt
+                },
                 new JsonObject
                 {
                     ["role"] = "user",
