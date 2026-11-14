@@ -246,9 +246,8 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
                 categoryName: category.Name,
                 categoryCode: category.Code,
                 categoryDescription: category.Description);
-            var fullPrompt = $"{systemPrompt}\n\n{userPrompt}";
 
-            var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(fullPrompt, count, cancellationToken);
+            var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(systemPrompt, userPrompt, count, cancellationToken);
 
             var validationResult = _duelGenerationValidator.Validate(new Collection<DuelGenerationDto>(gigaChatDuels));
 
@@ -288,8 +287,7 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         var now = _timeProvider.GetLocalNow();
         var systemPrompt = _promptsGenerator.GetSystemPrompt(prompt, now);
         var userPrompt = _promptsGenerator.GetUserPrompt(prompt, category, count, now);
-        var fullPrompt = $"{systemPrompt}\n\n{userPrompt}";
-        var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(fullPrompt, count, cancellationToken);
+        var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(systemPrompt, userPrompt, count, cancellationToken);
         var expiresAt = new DateTimeOffset(now.Date.AddDays(_gigaChatSettings.DuelExpirationDays).Add(_gigaChatSettings.ExpirationTime), now.Offset);
         var validationResult = _duelGenerationValidator.Validate(new Collection<DuelGenerationDto>(gigaChatDuels));
 

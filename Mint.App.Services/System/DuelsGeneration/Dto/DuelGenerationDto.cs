@@ -36,4 +36,10 @@ public record DuelGenerationDto
     /// </summary>
     [JsonPropertyName("options")]
     public required ICollection<string> Options { get; init; }
+
+    /// <summary>
+    /// Selected news ID (1 ID from the provided list)
+    /// </summary>
+    [JsonPropertyName("news_id")]
+    public long NewsId { get; init; }
 }

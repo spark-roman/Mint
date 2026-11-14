@@ -8,11 +8,12 @@ namespace Mint.App.Services.System.DuelsGeneration.GigaChat;
 public interface IGigaChatService
 {
     /// <summary>
-    /// Generate duels from a user prompt
+    /// Generate duels from system and user prompts
     /// </summary>
-    /// <param name="userPrompt">User prompt content</param>
+    /// <param name="systemPrompt">System prompt with instructions</param>
+    /// <param name="userPrompt">User prompt with content</param>
     /// <param name="count">Expected number of duels</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>List of generated duels</returns>
-    Task<List<DuelGenerationDto>> GenerateDuelsAsync(string userPrompt, int count, CancellationToken cancellationToken);
+    Task<List<DuelGenerationDto>> GenerateDuelsAsync(string systemPrompt, string userPrompt, int count, CancellationToken cancellationToken);
 }

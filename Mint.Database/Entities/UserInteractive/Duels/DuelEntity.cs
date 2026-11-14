@@ -70,6 +70,12 @@ public class DuelEntity
     public DuelStatus Status { get; set; }
 
     /// <summary>
+    /// Source news ID
+    /// </summary>
+    [Column("news_id")]
+    public long? NewsId { get; set; }
+
+    /// <summary>
     /// Available options for this duel
     /// </summary>
     public virtual ICollection<DuelOptionEntity> Options { get; init; } = [];

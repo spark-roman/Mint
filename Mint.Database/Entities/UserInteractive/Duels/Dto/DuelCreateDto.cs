@@ -37,4 +37,9 @@ public record DuelCreateDto
     /// Options for the duel
     /// </summary>
     public required ICollection<DuelOptionCreateDto> Options { get; init; } = [];
+
+    /// <summary>
+    /// Selected news ID (1 ID from the provided list)
+    /// </summary>
+    public long NewsId { get; init; }
 }

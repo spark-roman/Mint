@@ -45,7 +45,7 @@ public partial class PromptsGenerator : IPromptsGenerator
         ArgumentNullException.ThrowIfNull(prompt);
         ArgumentNullException.ThrowIfNull(news);
 
-        var newsArticles = string.Join("\n---\n", news.Select(n => $"Title: {n.Title}\nDescription: {n.Description}"));
+        var newsArticles = string.Join("\n---\n", news.Select(n => $"[ID: {n.Id}] Title: {n.Title}\nDescription: {n.Description}"));
         var template = prompt.UserPromptTemplate;
 
         var result = template

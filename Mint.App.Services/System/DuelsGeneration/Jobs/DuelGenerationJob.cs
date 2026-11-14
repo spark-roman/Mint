@@ -28,7 +28,9 @@ public sealed class DuelGenerationJob(
                 var duelGenerationService = scope.ServiceProvider.GetRequiredService<IDuelGenerationService>();
                 var duelGenerationHandler = scope.ServiceProvider.GetRequiredService<IDuelGenerationHandler>();
 
-                var expiresAt = _timeProvider.GetUtcNow().AddDays(3);
+                var tomorrow = _timeProvider.GetUtcNow().AddDays(1);
+                var expiresAt = new DateTimeOffset(tomorrow.Year, tomorrow.Month, tomorrow.Day, 3, 30, 0, TimeSpan.Zero);
+
                 var duels = await duelGenerationService.GenerateDuelsWithGigaChatFromNewsAsync(5, expiresAt, ct);
 
                 if (duels.Count == 0)
