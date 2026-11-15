@@ -216,6 +216,8 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         DateTimeOffset expiresAt,
         CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Starting duel generation from news: count={Count}, expiresAt={ExpiresAt}", count, expiresAt);
+
         var scope = _serviceScopeFactory.CreateScope();
         var newsRepository = scope.ServiceProvider.GetRequiredService<INewsRepository>();
         var aiPromptRepository = scope.ServiceProvider.GetRequiredService<IAiPromptRepository>();
@@ -224,17 +226,25 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
         var activePrompt = await aiPromptRepository.GetPromptAsync(1, cancellationToken)
             ?? throw new InvalidOperationException("Default AI prompt not found");
 
+        _logger.LogInformation("Loaded prompt id={PromptId}, categories count={CategoryCount}", activePrompt.Id, activePrompt.Categories?.ToList().Count ?? 0);
+
         var categories = await categoryRepository.GetAllActiveForAIAsync(cancellationToken);
+        _logger.LogInformation("Found {Count} active categories for AI", categories.Count);
+
         var allDuels = new List<DuelCreateDto>();
 
         foreach (var category in categories)
         {
+            _logger.LogInformation("Processing category: code={CategoryCode}, name={CategoryName}", category.Code, category.Name);
+
             var runDate = _timeProvider.GetLocalNow();
             var unprocessedNews = await newsRepository.GetRecentUnprocessedAsync(count, category.Code, runDate, cancellationToken);
 
+            _logger.LogInformation("Category '{CategoryCode}': found {NewsCount} unprocessed news", category.Code, unprocessedNews.Count);
+
             if (unprocessedNews.Count == 0)
             {
-                _logger.LogDebug("No unprocessed news found for category '{CategoryCode}'", category.Code);
+                _logger.LogWarning("No unprocessed news found for category '{CategoryCode}', skipping", category.Code);
                 continue;
             }
 
@@ -247,7 +257,11 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
                 categoryCode: category.Code,
                 categoryDescription: category.Description);
 
+            _logger.LogDebug("Generated user prompt for category '{CategoryCode}' (length={Length})", category.Code, userPrompt.Length);
+
             var gigaChatDuels = await _gigaChatService.GenerateDuelsAsync(systemPrompt, userPrompt, count, cancellationToken);
+
+            _logger.LogInformation("GigaChat returned {DuelCount} duels for category '{CategoryCode}'", gigaChatDuels.Count, category.Code);
 
             var validationResult = _duelGenerationValidator.Validate(new Collection<DuelGenerationDto>(gigaChatDuels));
 
@@ -272,6 +286,9 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
                 duelsCreateDtos.Count,
                 category.Name);
         }
+
+        _logger.LogInformation("Duel generation complete: total={TotalDuels}, processedCategories={ProcessedCategories}",
+            allDuels.Count, categories.Count);
 
         return allDuels;
     }
