@@ -271,8 +271,6 @@ public class DuelGenerationService : IDuelGenerationService, IDisposable
                 "Generated {Count} duels for category '{CategoryName}' from news",
                 duelsCreateDtos.Count,
                 category.Name);
-
-            break;
         }
 
         return allDuels;
