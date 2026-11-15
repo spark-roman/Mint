@@ -33,6 +33,12 @@ public class GigaChatService(
     /// <inheritdoc />
     public async Task<List<DuelGenerationDto>> GenerateDuelsAsync(string systemPrompt, string userPrompt, int count, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(systemPrompt);
+        ArgumentNullException.ThrowIfNull(userPrompt);
+
+        _logger.LogInformation("GigaChat: starting duel generation, requested={Count} duels, systemPromptLength={SystemLength}, userPromptLength={UserLength}",
+            count, systemPrompt.Length, userPrompt.Length);
+
         var accessToken = await GetAccessTokenAsync(cancellationToken);
 
         var requestJson = BuildChatRequest(systemPrompt, userPrompt, count);
@@ -46,6 +52,8 @@ public class GigaChatService(
 
         using var response = await _httpClient.SendAsync(httpRequest, cancellationToken);
 
+        _logger.LogInformation("GigaChat: received response, status={StatusCode}", response.StatusCode);
+
         if (!response.IsSuccessStatusCode)
         {
             var errorBody = await response.Content.ReadAsStringAsync(cancellationToken);
@@ -58,10 +66,12 @@ public class GigaChatService(
 
         if (apiResponse?.Choices is null or { Count: 0 })
         {
+            _logger.LogWarning("GigaChat: no choices returned in response");
             throw new InvalidOperationException("No choices returned from GigaChat");
         }
 
         var contentText = apiResponse.Choices.First().Message.Content;
+        _logger.LogInformation("GigaChat: received content length={Length}", contentText.Length);
 
         // Clean Markdown code blocks and whitespace
         contentText = contentText.Trim();
@@ -93,9 +103,11 @@ public class GigaChatService(
 
         if (duels.Count == 0)
         {
-            _logger.LogWarning("GigaChat returned empty or invalid duels. Raw content: {Content}", contentText);
+            _logger.LogWarning("GigaChat: deserialized 0 duels. Raw content: {Content}", contentText);
             return [];
         }
+
+        _logger.LogInformation("GigaChat: successfully generated {Count} duels", duels.Count);
 
         return duels;
     }
