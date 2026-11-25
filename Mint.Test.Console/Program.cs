@@ -4,17 +4,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Mint.App.Services.Infrastructure.DI;
 using Mint.App.Services.System.Bot.Dto;
-using Mint.App.Services.System.Bot.Handlers.Commands;
-using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Services;
-using Mint.App.Services.System.News.Handlers;
-using Mint.Common.Contracts.Bot.Commands;
 using Mint.Database;
 using Mint.Database.Infrastructure.DI;
-using Mint.Database.Infrastructure.DI.Design;
-using Telegram.Bot.Types;
 
 DateTimeOffset NextDay0630Utc()
 {

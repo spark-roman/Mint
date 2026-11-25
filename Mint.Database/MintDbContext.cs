@@ -195,6 +195,10 @@ public class MintDbContext : DbContext
             .Property(d => d.NewsId)
             .HasColumnName("news_id");
 
+        modelBuilder.Entity<DuelEntity>()
+            .HasIndex(d => d.NewsId)
+            .HasDatabaseName("idx_duels_news_id");
+
         modelBuilder.Entity<DuelOptionEntity>()
             .HasOne(o => o.Duel)
             .WithMany(d => d.Options)

@@ -34,13 +34,18 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<ICommandHandler, NumberInputCommandHandler>(TgCommandType.NumberInput);
         services.AddKeyedScoped<ICommandHandler, ReferralCommandHandler>(TgCommandType.Referral);
 
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CategorySelection);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.DuelSelection);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Vote);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.BetPlacement);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Cancel);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.Share);
-        services.AddKeyedScoped<IButtonHandler, ButtonClickHandler>(TgCommandType.CallbackNavigation);
+        services.AddKeyedScoped<IButtonHandler, NavigationButtonHandler>(TgCommandType.MainMenu);
+        services.AddKeyedScoped<IButtonHandler, NavigationButtonHandler>(TgCommandType.Profile);
+        services.AddKeyedScoped<IButtonHandler, NavigationButtonHandler>(TgCommandType.Duels);
+        services.AddKeyedScoped<IButtonHandler, NavigationButtonHandler>(TgCommandType.Referral);
+        services.AddKeyedScoped<IButtonHandler, NavigationButtonHandler>(TgCommandType.Leaderboard);
+        services.AddKeyedScoped<IButtonHandler, CategorySelectionButtonHandler>(TgCommandType.CategorySelection);
+        services.AddKeyedScoped<IButtonHandler, VoteButtonHandler>(TgCommandType.Vote);
+        services.AddKeyedScoped<IButtonHandler, BetButtonHandler>(TgCommandType.BetPlacement);
+        services.AddKeyedScoped<IButtonHandler, CancelButtonHandler>(TgCommandType.Cancel);
+        services.AddKeyedScoped<IButtonHandler, BonusButtonHandler>(TgCommandType.ClaimBonus);
+        services.AddKeyedScoped<IButtonHandler, ShareButtonHandler>(TgCommandType.Share);
+        services.AddKeyedScoped<IButtonHandler, CallbackNavigationButtonHandler>(TgCommandType.CallbackNavigation);
 
         services.AddScoped<ICommandHandlerFactory, CommandHandlerFactory>();
         services.AddScoped<IButtonHandlerFactory, ButtonHandlerFactory>();
