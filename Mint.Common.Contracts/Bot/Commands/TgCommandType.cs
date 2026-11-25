@@ -94,9 +94,14 @@ public enum TgCommandType
     Cancel = 34,
 
     /// <summary>
+    /// Duel history command - handles duel history display.
+    /// </summary>
+    DuelHistory = 35,
+
+    /// <summary>
     /// Share command - handles share/invite actions.
     /// </summary>
-    Share = 35,
+    Share = 36,
 
     // ========== Вводные команды (40-49) ==========
     
