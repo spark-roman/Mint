@@ -16,7 +16,7 @@ using Telegram.Bot.Types;
 namespace Mint.UnitTests.AppServices.System.Bot;
 
 /// <summary>
-/// Tests for <see cref="ButtonClickHandler"/> using DI and EF Core.
+/// Tests for button handlers using DI and EF Core.
 /// </summary>
 public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>, IDisposable
 {
@@ -45,7 +45,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "main_menu", _updateCommandDto, CancellationToken.None);
@@ -72,7 +72,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "profile", _updateCommandDto, CancellationToken.None);
@@ -99,7 +99,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "duels", _updateCommandDto, CancellationToken.None);
@@ -126,7 +126,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "referral", _updateCommandDto, CancellationToken.None);
@@ -153,7 +153,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "nonexistent_scenario", _updateCommandDto, CancellationToken.None);
@@ -176,7 +176,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.ClaimBonus);
 
         // Act
         var result = await handler.HandleAsync(1001, "claim_bonus", _updateCommandDto, CancellationToken.None);
@@ -195,7 +195,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.ClaimBonus);
 
         // Act
         var result = await handler.HandleAsync(1001, "claim_bonus", _updateCommandDto, CancellationToken.None);
@@ -218,7 +218,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
@@ -241,7 +241,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_tech", _updateCommandDto, CancellationToken.None);
@@ -262,7 +262,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_sports", _updateCommandDto, CancellationToken.None);
@@ -283,7 +283,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -314,7 +314,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
@@ -333,7 +333,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
@@ -352,7 +352,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
@@ -373,7 +373,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_crypto", _updateCommandDto, CancellationToken.None);
@@ -393,7 +393,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "duels", _updateCommandDto, CancellationToken.None);
@@ -418,7 +418,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
 
         // Act
         var result = await handler.HandleAsync(1001, "category_nonexistent", _updateCommandDto, CancellationToken.None);
@@ -437,7 +437,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.CategorySelection);
         var categoryRepository = _currentScope.ServiceProvider.GetRequiredService<ICategoryRepository>();
 
         // Add a category without duels
@@ -641,7 +641,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
         var transactionRepository = _currentScope.ServiceProvider.GetRequiredService<Mint.Database.Entities.Ledger.Transactions.Repositories.ITransactionRepository>();
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
@@ -671,7 +671,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
         var voteRepository = _currentScope.ServiceProvider.GetRequiredService<IVoteRepository>();
 
         // Act
@@ -691,7 +691,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
         var accountRepository = _currentScope.ServiceProvider.GetRequiredService<IAccountRepository>();
 
         var account = await accountRepository.GetAccountByExternalUserIdAsync(1002, (byte)AuthSystem.Tg, CancellationToken.None);
@@ -718,7 +718,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act — amount 2000 is within bet limits but exceeds Bob's balance (1500.50)
         var result = await handler.HandleAsync(1002, "bet_1_1_2000", _updateCommandDto, CancellationToken.None);
@@ -741,7 +741,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act
         var result = await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
@@ -760,7 +760,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act
         var result = await handler.HandleAsync(1002, "bet_1_1_100", _updateCommandDto, CancellationToken.None);
@@ -783,7 +783,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act — amount 5 is below the configured minimum of 10
         var result = await handler.HandleAsync(1002, "bet_1_1_5", _updateCommandDto, CancellationToken.None);
@@ -802,7 +802,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act — amount 50000 is above the configured maximum of 10000
         var result = await handler.HandleAsync(1002, "bet_1_1_50000", _updateCommandDto, CancellationToken.None);
@@ -825,7 +825,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act
         var result = await handler.HandleAsync(1001, "bet_invalid", _updateCommandDto, CancellationToken.None);
@@ -844,7 +844,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.BetPlacement);
 
         // Act
         var result = await handler.HandleAsync(1001, "bet_abc_def_ghi", _updateCommandDto, CancellationToken.None);
@@ -867,7 +867,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -904,7 +904,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -948,7 +948,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
 
         // Act
         var result = await handler.HandleAsync(1001, "cancel_invalid", _updateCommandDto, CancellationToken.None);
@@ -967,7 +967,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
 
         // Act
         var result = await handler.HandleAsync(1001, "cancel_abc", _updateCommandDto, CancellationToken.None);
@@ -986,7 +986,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
 
         // Act
         var result = await handler.HandleAsync(99999, "cancel_1", _updateCommandDto, CancellationToken.None);
@@ -1005,7 +1005,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Cancel);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -1074,7 +1074,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "", _updateCommandDto, CancellationToken.None);
@@ -1097,7 +1097,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -1126,7 +1126,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -1168,7 +1168,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
         var sessionRepository = _currentScope.ServiceProvider.GetRequiredService<IUserSessionRepository>();
         var scenarioRepository = _currentScope.ServiceProvider.GetRequiredService<IScenarioRepository>();
 
@@ -1210,7 +1210,7 @@ public class ButtonClickHandlerTests : IClassFixture<ButtonClickHandlerFixtures>
         // Arrange
         await _fixture.ResetAsync();
         _currentScope = _fixture.ServiceProvider.CreateScope();
-        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.Vote);
+        var handler = _currentScope.ServiceProvider.GetRequiredKeyedService<IButtonHandler>(TgCommandType.MainMenu);
 
         // Act
         var result = await handler.HandleAsync(1001, "unknown_action_xyz", _updateCommandDto, CancellationToken.None);
