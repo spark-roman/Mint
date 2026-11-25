@@ -3,6 +3,7 @@ using Mint.App.Services.System.Bot.Handlers.Buttons;
 using Mint.App.Services.System.Bot.Handlers.Commands;
 using Mint.App.Services.System.Bot.Handlers.Messages;
 using Mint.App.Services.System.Bot.Handlers.Router;
+using Mint.App.Services.UserInteractive.Duels.Handlers;
 using Mint.Common.Contracts.Bot.Commands;
 
 namespace Mint.App.Services.Infrastructure.DI.System.Bot;
@@ -43,6 +44,7 @@ public static class BotCommandExtensions
         services.AddKeyedScoped<IButtonHandler, VoteButtonHandler>(TgCommandType.Vote);
         services.AddKeyedScoped<IButtonHandler, BetButtonHandler>(TgCommandType.BetPlacement);
         services.AddKeyedScoped<IButtonHandler, CancelButtonHandler>(TgCommandType.Cancel);
+        services.AddKeyedScoped<IButtonHandler, DuelHistoryButtonHandler>(TgCommandType.DuelHistory);
         services.AddKeyedScoped<IButtonHandler, BonusButtonHandler>(TgCommandType.ClaimBonus);
         services.AddKeyedScoped<IButtonHandler, ShareButtonHandler>(TgCommandType.Share);
         services.AddKeyedScoped<IButtonHandler, CallbackNavigationButtonHandler>(TgCommandType.CallbackNavigation);
