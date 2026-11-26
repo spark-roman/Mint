@@ -5,7 +5,7 @@ using Mint.App.Services.System.News.Handlers;
 namespace Mint.App.Services.System.News.Jobs;
 
 /// <summary>
-/// Hangfire job for collecting news from RSS sources, Tavily API, and GNews API.
+/// Hangfire job for collecting news from GNews API.
 /// </summary>
 public sealed class NewsCollectionJob(
     IGoogleNewsCollectionHandler googleHandler,

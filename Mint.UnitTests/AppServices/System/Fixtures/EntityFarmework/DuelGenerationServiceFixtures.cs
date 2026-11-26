@@ -2,6 +2,7 @@ using System.Net;
 using System.Text;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Mint.App.Services.Infrastructure.DI.System;
 using Mint.App.Services.System.DuelsGeneration;
 using Mint.App.Services.System.DuelsGeneration.Dto;
@@ -32,20 +33,26 @@ public sealed class DuelGenerationServiceFixture : IDisposable
 
         var services = new ServiceCollection();
 
-        services.RegisterDatabaseServices();
-        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
-
         services.AddEntityFrameworkInMemoryDatabase();
         services.AddDbContextFactory<MintDbContext>(options => options.UseInMemoryDatabase(_databaseName));
 
-        services.AddSingleton(new DeepSeekSettings
-        {
-            DeepSeekApiUrl = new Uri("https://api.deepseek.com/v1"),
-            Token = "test-token"
-        });
-
+        // Register mock HttpClient BEFORE RegisterAppServices so it takes precedence
         _httpClientHandler = new MockHttpMessageHandler();
         services.RegisterDeepSeekHttpClient(new HttpClient(_httpClientHandler));
+
+        // Register DeepSeekSettings via IOptions (what the service actually consumes)
+        services.AddSingleton<IOptions<DeepSeekSettings>>(sp =>
+        {
+            var settings = new DeepSeekSettings
+            {
+                DeepSeekApiUrl = new Uri("https://api.deepseek.com/v1"),
+                Token = "test-token"
+            };
+            return Options.Create(settings);
+        });
+
+        services.RegisterDatabaseServices();
+        services.RegisterAppServices(new Microsoft.Extensions.Configuration.ConfigurationBuilder().Build());
 
         _serviceProvider = services.BuildServiceProvider();
 

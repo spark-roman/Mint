@@ -6,8 +6,8 @@ using Mint.Database.Infrastructure.DI;
 using Mint.App.Services.Infrastructure.DI.System.Hangfire;
 using Hangfire;
 using Mint.App.Services.Infrastructure.DI.System.Jobs;
-using Mint.App.Services.System.News.Handlers;
 using Mint.App.Services.System.News.Google;
+using Mint.App.Services.System.News.Handlers;
 using Mint.App.Services.System.DuelsGeneration.Services;
 using Mint.App.Services.System.DuelsGeneration.Handlers;
 
@@ -51,19 +51,6 @@ await app.ApplyMigrations();
 app.UseHangfireDashboard("/hangfire");
 
 // News generation endpoints
-app.MapPost("/api/news/collect", async (ITavilyNewsCollectionHandler collector, CancellationToken ct) =>
-{
-    var result = await collector.CollectAsync(ct);
-    return Results.Ok(new
-    {
-        result.TotalFetched,
-        result.NewSaved,
-        result.SkippedDuplicates,
-        result.FailedSources,
-        result.Errors
-    });
-});
-
 app.MapPost("/api/news/collect-google", async (IGoogleNewsCollectionHandler collector, CancellationToken ct) =>
 {
     var result = await collector.CollectAsync(ct);

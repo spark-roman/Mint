@@ -181,8 +181,8 @@ public class GoogleNewsCollectionHandlerTests
         _mockGoogleNewsClient.Setup(c => c.SearchAsync("ai", "ai", CancellationToken.None))
             .ReturnsAsync(newsItems);
 
-        // Simulate 1 existing link
-        var existingLinks = new HashSet<string> { "https://example.com/1" };
+        // Simulate 1 existing link (normalized - host uppercase)
+        var existingLinks = new HashSet<string> { "https://EXAMPLE.COM/1" };
         _mockNewsRepository.Setup(r => r.GetLinksSinceAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(existingLinks);
 
@@ -217,7 +217,7 @@ public class GoogleNewsCollectionHandlerTests
             .ReturnsAsync(newsItems);
 
         _mockNewsRepository.Setup(r => r.GetLinksSinceAsync(It.IsAny<DateTimeOffset>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new HashSet<string> { "https://example.com/1" });
+            .ReturnsAsync(new HashSet<string> { "https://EXAMPLE.COM/1" });
 
         // Act
         var result = await _handler.CollectAsync(CancellationToken.None);

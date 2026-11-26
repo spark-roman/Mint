@@ -46,7 +46,7 @@ public sealed record NewsCreateDto
     public required DateTimeOffset PublishedAt { get; init; }
 
     /// <summary>
-    /// Relevance score from Tavily API (0.0 - 1.0, higher = more relevant)
+    /// Relevance score (0.0 - 1.0, higher = more relevant)
     /// </summary>
     public double? RelevanceScore { get; init; }
 }

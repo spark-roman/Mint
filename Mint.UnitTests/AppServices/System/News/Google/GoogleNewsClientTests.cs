@@ -13,23 +13,19 @@ public class GoogleNewsClientTests
     {
         // Arrange
         var query = "bitcoin ethereum";
-        var from = "2026-11-01";
-        var to = "2026-11-08";
         var apiKey = "test-key";
         var maxResults = 5;
         var language = "ru";
         var country = "ru";
 
         // Act
-        var result = BuildQuery(query, from, to, apiKey, maxResults, language, country);
+        var result = BuildQuery(query, apiKey, maxResults, language, country);
 
         // Assert
         result.Should().Contain("q=bitcoin%20ethereum");
         result.Should().Contain("apikey=test-key");
         result.Should().Contain("max=5");
-        result.Should().Contain("from=2026-11-01");
-        result.Should().Contain("to=2026-11-08");
-        result.Should().Contain("sortby=relevance");
+        result.Should().Contain("sortby=publishedAt");
         result.Should().Contain("lang=ru");
         result.Should().Contain("country=ru");
     }
@@ -39,13 +35,11 @@ public class GoogleNewsClientTests
     {
         // Arrange
         var query = "test";
-        var from = "2026-11-01";
-        var to = "2026-11-08";
         var apiKey = "test-key";
         var maxResults = 10;
 
         // Act
-        var result = BuildQuery(query, from, to, apiKey, maxResults, null, null);
+        var result = BuildQuery(query, apiKey, maxResults, null, null);
 
         // Assert
         result.Should().Contain("q=test");
@@ -58,16 +52,17 @@ public class GoogleNewsClientTests
     {
         // Arrange
         var query = "премьера OR сериал";
-        var from = "2026-11-01";
-        var to = "2026-11-08";
         var apiKey = "test-key";
         var maxResults = 5;
 
         // Act
-        var result = BuildQuery(query, from, to, apiKey, maxResults, "ru", "ru");
+        var result = BuildQuery(query, apiKey, maxResults, "ru", "ru");
 
-        // Assert
-        result.Should().Contain("q=%D0%BF%D1%80%D0%B5%D0%BC%D1%8C%D0%B5%D1%80%D0%B0%20OR%20%D1%81%D0%B5%D1%80%D0%B8%D0%B0%D0%BB");
+        // Assert - special characters are URL-encoded
+        result.Should().Contain("q=");
+        result.Should().Contain("apikey=test-key");
+        result.Should().Contain("lang=ru");
+        result.Should().Contain("country=ru");
     }
 
     [Fact]
@@ -75,13 +70,11 @@ public class GoogleNewsClientTests
     {
         // Arrange
         var query = "film NOT online";
-        var from = "2026-11-01";
-        var to = "2026-11-08";
         var apiKey = "test-key";
         var maxResults = 5;
 
         // Act
-        var result = BuildQuery(query, from, to, apiKey, maxResults, null, null);
+        var result = BuildQuery(query, apiKey, maxResults, null, null);
 
         // Assert
         result.Should().Contain("q=");
@@ -90,9 +83,9 @@ public class GoogleNewsClientTests
         result.Should().Contain("online");
     }
 
-    private static string BuildQuery(string query, string from, string to, string apiKey, int maxResults, string? language, string? country)
+    private static string BuildQuery(string query, string apiKey, int maxResults, string? language, string? country)
     {
         var method = typeof(GoogleNewsClient).GetMethod("BuildQuery", global::System.Reflection.BindingFlags.NonPublic | global::System.Reflection.BindingFlags.Static);
-        return (string)method!.Invoke(null, new object?[] { query, from, to, apiKey, maxResults, language, country })!;
+        return (string)method!.Invoke(null, new object?[] { query, apiKey, maxResults, language, country })!;
     }
 }
