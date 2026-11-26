@@ -5,9 +5,9 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Mint.App.Services.System.News.Dto;
 using Mint.App.Services.System.News.Google;
-using Mint.App.Services.System.News.Tavily;
 using Mint.Database.Entities.News.Dto;
 using Mint.Database.Entities.News.Repositories;
+using Mint.Database.Entities.UserInteractive.UserCategories.Dto;
 using Mint.Database.Entities.UserInteractive.UserCategories.Repositories;
 
 namespace Mint.App.Services.System.News.Handlers;
@@ -60,7 +60,7 @@ public sealed class GoogleNewsCollectionHandler(
         {
             try
             {
-                var query = TavilyQueryGenerator.GenerateQuery(category);
+                var query = GenerateSearchQuery(category);
                 _logger.LogDebug("Searching news for category '{CategoryCode}' with query: {Query}", category.Code, query);
 
                 var newsItems = await _googleNewsClient.SearchAsync(query, category.Code, cancellationToken);
@@ -111,5 +111,16 @@ public sealed class GoogleNewsCollectionHandler(
             result.FailedSources);
 
         return result;
+    }
+
+    /// <summary>
+    /// Generates a search query from category SearchKeywords.
+    /// </summary>
+    private static string GenerateSearchQuery(CategoryDto category)
+    {
+        if (string.IsNullOrWhiteSpace(category.SearchKeywords))
+            throw new InvalidOperationException($"No search keywords found for category '{category.Code}'");
+
+        return string.Join(" ", category.SearchKeywords.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries));
     }
 }
